@@ -7,7 +7,7 @@ function CtaBanner() {
         <div className="cta-banner__text">
           <h2 className="cta-banner__title">Ready to modernise your campus?</h2>
           <p className="cta-banner__sub">
-            Join UniSphere and bring order to bookings, assets, and maintenance —
+            Join UniSphere and bring order to bookings, assets, and maintenance -
             all under one secure roof.
           </p>
         </div>
