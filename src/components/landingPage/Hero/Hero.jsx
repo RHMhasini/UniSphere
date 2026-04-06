@@ -24,7 +24,7 @@ function Hero() {
           {/* Subheadline */}
           <p className="hero__sub">
             UniSphere brings facility bookings, asset management, and maintenance
-            ticketing into a single, secure, role-driven hub — built for modern
+            ticketing into a single, secure, role-driven hub - built for modern
             universities.
           </p>
 
