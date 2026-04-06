@@ -14,7 +14,7 @@ const features = [
     ),
     title: "Facility & Asset Bookings",
     desc: "Reserve lecture halls, labs, meeting rooms, and equipment with conflict detection and an admin approval workflow.",
-    tag: "Module A & B",
+    tag: "",
   },
   {
     icon: (
