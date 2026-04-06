@@ -67,55 +67,7 @@ function Hero() {
           </div>
         </div>
 
-        {/* Dashboard mockup — right side */}
-        <div className="hero__mockup" aria-hidden="true">
-          <div className="hero__mockup-bar">
-            <span></span><span></span><span></span>
-            <div className="hero__mockup-url">unisphere.edu/dashboard</div>
-          </div>
-          <div className="hero__mockup-body">
-            <div className="hero__mockup-sidebar">
-              <div className="hero__mock-item hero__mock-item--active">Dashboard</div>
-              <div className="hero__mock-item">Bookings</div>
-              <div className="hero__mock-item">Facilities</div>
-              <div className="hero__mock-item">Tickets</div>
-              <div className="hero__mock-item">Users</div>
-            </div>
-            <div className="hero__mockup-main">
-              <div className="hero__mock-stat-row">
-                <div className="hero__mock-stat">
-                  <div className="hero__mock-stat-num">24</div>
-                  <div className="hero__mock-stat-label">Bookings Today</div>
-                </div>
-                <div className="hero__mock-stat">
-                  <div className="hero__mock-stat-num">8</div>
-                  <div className="hero__mock-stat-label">Open Tickets</div>
-                </div>
-                <div className="hero__mock-stat">
-                  <div className="hero__mock-stat-num">142</div>
-                  <div className="hero__mock-stat-label">Resources</div>
-                </div>
-              </div>
-              <div className="hero__mock-table">
-                <div className="hero__mock-row hero__mock-row--head">
-                  <span>Resource</span><span>Status</span><span>Time</span>
-                </div>
-                {[
-                  { name: "Lab A-101",      status: "APPROVED", color: "#16a34a" },
-                  { name: "Board Room 3",   status: "PENDING",  color: "#d97706" },
-                  { name: "Projector #07",  status: "APPROVED", color: "#16a34a" },
-                  { name: "Lecture Hall B", status: "REJECTED", color: "#dc2626" },
-                ].map((r, i) => (
-                  <div className="hero__mock-row" key={i}>
-                    <span>{r.name}</span>
-                    <span style={{ color: r.color, fontWeight: 600, fontSize: "0.75rem" }}>{r.status}</span>
-                    <span>09:{String(i * 15).padStart(2, "0")} AM</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
+
       </div>
 
       {/* Scroll indicator */}
