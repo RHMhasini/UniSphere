@@ -4,7 +4,7 @@ const steps = [
   {
     num: "01",
     title: "Sign In with Google",
-    desc: "Authenticate securely via OAuth 2.0. Your role (User, Admin, or Technician) is assigned automatically based on your university account.",
+    desc: "Authenticate securely via OAuth 2.0. Your role is assigned automatically based on your university account.",
   },
   {
     num: "02",
