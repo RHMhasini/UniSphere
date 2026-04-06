@@ -24,7 +24,7 @@ const features = [
     ),
     title: "Maintenance & Incident Ticketing",
     desc: "Submit fault reports with image evidence, track resolution progress, and assign technicians — all in one place.",
-    tag: "Module C",
+    tag: "",
   },
   {
     icon: (
@@ -35,7 +35,7 @@ const features = [
     ),
     title: "Real-time Notifications",
     desc: "Stay updated with instant alerts for booking approvals, ticket status changes, and new comments — direct in your dashboard.",
-    tag: "Module D",
+    tag: "",
   },
   {
     icon: (
@@ -46,7 +46,7 @@ const features = [
     ),
     title: "Secure Role-Based Access",
     desc: "Enable sign-in with granular roles to provide tailored access and permissions.",
-    tag: "Module E",
+    tag: "",
   },
 ];
 
