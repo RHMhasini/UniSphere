@@ -45,7 +45,7 @@ const features = [
       </svg>
     ),
     title: "Secure Role-Based Access",
-    desc: "OAuth 2.0 Google sign-in with granular roles — USER, ADMIN, and TECHNICIAN — so everyone sees exactly what they need.",
+    desc: "Enable sign-in with granular roles to provide tailored access and permissions.",
     tag: "Module E",
   },
 ];
