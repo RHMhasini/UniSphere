@@ -1,24 +1,41 @@
+import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Pages
+import LandingPage from "./pages/landingPage/LandingPage";
 import CreateBookingPage from './pages/CreateBookingPage';
 import MyBookingsPage from './pages/MyBookingsPage';
 import BookingDetailPage from './pages/BookingDetailPage';
 import AdminBookingsPage from './pages/AdminBookingsPage';
 
+import "./index.css";
+
 function App() {
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("theme") || "light";
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
+
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-transparent transition-colors duration-300">
           <Navbar />
           <main>
             <Routes>
-              {/* Redirect root to my bookings */}
-              <Route path="/" element={<Navigate to="/my-bookings" replace />} />
+              {/* Root route is the Landing Page */}
+              <Route path="/" element={<LandingPage theme={theme} toggleTheme={toggleTheme} />} />
               
               <Route path="/booking/create" element={
                 <ProtectedRoute>
@@ -45,7 +62,7 @@ function App() {
               } />
 
               {/* Catch-all route */}
-              <Route path="*" element={<Navigate to="/my-bookings" replace />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
         </div>
