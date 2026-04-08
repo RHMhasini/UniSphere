@@ -109,3 +109,57 @@ img {
 ::-webkit-scrollbar-track { background: var(--bg-secondary); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ── Top Navigation Bar ─────────────────────────────── */
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 60px;
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--nav-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.top-nav__logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.2rem;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  letter-spacing: -0.02em;
+}
+
+.top-nav__links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-nav__links button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.top-nav__links button:hover {
+  background: var(--bg-card-hover);
+  color: var(--accent);
+}
+
+.top-nav__theme {
+  font-size: 1.1rem !important;
+  padding: 6px 10px !important;
+}
