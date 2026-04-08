@@ -24,6 +24,11 @@ public interface AuthService {
     UserProfileResponse updateProfile(String email, UpdateProfileRequest request);
 
     /**
+     * Update notification preferences
+     */
+    UserProfileResponse updatePreferences(String email, java.util.Map<String, Boolean> preferences);
+
+    /**
      * Submit additional registration details
      */
     UserProfileResponse submitAdditionalDetails(String email, RegisterDetailsRequest request);

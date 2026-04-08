@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import OAuth2RedirectHandler from "./pages/OAuth2RedirectHandler";
 import RegisterDetails from "./pages/RegisterDetails";
 import RegisterPending from "./pages/RegisterPending";
+import RegisterRejected from "./pages/RegisterRejected";
 import Dashboard from "./pages/dashboard/Dashboard";
 import DashboardHome from "./pages/dashboard/Home/DashboardHome";
 import UserManagement from "./pages/dashboard/UserManagement/UserManagement";
@@ -52,6 +53,11 @@ function App() {
                 <RegisterPending />
               </ProtectedRoute>
             } />
+            <Route path="/register/rejected" element={
+              <ProtectedRoute>
+                <RegisterRejected />
+              </ProtectedRoute>
+            } />
             <Route path="/access-denied" element={<AccessDenied />} />
             
             {/* Protected Dashboard Routes */}
@@ -66,11 +72,7 @@ function App() {
                   <UserManagement />
                 </ProtectedRoute>
               } />
-              <Route path="notifications" element={
-                <ProtectedRoute roles={['ADMIN']}>
-                  <NotificationsPage />
-                </ProtectedRoute>
-              } />
+              <Route path="notifications" element={<NotificationsPage />} />
               <Route path="analytics" element={
                 <ProtectedRoute roles={['ADMIN']}>
                   <Analytics />

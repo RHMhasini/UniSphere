@@ -1,7 +1,9 @@
 package com.unisphere.entity;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -70,6 +72,8 @@ public class User {
 
     private Set<String> notificationIds = new HashSet<>();
 
+    private Map<String, Boolean> notificationPreferences = new HashMap<>();
+
     public User() {
     }
 
@@ -88,7 +92,8 @@ public class User {
             LocalDateTime createdAt,
             LocalDateTime updatedAt,
             LocalDateTime lastLogin,
-            Set<String> notificationIds
+            Set<String> notificationIds,
+            Map<String, Boolean> notificationPreferences
     ) {
         this.id = id;
         this.fullName = fullName;
@@ -105,6 +110,7 @@ public class User {
         this.updatedAt = updatedAt;
         this.lastLogin = lastLogin;
         this.notificationIds = notificationIds != null ? notificationIds : new HashSet<>();
+        this.notificationPreferences = notificationPreferences != null ? notificationPreferences : new HashMap<>();
     }
 
     public String getId() {
@@ -321,6 +327,14 @@ public class User {
 
     public void setNotificationIds(Set<String> notificationIds) {
         this.notificationIds = notificationIds;
+    }
+
+    public Map<String, Boolean> getNotificationPreferences() {
+        return notificationPreferences;
+    }
+
+    public void setNotificationPreferences(Map<String, Boolean> notificationPreferences) {
+        this.notificationPreferences = notificationPreferences;
     }
 
     @Override

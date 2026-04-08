@@ -21,6 +21,8 @@ public class RegisterDetailsRequest {
     @NotNull(message = "Role is required")
     private UserRole role;
 
+    private String profilePictureUrl;
+
     // Student specific
     private String faculty;
     private String degreeProgram;
@@ -67,6 +69,14 @@ public class RegisterDetailsRequest {
 
     public void setRole(UserRole role) {
         this.role = role;
+    }
+
+    public String getProfilePictureUrl() {
+        return profilePictureUrl;
+    }
+
+    public void setProfilePictureUrl(String profilePictureUrl) {
+        this.profilePictureUrl = profilePictureUrl;
     }
 
     public String getFaculty() {

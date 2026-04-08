@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.web.multipart.MultipartFile;
+import com.unisphere.service.file.FileUploadService;
+
 /**
  * Authentication Controller
  * Handles OAuth 2.0 login, logout, and JWT token operations
@@ -33,6 +36,9 @@ public class AuthController {
     
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private FileUploadService fileUploadService;
     
     /**
      * Submit additional registration details
@@ -49,6 +55,21 @@ public class AuthController {
             log.error("Error submitting additional details", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ApiResponse.error("Failed to submit details: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Upload an image to Cloudinary and return the secure URL
+     */
+    @PostMapping("/profile/image")
+    public ResponseEntity<ApiResponse<String>> uploadProfileImage(@RequestParam("file") MultipartFile file) {
+        try {
+            String imageUrl = fileUploadService.uploadFile(file);
+            return ResponseEntity.ok(ApiResponse.success(imageUrl, "Image uploaded successfully"));
+        } catch (Exception e) {
+            log.error("Error uploading profile image", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Failed to upload image: " + e.getMessage()));
         }
     }
 
@@ -123,6 +144,24 @@ public class AuthController {
             log.error("Error updating profile", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ApiResponse.error("Failed to update profile: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Update current user notification preferences
+     */
+    @PutMapping("/me/preferences")
+    public ResponseEntity<ApiResponse<UserProfileResponse>> updatePreferences(@RequestBody Map<String, Boolean> preferences) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            UserProfileResponse userProfile = authService.updatePreferences(email, preferences);
+            return ResponseEntity.ok(ApiResponse.success(userProfile, "Preferences updated successfully"));
+        } catch (Exception e) {
+            log.error("Error updating preferences", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error("Failed to update preferences: " + e.getMessage()));
         }
     }
 

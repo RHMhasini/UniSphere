@@ -1,47 +1,47 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Clock, ShieldCheck, Bell, LogOut } from 'lucide-react';
+import { XCircle, HelpCircle, MessageSquare, LogOut } from 'lucide-react';
 
-const RegisterPending = () => {
+const RegisterRejected = () => {
   const { user, logout } = useAuth();
 
   return (
     <div className="dashboard-wrapper mesh-background min-h-screen flex items-center justify-center p-4">
-      <div className="card-premium max-w-md w-full p-8 text-center space-y-6">
+      <div className="card-premium max-w-md w-full p-8 text-center space-y-6 border-t-4 border-t-rose-500">
         <div className="relative mx-auto w-20 h-20">
-          <div className="absolute inset-0 bg-indigo-100 dark:bg-indigo-900/30 rounded-full animate-pulse" />
-          <div className="relative flex items-center justify-center w-full h-full text-indigo-600 dark:text-indigo-400">
-            <Clock className="w-10 h-10" />
+          <div className="absolute inset-0 bg-rose-100 dark:bg-rose-900/30 rounded-full" />
+          <div className="relative flex items-center justify-center w-full h-full text-rose-500 dark:text-rose-400">
+            <XCircle className="w-10 h-10" />
           </div>
         </div>
 
         <div className="space-y-2">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Registration Pending</h2>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Registration Rejected</h2>
           <p className="text-slate-600 dark:text-slate-400">
-            Your registration details have been submitted successfully.
+            Unfortunately, your registration request has not been approved by the IT Administrator.
           </p>
         </div>
 
         <div className="bg-slate-50 dark:bg-slate-950 rounded-2xl p-6 text-left space-y-4">
           <div className="flex items-start gap-3">
-            <ShieldCheck className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+            <HelpCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
             <p className="text-sm text-slate-700 dark:text-slate-300">
-              <span className="font-semibold block">Admin Review Required</span>
-              Our administrators are currently reviewing your profile. This usually takes 24-48 hours.
+              <span className="font-semibold block">What happens now?</span>
+              Your account access has been restricted. You will not be able to access the dashboard or internal features.
             </p>
           </div>
           <div className="flex items-start gap-3">
-            <Bell className="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" />
+            <MessageSquare className="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" />
             <p className="text-sm text-slate-700 dark:text-slate-300">
-              <span className="font-semibold block">System Notification</span>
-              You will receive an in-app notification when you next log in once your account has been approved.
+              <span className="font-semibold block">Contact Administrator</span>
+              If you believe this is a mistake, please reach out to the <span className="text-indigo-600 font-medium">IT Support Team</span> or your department head for clarification.
             </p>
           </div>
         </div>
 
         <div className="pt-4">
           <p className="text-xs text-slate-500 dark:text-slate-500 mb-6">
-            If you have any questions, please contact campus support.
+            For further assistance, please contact campus support.
           </p>
           <button
             onClick={logout}
@@ -56,4 +56,4 @@ const RegisterPending = () => {
   );
 };
 
-export default RegisterPending;
+export default RegisterRejected;

@@ -92,6 +92,18 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public UserProfileResponse updatePreferences(String email, java.util.Map<String, Boolean> preferences) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        
+        user.setNotificationPreferences(preferences);
+        user.setUpdatedAt(LocalDateTime.now());
+        user = userRepository.save(user);
+        log.info("Notification preferences updated for user: {}", email);
+        return mapToUserProfileResponse(user);
+    }
+
+    @Override
     public UserProfileResponse submitAdditionalDetails(String email, RegisterDetailsRequest request) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -102,6 +114,10 @@ public class AuthServiceImpl implements AuthService {
         user.setPhone(request.getPhone());
         user.setRole(request.getRole());
         user.setRegistrationStatus(RegistrationStatus.PENDING_APPROVAL);
+
+        if (request.getProfilePictureUrl() != null && !request.getProfilePictureUrl().isEmpty()) {
+            user.setProfilePictureUrl(request.getProfilePictureUrl());
+        }
 
         // FIX: Replaced if-else chain with switch expression
         switch (request.getRole()) {
@@ -153,6 +169,12 @@ public class AuthServiceImpl implements AuthService {
         user = userRepository.save(user);
         log.info("Admin {} approved user {}", adminEmail, user.getEmail());
 
+        try {
+            notificationService.notifyUserAccountApproved(user);
+        } catch (Exception e) {
+            log.error("Failed to notify user of approval: {}", e.getMessage());
+        }
+
         return mapToUserProfileResponse(user);
     }
 
@@ -169,6 +191,12 @@ public class AuthServiceImpl implements AuthService {
 
         user = userRepository.save(user);
         log.info("Admin {} rejected user {}", adminEmail, user.getEmail());
+
+        try {
+            notificationService.notifyUserAccountRejected(user);
+        } catch (Exception e) {
+            log.error("Failed to notify user of rejection: {}", e.getMessage());
+        }
 
         return mapToUserProfileResponse(user);
     }
@@ -312,6 +340,7 @@ public class AuthServiceImpl implements AuthService {
         r.setIsActive(user.getIsActive());
         r.setCreatedAt(user.getCreatedAt());
         r.setLastLogin(user.getLastLogin());
+        r.setNotificationPreferences(user.getNotificationPreferences());
 
         // Role specific details
         r.setFaculty(user.getFaculty());

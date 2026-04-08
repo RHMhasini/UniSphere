@@ -69,10 +69,19 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user.setOauthId(oauthId);
             user.setLastLogin(LocalDateTime.now());
             
-            if (fullName != null) user.setFullName(fullName);
-            if (firstName != null) user.setFirstName(firstName);
-            if (lastName != null) user.setLastName(lastName);
-            if (picture != null) user.setProfilePictureUrl(picture);
+            
+            if (user.getFullName() == null || user.getFullName().isEmpty()) {
+                if (fullName != null) user.setFullName(fullName);
+            }
+            if (user.getFirstName() == null || user.getFirstName().isEmpty()) {
+                if (firstName != null) user.setFirstName(firstName);
+            }
+            if (user.getLastName() == null || user.getLastName().isEmpty()) {
+                if (lastName != null) user.setLastName(lastName);
+            }
+            if (user.getProfilePictureUrl() == null || user.getProfilePictureUrl().isEmpty()) {
+                 if (picture != null) user.setProfilePictureUrl(picture);
+            }
             
             if (email.equalsIgnoreCase(ADMIN_EMAIL)) {
                 user.setRole(UserRole.ADMIN);

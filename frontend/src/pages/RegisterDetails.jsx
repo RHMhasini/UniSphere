@@ -179,28 +179,39 @@ const RegisterDetails = () => {
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Faculty</label>
                     <div className="relative">
                       <Building className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <input
+                      <select
                         name="faculty"
                         required
                         value={formData.faculty}
                         onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm"
-                        placeholder="Computing"
-                      />
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none"
+                      >
+                        <option value="" disabled>Select Faculty</option>
+                        <option value="Computing">Computing</option>
+                        <option value="Engineering">Engineering</option>
+                        <option value="Business">Business</option>
+                        <option value="Science">Science</option>
+                      </select>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Degree Program</label>
                     <div className="relative">
                       <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <input
+                      <select
                         name="degreeProgram"
                         required
                         value={formData.degreeProgram}
                         onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm"
-                        placeholder="Software Engineering"
-                      />
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none"
+                      >
+                        <option value="" disabled>Select Degree</option>
+                        <option value="Software Engineering">Software Engineering</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="Information Systems">Information Systems</option>
+                        <option value="Civil Engineering">Civil Engineering</option>
+                        <option value="Business Management">Business Management</option>
+                      </select>
                     </div>
                   </div>
                 </div>
@@ -209,28 +220,36 @@ const RegisterDetails = () => {
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Year</label>
                     <div className="relative">
                       <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <input
+                      <select
                         name="year"
                         required
                         value={formData.year}
                         onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm"
-                        placeholder="Year 1"
-                      />
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none"
+                      >
+                        <option value="" disabled>Select Year</option>
+                        <option value="1">Year 1</option>
+                        <option value="2">Year 2</option>
+                        <option value="3">Year 3</option>
+                        <option value="4">Year 4</option>
+                      </select>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Semester</label>
                     <div className="relative">
                       <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <input
+                      <select
                         name="semester"
                         required
                         value={formData.semester}
                         onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm"
-                        placeholder="Semester 2"
-                      />
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none"
+                      >
+                        <option value="" disabled>Select Semester</option>
+                        <option value="1">Semester 1</option>
+                        <option value="2">Semester 2</option>
+                      </select>
                     </div>
                   </div>
                 </div>
@@ -253,38 +272,60 @@ const RegisterDetails = () => {
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Designation</label>
-                    <input
+                    <select
                       name="designation"
                       required
                       value={formData.designation}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm"
-                      placeholder="Senior Lecturer"
-                    />
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none"
+                    >
+                      <option value="" disabled>Select Designation</option>
+                      <option value="Instructor">Instructor</option>
+                      <option value="Lecturer (Probationary)">Lecturer (Probationary)</option>
+                      <option value="Lecturer">Lecturer</option>
+                      <option value="Senior Lecturer">Senior Lecturer</option>
+                      <option value="Associate Professor">Associate Professor</option>
+                      <option value="Professor">Professor</option>
+                      <option value="Visiting Lecturer">Visiting Lecturer</option>
+                    </select>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Faculty</label>
-                    <input
+                    <select
                       name="faculty"
                       required
                       value={formData.faculty}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm"
-                      placeholder="Computing"
-                    />
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none"
+                    >
+                      <option value="" disabled>Select Faculty</option>
+                      <option value="Computing">Computing</option>
+                      <option value="Engineering">Engineering</option>
+                      <option value="Business">Business</option>
+                      <option value="Science">Science</option>
+                    </select>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Department</label>
-                    <input
+                    <select
                       name="department"
                       required
                       value={formData.department}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm"
-                      placeholder="Software Engineering"
-                    />
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none"
+                    >
+                      <option value="" disabled>Select Department</option>
+                      <option value="Software Engineering">Software Engineering</option>
+                      <option value="Computer Science">Computer Science</option>
+                      <option value="Information Technology">Information Technology</option>
+                      <option value="Cyber Security">Cyber Security</option>
+                      <option value="Civil Engineering">Civil Engineering</option>
+                      <option value="Mechanical Engineering">Mechanical Engineering</option>
+                      <option value="Business Management">Business Management</option>
+                      <option value="Data Science">Data Science</option>
+                    </select>
                   </div>
                 </div>
               </div>
@@ -306,38 +347,60 @@ const RegisterDetails = () => {
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Department</label>
-                    <input
+                    <select
                       name="department"
                       required
                       value={formData.department}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm"
-                      placeholder="Network Admin"
-                    />
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none"
+                    >
+                      <option value="" disabled>Select Department</option>
+                      <option value="IT Support">IT Support</option>
+                      <option value="Network Administration">Network Administration</option>
+                      <option value="Hardware Maintenance">Hardware Maintenance</option>
+                      <option value="Facility Management">Facility Management</option>
+                      <option value="AV Systems">AV Systems</option>
+                    </select>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Specialization</label>
-                    <input
+                    <select
                       name="specialization"
                       required
                       value={formData.specialization}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm"
-                      placeholder="Cisco Networking"
-                    />
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none"
+                    >
+                      <option value="" disabled>Select Specialization</option>
+                      <option value="Cisco Networking">Cisco Networking</option>
+                      <option value="System Administration">System Administration</option>
+                      <option value="Hardware Repair">Hardware Repair</option>
+                      <option value="Software Troubleshooting">Software Troubleshooting</option>
+                      <option value="Audio/Visual Tech">Audio/Visual Tech</option>
+                      <option value="General Maintenance">General Maintenance</option>
+                    </select>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Assigned Lab / Room</label>
-                    <input
+                    <select
                       name="assignedLab"
                       required
                       value={formData.assignedLab}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm"
-                      placeholder="Cisco Lab"
-                    />
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none"
+                    >
+                      <option value="" disabled>Select Lab / Room</option>
+                      <option value="Cisco Lab">Cisco Lab</option>
+                      <option value="Software Engineering Lab">Software Engineering Lab</option>
+                      <option value="Hardware Lab">Hardware Lab</option>
+                      <option value="Mac Lab">Mac Lab</option>
+                      <option value="Main Auditorium">Main Auditorium</option>
+                      <option value="Robotics Lab">Robotics Lab</option>
+                      <option value="Data Science Lab">Data Science Lab</option>
+                      <option value="General IT Store">General IT Store</option>
+                    </select>
                   </div>
                 </div>
               </div>
