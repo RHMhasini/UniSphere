@@ -4,6 +4,7 @@ import com.unisphere.entity.enums.RegistrationStatus;
 import com.unisphere.entity.enums.UserRole;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
  * User Profile Response DTO
@@ -34,6 +35,7 @@ public class UserProfileResponse {
     private String designation;
     private String specialization;
     private String assignedLab;
+    private Map<String, Boolean> notificationPreferences;
 
     public UserProfileResponse() {
     }
@@ -48,7 +50,8 @@ public class UserProfileResponse {
             Boolean emailVerified,
             Boolean isActive,
             LocalDateTime createdAt,
-            LocalDateTime lastLogin
+            LocalDateTime lastLogin,
+            Map<String, Boolean> notificationPreferences
     ) {
         this.id = id;
         this.fullName = fullName;
@@ -60,6 +63,7 @@ public class UserProfileResponse {
         this.isActive = isActive;
         this.createdAt = createdAt;
         this.lastLogin = lastLogin;
+        this.notificationPreferences = notificationPreferences;
     }
 
     public String getId() {
@@ -236,5 +240,13 @@ public class UserProfileResponse {
 
     public void setAssignedLab(String assignedLab) {
         this.assignedLab = assignedLab;
+    }
+
+    public Map<String, Boolean> getNotificationPreferences() {
+        return notificationPreferences;
+    }
+
+    public void setNotificationPreferences(Map<String, Boolean> notificationPreferences) {
+        this.notificationPreferences = notificationPreferences;
     }
 }
