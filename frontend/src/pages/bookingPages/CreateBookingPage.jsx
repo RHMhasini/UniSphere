@@ -1,0 +1,318 @@
+import { useState, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { createBooking, getResourceById } from "../../../services/bookingService";
+import "../../../styles/bookingPagesCSS/CreateBookingPage.css";
+
+const CreateBookingPage = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const resourceId = searchParams.get('resourceId') || 'LAB-402-A';
+  
+  const [formData, setFormData] = useState({
+    resourceId: resourceId,
+    resourceName: "Advanced Robotics Lab",
+    date: "",
+    startTime: "",
+    endTime: "",
+    purpose: "",
+    expectedAttendees: 25,
+  });
+
+  const [resource, setResource] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchResource = async () => {
+      try {
+        const data = await getResourceById(resourceId);
+        setResource(data);
+        setFormData(prev => ({ 
+          ...prev, 
+          resourceName: data.name 
+        }));
+      } catch (error) {
+        console.error("Error fetching resource:", error);
+      }
+    };
+
+    fetchResource();
+  }, [resourceId]);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const startTime = `${formData.date}T${formData.startTime}:00`;
+      const endTime = `${formData.date}T${formData.endTime}:00`;
+
+      const bookingPayload = {
+        resourceId: formData.resourceId,
+        resourceName: formData.resourceName,
+        startTime,
+        endTime,
+        purpose: formData.purpose,
+        expectedAttendees: parseInt(formData.expectedAttendees),
+      };
+
+      await createBooking(bookingPayload);
+
+      setSuccess("Booking created successfully! Status: PENDING");
+      setTimeout(() => {
+        navigate('/my-bookings');
+      }, 2000);
+      
+    } catch (err) {
+      if (err.response && err.response.status === 400) {
+        setError('Already booked. ' + (err.response.data.message || ''));
+      } else {
+        setError(err.response?.data?.message || err.response?.data || "An error occurred while creating booking.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="cb-container">
+      <main className="cb-main">
+        {/* Page Header */}
+        <div className="cb-header-wrapper">
+          <h1 className="cb-title">
+            Create New Asset Booking
+          </h1>
+          <p className="cb-subtitle">
+            Reserve smart campus resources, labs, and equipment for your upcoming sessions.
+          </p>
+        </div>
+
+        {/* Status Messages */}
+        {success && (
+          <div className="cb-alert-success">
+             {success} 
+          </div>
+        )}
+
+        {error && (
+          <div className="cb-alert-error">
+             {error}
+          </div>
+        )}
+
+        {/* Two Column Layout */}
+        <div className="cb-layout-grid">
+          
+          {/* Form Section */}
+          <section className="cb-form-section">
+            <form onSubmit={handleSubmit} className="cb-form">
+              
+              <div className="cb-form-row">
+                <div className="cb-form-group">
+                  <label className="cb-label">
+                    Resource ID
+                  </label>
+                  <input
+                    type="text"
+                    name="resourceId"
+                    value={formData.resourceId}
+                    onChange={handleChange}
+                    readOnly
+                    placeholder="e.g., LAB-402-A"
+                    className="cb-input cb-input-readonly"
+                  />
+                </div>
+                <div className="cb-form-group">
+                  <label className="cb-label">
+                    Resource Name
+                  </label>
+                  <input
+                    type="text"
+                    name="resourceName"
+                    value={formData.resourceName}
+                    onChange={handleChange}
+                    required
+                    placeholder="Advanced Robotics Lab"
+                    className="cb-input cb-input-active"
+                  />
+                </div>
+              </div>
+
+              <div className="cb-form-group">
+                <label className="cb-label">
+                  Booking Date
+                </label>
+                <div className="relative">
+                  <input
+                    type="date"
+                    name="date"
+                    value={formData.date}
+                    onChange={handleChange}
+                    required
+                    className="cb-input cb-input-active"
+                  />
+                </div>
+              </div>
+
+              <div className="cb-form-row">
+                <div className="cb-form-group">
+                  <label className="cb-label">
+                    Start Time
+                  </label>
+                  <input
+                    type="time"
+                    name="startTime"
+                    value={formData.startTime}
+                    onChange={handleChange}
+                    required
+                    className="cb-input cb-input-active"
+                  />
+                </div>
+                <div className="cb-form-group">
+                  <label className="cb-label">
+                    End Time
+                  </label>
+                  <input
+                    type="time"
+                    name="endTime"
+                    value={formData.endTime}
+                    onChange={handleChange}
+                    required
+                    className="cb-input cb-input-active"
+                  />
+                </div>
+              </div>
+
+              <div className="cb-form-group">
+                <label className="cb-label">
+                  Expected Attendees
+                </label>
+                <input
+                  type="number"
+                  name="expectedAttendees"
+                  value={formData.expectedAttendees}
+                  onChange={handleChange}
+                  required
+                  min="1"
+                  className="cb-input cb-input-active"
+                />
+              </div>
+
+              <div className="cb-form-group">
+                <label className="cb-label">
+                  Purpose of Booking
+                </label>
+                <textarea
+                  name="purpose"
+                  value={formData.purpose}
+                  onChange={handleChange}
+                  required
+                  placeholder="Briefly describe the session or project requirements..."
+                  rows="3"
+                  className="cb-textarea"
+                />
+              </div>
+
+              <div className="cb-btn-wrapper">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="cb-btn-submit"
+                >
+                  {loading ? "Confirming..." : "Confirm Booking"}
+                </button>
+                <button
+                  type="button"
+                  className="cb-btn-draft"
+                >
+                  Save as Draft
+                </button>
+              </div>
+            </form>
+          </section>
+
+          {/* Right Side Info */}
+          <aside className="cb-aside-section">
+            
+            {/* Dark Capacity Card */}
+            <div className="cb-card-dark">
+               <div className="cb-card-dark-inner">
+                 <div className="cb-insight-header">
+                   <div className="cb-insight-icon-box">
+                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                   </div>
+                   <span className="cb-insight-label">Resource Insight</span>
+                 </div>
+                 
+                 <h3 className="cb-card-title">Real-time Capacity</h3>
+                 <p className="cb-card-desc">
+                   The Robotics Wing currently shows 85% availability for the selected dates. Early booking recommended.
+                 </p>
+
+                 <div className="cb-stat-list">
+                   <div className="cb-stat-row">
+                     <span className="cb-stat-label">Network Speed</span>
+                     <span className="cb-stat-value">10 Gbps</span>
+                   </div>
+                   <div className="cb-stat-row">
+                     <span className="cb-stat-label">Smart Sensors</span>
+                     <span className="cb-stat-value">Online</span>
+                   </div>
+                 </div>
+               </div>
+            </div>
+
+            {/* Light Guidelines Card */}
+            <div className="cb-card-light">
+              <h4 className="cb-card-light-title">Booking Guidelines</h4>
+              <ul className="cb-bullet-list">
+                <li className="cb-bullet-item">
+                  <div className="cb-bullet-icon">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <p className="cb-bullet-text">
+                    Cancellations must be made 24 hours in advance to avoid asset idling penalties.
+                  </p>
+                </li>
+                <li className="cb-bullet-item">
+                  <div className="cb-bullet-icon">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <p className="cb-bullet-text">
+                    All equipment usage must be logged through the local IoT terminal.
+                  </p>
+                </li>
+                <li className="cb-bullet-item">
+                  <div className="cb-bullet-icon">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <p className="cb-bullet-text">
+                    Technical support can be requested during the 'Purpose' description.
+                  </p>
+                </li>
+              </ul>
+            </div>
+
+            {/* Lab Image Placeholder */}
+            <div className="cb-image-placeholder">
+              <div className="cb-image-overlay"></div>
+              <div className="cb-image-content">
+                <span className="cb-image-text">Equipment Setup<br/>Reference Image</span>
+              </div>
+            </div>
+
+           </aside>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default CreateBookingPage;

@@ -1,0 +1,295 @@
+.ab-container {
+  @apply min-h-screen bg-[#f7f8fc] text-[#0d1117] font-sans pb-20;
+}
+
+.ab-main {
+  @apply max-w-[1400px] mx-auto px-8 py-10;
+}
+
+.ab-header-wrapper {
+  @apply flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-6;
+}
+
+.ab-title {
+  @apply text-4xl font-bold mb-1 tracking-tight font-serif text-[#0d1117];
+}
+
+.ab-subtitle {
+  @apply text-[#64748b] text-[14px];
+}
+
+.ab-header-actions {
+  @apply flex gap-3;
+}
+
+.ab-btn-ghost {
+  @apply px-4 py-2 text-xs font-bold bg-white text-[#4a5568] border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 flex items-center gap-2;
+}
+
+.ab-metric-row {
+  @apply grid grid-cols-1 md:grid-cols-4 gap-4 mb-8;
+}
+
+.ab-metric-card-green {
+  @apply bg-white rounded-xl p-5 shadow-sm border-l-4 border-[#2ac88c];
+}
+
+.ab-metric-card-blue {
+  @apply bg-white rounded-xl p-5 shadow-sm border-l-4 border-[#1e293b];
+}
+
+.ab-metric-card-gray {
+  @apply bg-white rounded-xl p-5 shadow-sm border-l-4 border-gray-300;
+}
+
+.ab-metric-card-red {
+  @apply bg-white rounded-xl p-5 shadow-sm border-l-4 border-[#dc2626];
+}
+
+.ab-metric-label {
+  @apply text-[#64748b] text-[10px] font-bold tracking-widest uppercase mb-1;
+}
+
+.ab-metric-value {
+  @apply text-3xl font-light mb-2;
+}
+
+.ab-metric-desc {
+  @apply text-[10px] font-medium text-[#64748b];
+}
+
+.ab-metric-desc-green {
+  @apply text-[10px] font-bold text-[#2ac88c] flex items-center gap-1;
+}
+
+.ab-metric-desc-red {
+  @apply text-[10px] font-bold text-[#dc2626] flex items-center gap-1;
+}
+
+.ab-alert-icon {
+  @apply bg-[#dc2626] text-white rounded-sm px-1 leading-none py-[1px];
+}
+
+.ab-table-container {
+  @apply bg-white rounded-xl shadow-sm border border-gray-100 mb-8 overflow-hidden;
+}
+
+.ab-tabs-wrapper {
+  @apply flex border-b border-gray-100 px-6 pt-4 justify-between items-end;
+}
+
+.ab-tabs-list {
+  @apply flex gap-6;
+}
+
+.ab-tab-btn-active {
+  @apply pb-3 text-xs font-bold tracking-wide transition-colors text-[#0d1117] border-b-2 border-[#2ac88c];
+}
+
+.ab-tab-btn-inactive {
+  @apply pb-3 text-xs font-bold tracking-wide transition-colors text-[#64748b] hover:text-[#0d1117] border-b-2 border-transparent;
+}
+
+.ab-tab-results {
+  @apply pb-3 text-[11px] text-[#64748b] font-medium;
+}
+
+.ab-table-header-row {
+  @apply grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-100 bg-[#fbfcfd];
+}
+
+.ab-th-large {
+  @apply col-span-3 text-[10px] font-bold text-[#64748b] tracking-widest uppercase;
+}
+
+.ab-th-medium {
+  @apply col-span-2 text-[10px] font-bold text-[#64748b] tracking-widest uppercase;
+}
+
+.ab-th-small {
+  @apply col-span-1 text-[10px] font-bold text-[#64748b] tracking-widest uppercase;
+}
+
+.ab-th-center {
+  @apply col-span-1 text-[10px] font-bold text-[#64748b] tracking-widest uppercase text-center;
+}
+
+.ab-th-right {
+  @apply col-span-2 text-[10px] font-bold text-[#64748b] tracking-widest uppercase text-right;
+}
+
+.ab-table-body {
+  @apply divide-y divide-gray-100;
+}
+
+.ab-table-empty {
+  @apply p-8 text-center text-[#64748b] text-sm;
+}
+
+.ab-table-row {
+  @apply grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-[#fbfcfd] transition-colors;
+}
+
+.ab-col-requester {
+  @apply col-span-3 flex items-center gap-3;
+}
+
+.ab-avatar {
+  @apply w-10 h-10 rounded-md bg-[#2a3042] text-white flex items-center justify-center font-bold text-xs flex-shrink-0;
+}
+
+.ab-requester-name {
+  @apply font-bold text-[#0d1117] text-[13px];
+}
+
+.ab-requester-desc {
+  @apply text-[11px] text-[#64748b] truncate max-w-[150px];
+}
+
+.ab-col-facility {
+  @apply col-span-3 flex items-center gap-3;
+}
+
+.ab-facility-icon {
+  @apply text-[#64748b];
+}
+
+.ab-facility-name {
+  @apply font-bold text-[#0d1117] text-[13px];
+}
+
+.ab-facility-badge {
+  @apply mt-0.5 inline-block px-1.5 py-0.5 bg-[#dcfce7] text-[#16a34a] text-[9px] font-bold uppercase rounded;
+}
+
+.ab-col-schedule {
+  @apply col-span-2;
+}
+
+.ab-schedule-date {
+  @apply font-bold text-[#0d1117] text-[13px];
+}
+
+.ab-schedule-time {
+  @apply text-[11px] font-medium text-[#64748b];
+}
+
+.ab-col-priority {
+  @apply col-span-1 flex items-center;
+}
+
+.ab-col-status {
+  @apply col-span-1 flex items-center justify-center;
+}
+
+.ab-col-actions {
+  @apply col-span-2 flex items-center justify-end gap-2;
+}
+
+.ab-action-approve {
+  @apply px-3 py-1.5 bg-[#2ac88c] hover:bg-[#23a574] text-white text-[10px] font-bold rounded-full uppercase tracking-wide transition-colors;
+}
+
+.ab-action-reject {
+  @apply px-3 py-1.5 bg-[#fee2e2] hover:bg-[#fca5a5] text-[#dc2626] text-[10px] font-bold rounded-full uppercase tracking-wide transition-colors;
+}
+
+.ab-pagination-wrapper {
+  @apply px-6 py-4 border-t border-gray-100 flex justify-between items-center bg-white;
+}
+
+.ab-page-nums {
+  @apply flex gap-2 text-xs font-bold text-[#64748b];
+}
+
+.ab-page-num-active {
+  @apply w-6 h-6 flex items-center justify-center bg-[#1e293b] text-white rounded;
+}
+
+.ab-page-num-inactive {
+  @apply w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded cursor-pointer;
+}
+
+.ab-page-dots {
+  @apply w-6 h-6 flex items-center justify-center;
+}
+
+.ab-page-nav-wrapper {
+  @apply flex gap-4 text-xs font-bold text-[#64748b] uppercase tracking-wider;
+}
+
+.ab-page-nav-btn {
+  @apply hover:text-[#0d1117] flex items-center gap-1;
+}
+
+.ab-bottom-grid {
+  @apply grid grid-cols-1 lg:grid-cols-3 gap-6;
+}
+
+.ab-insight-card {
+  @apply lg:col-span-2 rounded-[16px] p-8 text-white relative overflow-hidden;
+}
+
+.ab-insight-title {
+  @apply text-2xl font-bold mb-2;
+}
+
+.ab-insight-desc {
+  @apply text-[#a6b0cf] text-sm max-w-lg leading-relaxed mb-8;
+}
+
+.ab-insight-metrics-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+}
+
+.ab-insight-metric-box {
+  @apply bg-[#242a3a] bg-opacity-40 p-4 rounded-xl border border-[#48536f];
+}
+
+.ab-insight-metric-label {
+  @apply text-[#a6b0cf] text-[10px] font-bold uppercase tracking-widest mb-1;
+}
+
+.ab-insight-metric-value {
+  @apply text-lg font-bold;
+}
+
+.ab-logs-card {
+  @apply bg-[#f3f4f6] rounded-[16px] p-8 border border-gray-200;
+}
+
+.ab-logs-title {
+  @apply text-lg font-bold text-[#0d1117] mb-6;
+}
+
+.ab-logs-list {
+  @apply space-y-5;
+}
+
+.ab-log-item {
+  @apply flex gap-3;
+}
+
+.ab-log-dot-green {
+  @apply w-1.5 h-1.5 rounded-full bg-[#2ac88c] mt-1.5 flex-shrink-0;
+}
+
+.ab-log-dot-red {
+  @apply w-1.5 h-1.5 rounded-full bg-[#dc2626] mt-1.5 flex-shrink-0;
+}
+
+.ab-log-dot-blue {
+  @apply w-1.5 h-1.5 rounded-full bg-[#3b82f6] mt-1.5 flex-shrink-0;
+}
+
+.ab-log-title {
+  @apply text-[13px] font-bold text-[#0d1117] leading-none mb-1;
+}
+
+.ab-log-desc {
+  @apply text-[10px] font-medium text-[#64748b];
+}
+
+.ab-logs-link {
+  @apply mt-8 text-[11px] font-bold text-[#64748b] tracking-wider uppercase hover:text-[#0d1117] flex items-center gap-1;
+}
