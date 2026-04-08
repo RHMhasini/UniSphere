@@ -259,7 +259,7 @@ const UserManagement = () => {
                             <div className="flex items-center gap-2 mr-2 pr-2 border-r border-slate-200 dark:border-slate-700">
                               <button
                                 type="button"
-                                className="flex items-center gap-1 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-950/60"
+                                className="flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600"
                                 onClick={() => handleApprove(user.id)}
                               >
                                 <CheckCircle className="h-3.5 w-3.5" />
@@ -267,7 +267,7 @@ const UserManagement = () => {
                               </button>
                               <button
                                 type="button"
-                                className="flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-950/60"
+                                className="flex items-center gap-1 rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-rose-700 dark:bg-rose-500 dark:hover:bg-rose-600"
                                 onClick={() => handleReject(user.id)}
                               >
                                 <XCircle className="h-3.5 w-3.5" />
@@ -289,7 +289,7 @@ const UserManagement = () => {
                           </select>
                           <button
                             type="button"
-                            className="rounded-lg bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
+                            className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"
                             onClick={() => handleDeleteUser(user.id)}
                           >
                             Delete
