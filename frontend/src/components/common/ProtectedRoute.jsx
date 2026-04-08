@@ -29,9 +29,9 @@ const ProtectedRoute = ({ children, roles }) => {
     return <Navigate to="/register/pending" replace />;
   }
 
-  // If user is rejected
-  if (user?.registrationStatus === 'REJECTED') {
-    return <Navigate to="/access-denied" replace />;
+  // If user is rejected and isn't already on the rejected page
+  if (user?.registrationStatus === 'REJECTED' && location.pathname !== '/register/rejected') {
+    return <Navigate to="/register/rejected" replace />;
   }
 
   // Check for roles if they are provided
