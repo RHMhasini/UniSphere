@@ -64,6 +64,7 @@ public class AuthServiceImpl implements AuthService {
         // FIX: Replaced if-else chain with switch expression
         switch (user.getRole()) {
             case STUDENT -> {
+                user.setStudentId(request.getStudentId());
                 user.setFaculty(request.getFaculty());
                 user.setDegreeProgram(request.getDegreeProgram());
                 user.setYear(request.getYear());
@@ -122,6 +123,7 @@ public class AuthServiceImpl implements AuthService {
         // FIX: Replaced if-else chain with switch expression
         switch (request.getRole()) {
             case STUDENT -> {
+                user.setStudentId(request.getStudentId());
                 user.setFaculty(request.getFaculty());
                 user.setDegreeProgram(request.getDegreeProgram());
                 user.setYear(request.getYear());
@@ -343,6 +345,7 @@ public class AuthServiceImpl implements AuthService {
         r.setNotificationPreferences(user.getNotificationPreferences());
 
         // Role specific details
+        r.setStudentId(user.getStudentId());
         r.setFaculty(user.getFaculty());
         r.setDegreeProgram(user.getDegreeProgram());
         r.setYear(user.getYear());

@@ -44,6 +44,7 @@ public class User {
     private Boolean isActive = true;
 
     // Student specific details
+    private String studentId;
     private String faculty;
     private String degreeProgram;
     private String year;
@@ -191,6 +192,14 @@ public class User {
 
     public void setIsActive(Boolean active) {
         isActive = active;
+    }
+
+    public String getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
     }
 
     public String getFaculty() {

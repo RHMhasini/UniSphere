@@ -19,6 +19,7 @@ public class UpdateProfileRequest {
     private String profilePictureUrl;
 
     // Student specific
+    private String studentId;
     private String faculty;
     private String degreeProgram;
     private String year;
@@ -64,6 +65,14 @@ public class UpdateProfileRequest {
 
     public void setProfilePictureUrl(String profilePictureUrl) {
         this.profilePictureUrl = profilePictureUrl;
+    }
+
+    public String getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
     }
 
     public String getFaculty() {

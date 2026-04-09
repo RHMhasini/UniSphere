@@ -26,6 +26,7 @@ public class UserProfileResponse {
     private LocalDateTime lastLogin;
 
     // Additional fields for roles
+    private String studentId;
     private String faculty;
     private String degreeProgram;
     private String year;
@@ -51,6 +52,7 @@ public class UserProfileResponse {
             Boolean isActive,
             LocalDateTime createdAt,
             LocalDateTime lastLogin,
+            String studentId,
             Map<String, Boolean> notificationPreferences
     ) {
         this.id = id;
@@ -63,6 +65,7 @@ public class UserProfileResponse {
         this.isActive = isActive;
         this.createdAt = createdAt;
         this.lastLogin = lastLogin;
+        this.studentId = studentId;
         this.notificationPreferences = notificationPreferences;
     }
 
@@ -168,6 +171,14 @@ public class UserProfileResponse {
 
     public void setLastLogin(LocalDateTime lastLogin) {
         this.lastLogin = lastLogin;
+    }
+
+    public String getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
     }
 
     public String getFaculty() {
