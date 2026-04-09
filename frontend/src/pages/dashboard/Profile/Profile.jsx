@@ -3,6 +3,7 @@ import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../../../services/api';
 import { Mail, Loader2, Pencil, User, Phone, Building, BookOpen, Calendar, Briefcase, Wrench, Camera, Save, X, GraduationCap } from 'lucide-react';
+import { STUDENT_FACULTIES, LECTURER_FACULTIES, TECHNICIAN_DEPARTMENTS } from '../../../utils/dropdownData';
 
 const roleBadgeClass = (role) => {
   const r = (role || '').toLowerCase();
@@ -28,6 +29,7 @@ const Profile = () => {
     firstName: '',
     lastName: '',
     phone: '',
+    studentId: '',
     profilePictureUrl: '',
     faculty: '',
     degreeProgram: '',
@@ -46,6 +48,7 @@ const Profile = () => {
         firstName: user.firstName || '',
         lastName: user.lastName || '',
         phone: user.phone || '',
+        studentId: user.studentId || '',
         profilePictureUrl: user.profilePictureUrl || '',
         faculty: user.faculty || '',
         degreeProgram: user.degreeProgram || '',
@@ -60,8 +63,77 @@ const Profile = () => {
     }
   }, [user]);
 
+  const [fieldErrors, setFieldErrors] = useState({});
+
+  const validateField = (name, value, currentRole) => {
+    let errorMsg = '';
+    
+    if (name === 'firstName' || name === 'lastName') {
+      if (value && !/^[A-Za-z\s]+$/.test(value)) {
+        errorMsg = 'Only letters and spaces are allowed';
+      }
+    }
+    
+    if (name === 'phone') {
+      if (value && !/^\d*$/.test(value)) {
+        errorMsg = 'Only numbers are allowed';
+      } else if (value && value.length !== 10) {
+        errorMsg = 'Phone number must be exactly 10 digits';
+      }
+    }
+    
+    if (name === 'studentId' && currentRole === 'STUDENT') {
+      if (value && !/^STU\/\d{4}\/\d{3}$/.test(value)) {
+        errorMsg = 'Format must be STU/YYYY/XXX (e.g. STU/2024/001)';
+      }
+    }
+    
+    if (name === 'staffId' && currentRole === 'LECTURER') {
+      if (value && !/^LEC\/\d{4}$/.test(value)) {
+        errorMsg = 'Format must be LEC/XXXX (e.g. LEC/0045)';
+      }
+    }
+    
+    if (name === 'staffId' && currentRole === 'TECHNICIAN') {
+      if (value && !/^TEC\/\d{4}$/.test(value)) {
+        errorMsg = 'Format must be TEC/XXXX (e.g. TEC/0012)';
+      }
+    }
+
+    setFieldErrors(prev => ({ ...prev, [name]: errorMsg }));
+  };
+
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    
+    // For phone, prevent typing more than 10 chars, and only allow numbers
+    if (name === 'phone') {
+      if (value && !/^\d*$/.test(value)) return;
+      if (value.length > 10) return;
+    }
+
+    // For names, prevent typing numbers or symbols (only allow letters and spaces)
+    if (name === 'firstName' || name === 'lastName') {
+      if (value && !/^[A-Za-z\s]*$/.test(value)) return;
+    }
+    
+    setFormData((prev) => {
+      const updated = { ...prev, [name]: value };
+      
+      // Cascade clear logic
+      const currentRole = user?.role;
+      if (name === 'faculty') {
+        if (currentRole === 'STUDENT') updated.degreeProgram = '';
+        if (currentRole === 'LECTURER') updated.department = '';
+      }
+      if (name === 'department' && currentRole === 'TECHNICIAN') {
+        updated.specialization = '';
+        updated.assignedLab = '';
+      }
+      return updated;
+    });
+
+    validateField(name, value, user?.role);
   };
 
   const handleImageUpload = async (e) => {
@@ -86,6 +158,29 @@ const Profile = () => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+
+    const role = user?.role;
+    const hasErrors = 
+         (formData.firstName && !/^[A-Za-z\s]+$/.test(formData.firstName)) ||
+         (formData.lastName && !/^[A-Za-z\s]+$/.test(formData.lastName)) ||
+         (formData.phone && !/^\d{10}$/.test(formData.phone)) ||
+         (role === 'STUDENT' && formData.studentId && !/^STU\/\d{4}\/\d{3}$/.test(formData.studentId)) ||
+         (role === 'LECTURER' && formData.staffId && !/^LEC\/\d{4}$/.test(formData.staffId)) ||
+         (role === 'TECHNICIAN' && formData.staffId && !/^TEC\/\d{4}$/.test(formData.staffId));
+
+    if (hasErrors) {
+      alert('Please fix the errors in the form before submitting.');
+      
+      // Trigger all validations to show errors
+      validateField('firstName', formData.firstName, role);
+      validateField('lastName', formData.lastName, role);
+      validateField('phone', formData.phone, role);
+      if(role === 'STUDENT') validateField('studentId', formData.studentId, role);
+      if(role === 'LECTURER' || role === 'TECHNICIAN') validateField('staffId', formData.staffId, role);
+      
+      return;
+    }
+
     try {
       await updateProfile(formData);
       setIsEditing(false);
@@ -219,12 +314,15 @@ const Profile = () => {
                   {!isEditing ? (
                     <p className="text-slate-900 dark:text-slate-200">{formData.firstName}</p>
                   ) : (
-                    <input
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm"
-                    />
+                    <div>
+                      <input
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        className={`w-full px-3 py-2 rounded-lg border ${fieldErrors.firstName ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-800'} bg-slate-50 dark:bg-slate-950 text-sm`}
+                      />
+                      {fieldErrors.firstName && <span className="text-xs text-red-500 mt-1 block">{fieldErrors.firstName}</span>}
+                    </div>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -232,12 +330,15 @@ const Profile = () => {
                   {!isEditing ? (
                     <p className="text-slate-900 dark:text-slate-200">{formData.lastName}</p>
                   ) : (
-                    <input
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm"
-                    />
+                    <div>
+                      <input
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        className={`w-full px-3 py-2 rounded-lg border ${fieldErrors.lastName ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-800'} bg-slate-50 dark:bg-slate-950 text-sm`}
+                      />
+                      {fieldErrors.lastName && <span className="text-xs text-red-500 mt-1 block">{fieldErrors.lastName}</span>}
+                    </div>
                   )}
                 </div>
               </div>
@@ -250,12 +351,18 @@ const Profile = () => {
                 {!isEditing ? (
                   <p className="text-slate-900 dark:text-slate-200">{formData.phone}</p>
                 ) : (
-                  <input
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm"
-                  />
+                  <div>
+                    <input
+                      name="phone"
+                      type="text"
+                      maxLength="10"
+                      inputMode="numeric"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className={`w-full px-3 py-2 rounded-lg border ${fieldErrors.phone ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-800'} bg-slate-50 dark:bg-slate-950 text-sm`}
+                    />
+                    {fieldErrors.phone && <span className="text-xs text-red-500 mt-1 block">{fieldErrors.phone}</span>}
+                  </div>
                 )}
               </div>
             </div>
@@ -282,7 +389,12 @@ const Profile = () => {
                       {!isEditing ? (
                         <p className="text-slate-900 dark:text-slate-200">{formData.faculty}</p>
                       ) : (
-                        <input name="faculty" value={formData.faculty} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm" />
+                        <select name="faculty" value={formData.faculty} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm active:outline-none focus:outline-none focus:ring-2 focus:ring-indigo-500/80">
+                          <option value="" disabled>Select Faculty</option>
+                          {Object.keys(STUDENT_FACULTIES).map((fac) => (
+                            <option key={fac} value={fac}>{fac}</option>
+                          ))}
+                        </select>
                       )}
                     </div>
                     <div className="space-y-2">
@@ -290,7 +402,12 @@ const Profile = () => {
                       {!isEditing ? (
                         <p className="text-slate-900 dark:text-slate-200">{formData.degreeProgram}</p>
                       ) : (
-                        <input name="degreeProgram" value={formData.degreeProgram} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm" />
+                        <select name="degreeProgram" value={formData.degreeProgram} onChange={handleChange} disabled={!formData.faculty} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm active:outline-none focus:outline-none focus:ring-2 focus:ring-indigo-500/80 disabled:opacity-50">
+                          <option value="" disabled>Select Degree</option>
+                          {formData.faculty && STUDENT_FACULTIES[formData.faculty]?.map((deg) => (
+                            <option key={deg} value={deg}>{deg}</option>
+                          ))}
+                        </select>
                       )}
                     </div>
                   </div>
@@ -323,7 +440,10 @@ const Profile = () => {
                       {!isEditing ? (
                         <p className="text-slate-900 dark:text-slate-200">{formData.staffId}</p>
                       ) : (
-                        <input name="staffId" value={formData.staffId} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm" />
+                        <div>
+                          <input name="staffId" value={formData.staffId} onChange={handleChange} className={`w-full px-3 py-2 rounded-lg border ${fieldErrors.staffId ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-800'} bg-slate-50 dark:bg-slate-950 text-sm`} />
+                          {fieldErrors.staffId && <span className="text-xs text-red-500 mt-1 block">{fieldErrors.staffId}</span>}
+                        </div>
                       )}
                     </div>
                     <div className="space-y-2">
@@ -341,7 +461,12 @@ const Profile = () => {
                       {!isEditing ? (
                         <p className="text-slate-900 dark:text-slate-200">{formData.faculty}</p>
                       ) : (
-                        <input name="faculty" value={formData.faculty} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm" />
+                        <select name="faculty" value={formData.faculty} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm active:outline-none focus:outline-none focus:ring-2 focus:ring-indigo-500/80">
+                          <option value="" disabled>Select Faculty</option>
+                          {Object.keys(LECTURER_FACULTIES).map((fac) => (
+                            <option key={fac} value={fac}>{fac}</option>
+                          ))}
+                        </select>
                       )}
                     </div>
                     <div className="space-y-2">
@@ -349,7 +474,12 @@ const Profile = () => {
                       {!isEditing ? (
                         <p className="text-slate-900 dark:text-slate-200">{formData.department}</p>
                       ) : (
-                        <input name="department" value={formData.department} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm" />
+                        <select name="department" value={formData.department} onChange={handleChange} disabled={!formData.faculty} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm active:outline-none focus:outline-none focus:ring-2 focus:ring-indigo-500/80 disabled:opacity-50">
+                          <option value="" disabled>Select Department</option>
+                          {formData.faculty && LECTURER_FACULTIES[formData.faculty]?.map((dep) => (
+                            <option key={dep} value={dep}>{dep}</option>
+                          ))}
+                        </select>
                       )}
                     </div>
                   </div>
@@ -364,7 +494,10 @@ const Profile = () => {
                       {!isEditing ? (
                         <p className="text-slate-900 dark:text-slate-200">{formData.staffId}</p>
                       ) : (
-                        <input name="staffId" value={formData.staffId} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm" />
+                        <div>
+                          <input name="staffId" value={formData.staffId} onChange={handleChange} className={`w-full px-3 py-2 rounded-lg border ${fieldErrors.staffId ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-800'} bg-slate-50 dark:bg-slate-950 text-sm`} />
+                          {fieldErrors.staffId && <span className="text-xs text-red-500 mt-1 block">{fieldErrors.staffId}</span>}
+                        </div>
                       )}
                     </div>
                     <div className="space-y-2">
@@ -372,7 +505,12 @@ const Profile = () => {
                       {!isEditing ? (
                         <p className="text-slate-900 dark:text-slate-200">{formData.department}</p>
                       ) : (
-                        <input name="department" value={formData.department} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm" />
+                        <select name="department" value={formData.department} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm active:outline-none focus:outline-none focus:ring-2 focus:ring-indigo-500/80">
+                          <option value="" disabled>Select Department</option>
+                          {Object.keys(TECHNICIAN_DEPARTMENTS).map((dep) => (
+                            <option key={dep} value={dep}>{dep}</option>
+                          ))}
+                        </select>
                       )}
                     </div>
                   </div>
@@ -382,7 +520,12 @@ const Profile = () => {
                       {!isEditing ? (
                         <p className="text-slate-900 dark:text-slate-200">{formData.specialization}</p>
                       ) : (
-                        <input name="specialization" value={formData.specialization} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm" />
+                        <select name="specialization" value={formData.specialization} onChange={handleChange} disabled={!formData.department} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm active:outline-none focus:outline-none focus:ring-2 focus:ring-indigo-500/80 disabled:opacity-50">
+                          <option value="" disabled>Select Specialization</option>
+                          {formData.department && TECHNICIAN_DEPARTMENTS[formData.department]?.specializations.map((spec) => (
+                            <option key={spec} value={spec}>{spec}</option>
+                          ))}
+                        </select>
                       )}
                     </div>
                     <div className="space-y-2">
@@ -390,7 +533,12 @@ const Profile = () => {
                       {!isEditing ? (
                         <p className="text-slate-900 dark:text-slate-200">{formData.assignedLab}</p>
                       ) : (
-                        <input name="assignedLab" value={formData.assignedLab} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm" />
+                        <select name="assignedLab" value={formData.assignedLab} onChange={handleChange} disabled={!formData.department} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm active:outline-none focus:outline-none focus:ring-2 focus:ring-indigo-500/80 disabled:opacity-50">
+                          <option value="" disabled>Select Lab / Room</option>
+                          {formData.department && TECHNICIAN_DEPARTMENTS[formData.department]?.labs.map((lab) => (
+                            <option key={lab} value={lab}>{lab}</option>
+                          ))}
+                        </select>
                       )}
                     </div>
                   </div>

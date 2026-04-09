@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { motion } from 'framer-motion';
+import { STUDENT_FACULTIES, LECTURER_FACULTIES, TECHNICIAN_DEPARTMENTS } from '../utils/dropdownData';
 import { authAPI } from '../services/api';
 import { Loader2, User, GraduationCap, Briefcase, Wrench, Phone, Building, BookOpen, Calendar, BadgeCheck, Camera } from 'lucide-react';
 
@@ -9,12 +11,14 @@ const RegisterDetails = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [role, setRole] = useState('STUDENT');
   const [formData, setFormData] = useState({
     profilePictureUrl: '',
     firstName: '',
     lastName: '',
     phone: '',
+    studentId: '',
     faculty: '',
     degreeProgram: '',
     year: '',
@@ -26,14 +30,107 @@ const RegisterDetails = () => {
     assignedLab: ''
   });
 
-  const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const validateField = (name, value, currentRole) => {
+    let errorMsg = '';
+    
+    if (name === 'firstName' || name === 'lastName') {
+      if (value && !/^[A-Za-z\s]+$/.test(value)) {
+        errorMsg = 'Only letters and spaces are allowed';
+      }
+    }
+    
+    if (name === 'phone') {
+      if (value && !/^\d*$/.test(value)) {
+        errorMsg = 'Only numbers are allowed';
+      } else if (value && value.length !== 10) {
+        errorMsg = 'Phone number must be exactly 10 digits';
+      }
+    }
+    
+    if (name === 'studentId' && currentRole === 'STUDENT') {
+      if (value && !/^STU\/\d{4}\/\d{3}$/.test(value)) {
+        errorMsg = 'Format must be STU/YYYY/XXX (e.g. STU/2024/001)';
+      }
+    }
+    
+    if (name === 'staffId' && currentRole === 'LECTURER') {
+      if (value && !/^LEC\/\d{4}$/.test(value)) {
+        errorMsg = 'Format must be LEC/XXXX (e.g. LEC/0045)';
+      }
+    }
+    
+    if (name === 'staffId' && currentRole === 'TECHNICIAN') {
+      if (value && !/^TEC\/\d{4}$/.test(value)) {
+        errorMsg = 'Format must be TEC/XXXX (e.g. TEC/0012)';
+      }
+    }
+
+    setFieldErrors(prev => ({ ...prev, [name]: errorMsg }));
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    
+    // Prevent numbers and symbols in names
+    if ((name === 'firstName' || name === 'lastName') && /[^A-Za-z\s]/.test(value)) {
+      return;
+    }
 
+    // Prevent non-numeric characters and enforce max length 10 for phone
+    if (name === 'phone') {
+      if (/[^0-9]/.test(value)) return;
+      if (value.length > 10) return;
+    }
+
+    setFormData((prev) => {
+      const updated = { ...prev, [name]: value };
+      
+      // Cascade clear logic
+      if (name === 'faculty') {
+        if (role === 'STUDENT') updated.degreeProgram = '';
+        if (role === 'LECTURER') updated.department = '';
+      }
+      if (name === 'department' && role === 'TECHNICIAN') {
+        updated.specialization = '';
+        updated.assignedLab = '';
+      }
+      return updated;
+    });
+
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+    validateField(name, value, role);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    const hasErrors = 
+         (formData.firstName && !/^[A-Za-z\s]+$/.test(formData.firstName)) ||
+         (formData.lastName && !/^[A-Za-z\s]+$/.test(formData.lastName)) ||
+         (formData.phone && !/^\d{10}$/.test(formData.phone)) ||
+         (role === 'STUDENT' && formData.studentId && !/^STU\/\d{4}\/\d{3}$/.test(formData.studentId)) ||
+         (role === 'LECTURER' && formData.staffId && !/^LEC\/\d{4}$/.test(formData.staffId)) ||
+         (role === 'TECHNICIAN' && formData.staffId && !/^TEC\/\d{4}$/.test(formData.staffId));
+
+    if (hasErrors) {
+      setError('Please fix the errors in the form before submitting.');
+      
+      // Trigger all validations to show errors
+      validateField('firstName', formData.firstName, role);
+      validateField('lastName', formData.lastName, role);
+      validateField('phone', formData.phone, role);
+      if(role === 'STUDENT') validateField('studentId', formData.studentId, role);
+      if(role === 'LECTURER' || role === 'TECHNICIAN') validateField('staffId', formData.staffId, role);
+      
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -45,6 +142,7 @@ const RegisterDetails = () => {
         role: role,
         profilePictureUrl: formData.profilePictureUrl,
         ...(role === 'STUDENT' && {
+          studentId: formData.studentId,
           faculty: formData.faculty,
           degreeProgram: formData.degreeProgram,
           year: formData.year,
@@ -135,10 +233,11 @@ const RegisterDetails = () => {
                     required
                     value={formData.firstName}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm"
+                    className={`w-full pl-10 pr-4 py-2.5 rounded-xl border ${fieldErrors.firstName ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-700/50 focus:ring-indigo-500/80'} bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm`}
                     placeholder="John"
                   />
                 </div>
+                {fieldErrors.firstName && <span className="text-xs text-red-500 mt-1 block">{fieldErrors.firstName}</span>}
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Last Name</label>
@@ -149,31 +248,49 @@ const RegisterDetails = () => {
                     required
                     value={formData.lastName}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm"
+                    className={`w-full pl-10 pr-4 py-2.5 rounded-xl border ${fieldErrors.lastName ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-700/50 focus:ring-indigo-500/80'} bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm`}
                     placeholder="Doe"
                   />
                 </div>
+                {fieldErrors.lastName && <span className="text-xs text-red-500 mt-1 block">{fieldErrors.lastName}</span>}
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Phone Number</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Phone Number (10 digits)</label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
                   name="phone"
                   required
+                  type="text"
+                  maxLength="10"
+                  inputMode="numeric"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm"
-                  placeholder="+94 7X XXX XXXX"
+                  className={`w-full pl-10 pr-4 py-2.5 rounded-xl border ${fieldErrors.phone ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-700/50 focus:ring-indigo-500/80'} bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm`}
+                  placeholder="07X XXX XXXX"
                 />
               </div>
+              {fieldErrors.phone && <span className="text-xs text-red-500 mt-1 block">{fieldErrors.phone}</span>}
             </div>
 
             {/* Role Specific Fields */}
             {role === 'STUDENT' && (
               <div className="space-y-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Student ID</label>
+                  <input
+                    name="studentId"
+                    required
+                    value={formData.studentId}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-2.5 rounded-xl border ${fieldErrors.studentId ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-700/50 focus:ring-indigo-500/80'} bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm`}
+                    placeholder="STU/YYYY/XXX"
+                  />
+                  {fieldErrors.studentId && <span className="text-xs text-red-500 mt-1 block">{fieldErrors.studentId}</span>}
+                </div>
+
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Faculty</label>
@@ -187,10 +304,9 @@ const RegisterDetails = () => {
                         className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none"
                       >
                         <option value="" disabled>Select Faculty</option>
-                        <option value="Computing">Computing</option>
-                        <option value="Engineering">Engineering</option>
-                        <option value="Business">Business</option>
-                        <option value="Science">Science</option>
+                        {Object.keys(STUDENT_FACULTIES).map((fac) => (
+                          <option key={fac} value={fac}>{fac}</option>
+                        ))}
                       </select>
                     </div>
                   </div>
@@ -203,14 +319,13 @@ const RegisterDetails = () => {
                         required
                         value={formData.degreeProgram}
                         onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none"
+                        disabled={!formData.faculty}
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none disabled:opacity-50"
                       >
                         <option value="" disabled>Select Degree</option>
-                        <option value="Software Engineering">Software Engineering</option>
-                        <option value="Computer Science">Computer Science</option>
-                        <option value="Information Systems">Information Systems</option>
-                        <option value="Civil Engineering">Civil Engineering</option>
-                        <option value="Business Management">Business Management</option>
+                        {formData.faculty && STUDENT_FACULTIES[formData.faculty]?.map((deg) => (
+                          <option key={deg} value={deg}>{deg}</option>
+                        ))}
                       </select>
                     </div>
                   </div>
@@ -266,9 +381,10 @@ const RegisterDetails = () => {
                       required
                       value={formData.staffId}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm"
-                      placeholder="L-XXXX"
+                      className={`w-full px-4 py-2.5 rounded-xl border ${fieldErrors.staffId ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-700/50 focus:ring-indigo-500/80'} bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm`}
+                      placeholder="LEC/XXXX"
                     />
+                    {fieldErrors.staffId && <span className="text-xs text-red-500 mt-1 block">{fieldErrors.staffId}</span>}
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Designation</label>
@@ -301,10 +417,9 @@ const RegisterDetails = () => {
                       className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none"
                     >
                       <option value="" disabled>Select Faculty</option>
-                      <option value="Computing">Computing</option>
-                      <option value="Engineering">Engineering</option>
-                      <option value="Business">Business</option>
-                      <option value="Science">Science</option>
+                      {Object.keys(LECTURER_FACULTIES).map((fac) => (
+                        <option key={fac} value={fac}>{fac}</option>
+                      ))}
                     </select>
                   </div>
                   <div className="space-y-2">
@@ -314,17 +429,13 @@ const RegisterDetails = () => {
                       required
                       value={formData.department}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none"
+                      disabled={!formData.faculty}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none disabled:opacity-50"
                     >
                       <option value="" disabled>Select Department</option>
-                      <option value="Software Engineering">Software Engineering</option>
-                      <option value="Computer Science">Computer Science</option>
-                      <option value="Information Technology">Information Technology</option>
-                      <option value="Cyber Security">Cyber Security</option>
-                      <option value="Civil Engineering">Civil Engineering</option>
-                      <option value="Mechanical Engineering">Mechanical Engineering</option>
-                      <option value="Business Management">Business Management</option>
-                      <option value="Data Science">Data Science</option>
+                      {formData.faculty && LECTURER_FACULTIES[formData.faculty]?.map((dep) => (
+                        <option key={dep} value={dep}>{dep}</option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -341,9 +452,10 @@ const RegisterDetails = () => {
                       required
                       value={formData.staffId}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm"
-                      placeholder="T-XXXX"
+                      className={`w-full px-4 py-2.5 rounded-xl border ${fieldErrors.staffId ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-700/50 focus:ring-indigo-500/80'} bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm`}
+                      placeholder="TEC/XXXX"
                     />
+                    {fieldErrors.staffId && <span className="text-xs text-red-500 mt-1 block">{fieldErrors.staffId}</span>}
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Department</label>
@@ -355,11 +467,9 @@ const RegisterDetails = () => {
                       className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none"
                     >
                       <option value="" disabled>Select Department</option>
-                      <option value="IT Support">IT Support</option>
-                      <option value="Network Administration">Network Administration</option>
-                      <option value="Hardware Maintenance">Hardware Maintenance</option>
-                      <option value="Facility Management">Facility Management</option>
-                      <option value="AV Systems">AV Systems</option>
+                      {Object.keys(TECHNICIAN_DEPARTMENTS).map((dep) => (
+                        <option key={dep} value={dep}>{dep}</option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -371,15 +481,13 @@ const RegisterDetails = () => {
                       required
                       value={formData.specialization}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none"
+                      disabled={!formData.department}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none disabled:opacity-50"
                     >
                       <option value="" disabled>Select Specialization</option>
-                      <option value="Cisco Networking">Cisco Networking</option>
-                      <option value="System Administration">System Administration</option>
-                      <option value="Hardware Repair">Hardware Repair</option>
-                      <option value="Software Troubleshooting">Software Troubleshooting</option>
-                      <option value="Audio/Visual Tech">Audio/Visual Tech</option>
-                      <option value="General Maintenance">General Maintenance</option>
+                      {formData.department && TECHNICIAN_DEPARTMENTS[formData.department]?.specializations.map((spec) => (
+                        <option key={spec} value={spec}>{spec}</option>
+                      ))}
                     </select>
                   </div>
                   <div className="space-y-2">
@@ -389,17 +497,13 @@ const RegisterDetails = () => {
                       required
                       value={formData.assignedLab}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none"
+                      disabled={!formData.department}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500/80 outline-none transition-all hover:bg-white dark:hover:bg-slate-900 shadow-sm appearance-none disabled:opacity-50"
                     >
                       <option value="" disabled>Select Lab / Room</option>
-                      <option value="Cisco Lab">Cisco Lab</option>
-                      <option value="Software Engineering Lab">Software Engineering Lab</option>
-                      <option value="Hardware Lab">Hardware Lab</option>
-                      <option value="Mac Lab">Mac Lab</option>
-                      <option value="Main Auditorium">Main Auditorium</option>
-                      <option value="Robotics Lab">Robotics Lab</option>
-                      <option value="Data Science Lab">Data Science Lab</option>
-                      <option value="General IT Store">General IT Store</option>
+                      {formData.department && TECHNICIAN_DEPARTMENTS[formData.department]?.labs.map((lab) => (
+                        <option key={lab} value={lab}>{lab}</option>
+                      ))}
                     </select>
                   </div>
                 </div>
