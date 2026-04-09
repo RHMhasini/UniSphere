@@ -1,9 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { XCircle, HelpCircle, MessageSquare, LogOut } from 'lucide-react';
 
 const RegisterRejected = () => {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="dashboard-wrapper mesh-background min-h-screen flex items-center justify-center p-4">
@@ -44,7 +46,10 @@ const RegisterRejected = () => {
             For further assistance, please contact campus support.
           </p>
           <button
-            onClick={logout}
+            onClick={() => {
+              logout();
+              navigate('/login', { replace: true });
+            }}
             className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all font-medium"
           >
             <LogOut className="w-4 h-4" />

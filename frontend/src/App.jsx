@@ -53,11 +53,7 @@ function App() {
                 <RegisterPending />
               </ProtectedRoute>
             } />
-            <Route path="/register/rejected" element={
-              <ProtectedRoute>
-                <RegisterRejected />
-              </ProtectedRoute>
-            } />
+            <Route path="/register/rejected" element={<RegisterRejected />} />
             <Route path="/access-denied" element={<AccessDenied />} />
             
             {/* Protected Dashboard Routes */}

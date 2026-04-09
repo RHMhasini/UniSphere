@@ -14,6 +14,12 @@ const OAuth2RedirectHandler = () => {
     const status = params.get('status');
 
     if (token && refreshToken) {
+      if (status === 'REJECTED') {
+        console.log('User is rejected. Dropping tokens and redirecting to rejected page.');
+        navigate('/register/rejected', { replace: true });
+        return;
+      }
+
       console.log('Tokens found, status:', status);
       setTokens(token, refreshToken);
       
