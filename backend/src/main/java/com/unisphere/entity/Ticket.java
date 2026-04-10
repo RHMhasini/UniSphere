@@ -30,14 +30,20 @@ public class Ticket {
     private TicketPriority priority;
     private TicketStatus status;
 
-    private String createdBy;  // HARDCODED: "user123"
-    private String assignedTo; // HARDCODED: "tech123"
+    private String createdBy;   // user id
+    private String assignedTo;  // user id (technician)
 
     private String location;
     private String contactEmail;
     private String contactPhone;
 
     private List<String> attachments;
+
+    /** Filled when status moves to RESOLVED / CLOSED */
+    private String resolutionNote;
+
+    /** Filled when status is set to REJECTED */
+    private String rejectionReason;
 
     @CreatedDate
     private LocalDateTime createdAt;

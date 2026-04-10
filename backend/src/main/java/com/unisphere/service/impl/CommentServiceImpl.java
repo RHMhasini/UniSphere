@@ -5,6 +5,7 @@ import com.unisphere.dto.CreateCommentRequest;
 import com.unisphere.entity.Comment;
 import com.unisphere.entity.Ticket;
 import com.unisphere.enums.NotificationType;
+import com.unisphere.exception.ResourceNotFoundException;
 import com.unisphere.repository.CommentRepository;
 import com.unisphere.repository.TicketRepository;
 import com.unisphere.service.CommentService;
@@ -19,62 +20,91 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
+
     private final CommentRepository commentRepository;
     private final TicketRepository ticketRepository;
     private final NotificationService notificationService;
 
-    private static final String DEFAULT_USER = "user123";
-
     @Override
-    public CommentResponse addComment(String ticketId, CreateCommentRequest request) {
-        // Verify ticket exists
+    public CommentResponse addComment(String ticketId, CreateCommentRequest req) {
         Ticket ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new RuntimeException("Ticket not found with id: " + ticketId));
+                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found: " + ticketId));
 
         Comment comment = Comment.builder()
                 .ticketId(ticketId)
-                .userId(DEFAULT_USER)
-                .message(request.getMessage())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
+                .userId(req.getUserId())
+                .message(req.getMessage())
                 .build();
 
-        Comment savedComment = commentRepository.save(comment);
+        Comment saved = commentRepository.save(comment);
 
-        // Create notification for comment
-        String notificationMessage = String.format(
-                "New comment on ticket #%s: %s",
-                ticketId, request.getMessage()
-        );
-        notificationService.createNotification(
-                ticket.getCreatedBy(),
-                notificationMessage,
-                NotificationType.COMMENT.toString()
-        );
+        // Notify the ticket creator if someone else commented
+        if (!req.getUserId().equals(ticket.getCreatedBy())) {
+            notificationService.createNotification(
+                    ticket.getCreatedBy(),
+                    "New comment on your ticket \"" + ticket.getTitle() + "\".",
+                    NotificationType.COMMENT.name()
+            );
+        }
 
-        return mapToResponse(savedComment);
+        // Notify the assigned technician if it's not them commenting
+        if (ticket.getAssignedTo() != null
+                && !ticket.getAssignedTo().isBlank()
+                && !req.getUserId().equals(ticket.getAssignedTo())) {
+            notificationService.createNotification(
+                    ticket.getAssignedTo(),
+                    "New comment on ticket \"" + ticket.getTitle() + "\".",
+                    NotificationType.COMMENT.name()
+            );
+        }
+
+        return mapToResponse(saved);
     }
 
     @Override
     public List<CommentResponse> getCommentsByTicketId(String ticketId) {
+        if (!ticketRepository.existsById(ticketId)) {
+            throw new ResourceNotFoundException("Ticket not found: " + ticketId);
+        }
         return commentRepository.findByTicketId(ticketId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void deleteComment(String commentId) {
+    public CommentResponse updateComment(String commentId, String userId, String newMessage) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment not found: " + commentId));
+
+        if (!comment.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("You can only edit your own comments.");
+        }
+
+        comment.setMessage(newMessage);
+        comment.setUpdatedAt(LocalDateTime.now());
+        return mapToResponse(commentRepository.save(comment));
+    }
+
+    @Override
+    public void deleteComment(String commentId, String userId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment not found: " + commentId));
+
+        if (!comment.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("You can only delete your own comments.");
+        }
+
         commentRepository.deleteById(commentId);
     }
 
-    private CommentResponse mapToResponse(Comment comment) {
+    private CommentResponse mapToResponse(Comment c) {
         return CommentResponse.builder()
-                .id(comment.getId())
-                .ticketId(comment.getTicketId())
-                .userId(comment.getUserId())
-                .message(comment.getMessage())
-                .createdAt(comment.getCreatedAt())
-                .updatedAt(comment.getUpdatedAt())
+                .id(c.getId())
+                .ticketId(c.getTicketId())
+                .userId(c.getUserId())
+                .message(c.getMessage())
+                .createdAt(c.getCreatedAt())
+                .updatedAt(c.getUpdatedAt())
                 .build();
     }
 }

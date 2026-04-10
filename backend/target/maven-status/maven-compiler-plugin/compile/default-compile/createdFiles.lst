@@ -4,13 +4,16 @@ com\unisphere\dto\TicketResponse.class
 com\unisphere\enums\NotificationType.class
 com\unisphere\repository\TicketHistoryRepository.class
 com\unisphere\dto\AssignTicketRequest$AssignTicketRequestBuilder.class
+com\unisphere\dto\TicketHistoryResponse.class
 com\unisphere\exception\ErrorResponse$ErrorResponseBuilder.class
 com\unisphere\service\NotificationService.class
 com\unisphere\dto\CreateCommentRequest$CreateCommentRequestBuilder.class
 com\unisphere\repository\TicketRepository.class
+com\unisphere\dto\UpdateTicketRequest$UpdateTicketRequestBuilder.class
 com\unisphere\dto\CreateCommentRequest.class
 com\unisphere\service\impl\CommentServiceImpl.class
 com\unisphere\dto\AssignTicketRequest.class
+com\unisphere\dto\TicketHistoryResponse$TicketHistoryResponseBuilder.class
 com\unisphere\repository\UserRepository.class
 com\unisphere\service\impl\NotificationServiceImpl.class
 com\unisphere\entity\Notification$NotificationBuilder.class
@@ -21,10 +24,12 @@ com\unisphere\service\impl\TicketServiceImpl.class
 com\unisphere\enums\TicketStatus.class
 com\unisphere\exception\GlobalExceptionHandler.class
 com\unisphere\dto\CreateTicketRequest$CreateTicketRequestBuilder.class
+com\unisphere\dto\UpdateTicketRequest.class
 com\unisphere\config\MongoConfig.class
 com\unisphere\entity\TicketHistory$TicketHistoryBuilder.class
 com\unisphere\repository\NotificationRepository.class
 com\unisphere\entity\Ticket$TicketBuilder.class
+com\unisphere\config\SecurityConfig.class
 com\unisphere\config\SeedDataRunner.class
 com\unisphere\enums\UserRole.class
 com\unisphere\entity\User.class
@@ -43,6 +48,7 @@ com\unisphere\dto\CommentResponse$CommentResponseBuilder.class
 com\unisphere\dto\NotificationResponse$NotificationResponseBuilder.class
 com\unisphere\entity\TicketHistory.class
 com\unisphere\enums\Category.class
+com\unisphere\exception\ResourceNotFoundException.class
 com\unisphere\entity\Comment$CommentBuilder.class
 com\unisphere\controller\NotificationController.class
 com\unisphere\dto\UpdateTicketStatusRequest$UpdateTicketStatusRequestBuilder.class

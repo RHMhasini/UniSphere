@@ -1,12 +1,16 @@
 package com.unisphere.dto;
 
+import com.unisphere.enums.Category;
+import com.unisphere.enums.TicketPriority;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.unisphere.enums.Category;
-import com.unisphere.enums.TicketPriority;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -14,12 +18,33 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class CreateTicketRequest {
+
+    @NotBlank(message = "Title is required")
     private String title;
+
+    @NotBlank(message = "Description is required")
     private String description;
+
+    @NotNull(message = "Category is required")
     private Category category;
+
+    @NotNull(message = "Priority is required")
     private TicketPriority priority;
+
+    @NotBlank(message = "Created-by user ID is required")
+    private String createdBy;
+
+    /** Optional — can be assigned later via PUT /assign */
+    private String assignedTo;
+
+    @NotBlank(message = "Location is required")
     private String location;
+
+    @Email(message = "Contact email must be a valid email")
     private String contactEmail;
+
     private String contactPhone;
-    private List<String> attachments;
+
+    @Builder.Default
+    private List<String> attachments = new ArrayList<>();
 }

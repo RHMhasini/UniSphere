@@ -1,4 +1,5 @@
 D:\UniSphere\backend\src\main\java\com\unisphere\config\MongoConfig.java
+D:\UniSphere\backend\src\main\java\com\unisphere\config\SecurityConfig.java
 D:\UniSphere\backend\src\main\java\com\unisphere\config\SeedDataRunner.java
 D:\UniSphere\backend\src\main\java\com\unisphere\controller\CommentController.java
 D:\UniSphere\backend\src\main\java\com\unisphere\controller\NotificationController.java
@@ -8,7 +9,9 @@ D:\UniSphere\backend\src\main\java\com\unisphere\dto\CommentResponse.java
 D:\UniSphere\backend\src\main\java\com\unisphere\dto\CreateCommentRequest.java
 D:\UniSphere\backend\src\main\java\com\unisphere\dto\CreateTicketRequest.java
 D:\UniSphere\backend\src\main\java\com\unisphere\dto\NotificationResponse.java
+D:\UniSphere\backend\src\main\java\com\unisphere\dto\TicketHistoryResponse.java
 D:\UniSphere\backend\src\main\java\com\unisphere\dto\TicketResponse.java
+D:\UniSphere\backend\src\main\java\com\unisphere\dto\UpdateTicketRequest.java
 D:\UniSphere\backend\src\main\java\com\unisphere\dto\UpdateTicketStatusRequest.java
 D:\UniSphere\backend\src\main\java\com\unisphere\entity\Comment.java
 D:\UniSphere\backend\src\main\java\com\unisphere\entity\Notification.java
@@ -22,6 +25,7 @@ D:\UniSphere\backend\src\main\java\com\unisphere\enums\TicketStatus.java
 D:\UniSphere\backend\src\main\java\com\unisphere\enums\UserRole.java
 D:\UniSphere\backend\src\main\java\com\unisphere\exception\ErrorResponse.java
 D:\UniSphere\backend\src\main\java\com\unisphere\exception\GlobalExceptionHandler.java
+D:\UniSphere\backend\src\main\java\com\unisphere\exception\ResourceNotFoundException.java
 D:\UniSphere\backend\src\main\java\com\unisphere\repository\CommentRepository.java
 D:\UniSphere\backend\src\main\java\com\unisphere\repository\NotificationRepository.java
 D:\UniSphere\backend\src\main\java\com\unisphere\repository\TicketHistoryRepository.java

@@ -8,5 +8,6 @@ import java.util.List;
 public interface CommentService {
     CommentResponse addComment(String ticketId, CreateCommentRequest request);
     List<CommentResponse> getCommentsByTicketId(String ticketId);
-    void deleteComment(String commentId);
+    CommentResponse updateComment(String commentId, String userId, String newMessage);
+    void deleteComment(String commentId, String userId);
 }
