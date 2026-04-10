@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Badge from '../../common/Badge/Badge';
 import { Calendar, MapPin, AlertCircle } from 'lucide-react';
 import './TicketCard.css';
@@ -25,13 +26,16 @@ const getPriorityVariant = (priority) => {
 };
 
 function TicketCard({ ticket }) {
+  const navigate = useNavigate();
+
   const dateFormatted = new Date(ticket.createdAt).toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric'
   });
 
   return (
-    <div className="ticket-card">
+    <div className="ticket-card" onClick={() => navigate(`/tickets/${ticket.id}`)}>
       <div className="ticket-card-header">
+
         <h3 className="ticket-title">{ticket.title}</h3>
         <Badge variant={getStatusVariant(ticket.status)}>{ticket.status.replace('_', ' ')}</Badge>
       </div>

@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Filter, LayoutGrid, List as ListIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Plus, Filter, LayoutGrid, List as ListIcon, AlertCircle } from 'lucide-react';
 import TicketCard from '../../components/tickets/TicketCard/TicketCard';
 import Button from '../../components/common/Button/Button';
 import './TicketDashboard.css';
 
 function TicketDashboard() {
+  const navigate = useNavigate();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('ALL'); // ALL, OPEN, IN_PROGRESS, RESOLVED, CLOSED, REJECTED
+  const [filter, setFilter] = useState('ALL'); 
   
-  // Simulated admin user session
-  const currentUserRole = 'ADMIN'; 
-
   useEffect(() => {
     fetchTickets();
   }, []);
@@ -23,7 +22,6 @@ function TicketDashboard() {
       const response = await fetch('http://localhost:8080/api/tickets');
       if (!response.ok) throw new Error('Failed to fetch tickets');
       const data = await response.json();
-      // Handle the wrapping structure from our backend serialization or plain array
       const ticketsArray = data.value || data;
       setTickets(Array.isArray(ticketsArray) ? ticketsArray : []);
       setError(null);
@@ -58,7 +56,7 @@ function TicketDashboard() {
           <Button variant="outline">
             <Filter size={18} /> Filter
           </Button>
-          <Button variant="primary">
+          <Button variant="primary" onClick={() => navigate('/tickets/create')}>
             <Plus size={18} /> New Ticket
           </Button>
         </div>
