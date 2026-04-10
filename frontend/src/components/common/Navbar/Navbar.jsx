@@ -1,13 +1,9 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "../../../context/AuthContext";
 import "./Navbar.css";
 
 function Navbar({ theme, toggleTheme }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const location = useLocation();
-  const { currentUser, switchUser, MOCK_USERS } = useAuth(); // Global simulated state
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -15,23 +11,20 @@ function Navbar({ theme, toggleTheme }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Ensure hash links work if on landing page, otherwise direct to landing
-  const isLanding = location.pathname === "/";
-  const getHref = (hash) => (isLanding ? hash : `/${hash}`);
-
   return (
     <nav className={`navbar ${scrolled ? "navbar--scrolled" : ""}`}>
       <div className="container navbar__inner">
         {/* Logo */}
-        <Link to="/" className="navbar__logo">
+        <a href="/" className="navbar__logo">
           <span className="navbar__logo-icon">◈</span>
           <span className="navbar__logo-text">UniSphere</span>
-        </Link>
+        </a>
 
         {/* Desktop nav links */}
         <ul className="navbar__links">
-          <li><a href={getHref("#features")}>Features</a></li>
-          <li><Link to="/tickets">Tickets Dashboard</Link></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#contact">Contact</a></li>
         </ul>
 
         {/* Right side actions */}
@@ -64,21 +57,8 @@ function Navbar({ theme, toggleTheme }) {
             )}
           </button>
 
-          {/* Dev Mode Role Switcher */}
-          <div className="auth-switcher">
-            <span className="auth-switcher-label">Act as:</span>
-            <select 
-              value={currentUser.id} 
-              onChange={(e) => switchUser(e.target.value)}
-              className="auth-switcher-select"
-            >
-              {MOCK_USERS.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.name} ({user.role})
-                </option>
-              ))}
-            </select>
-          </div>
+          <a href="/login" className="btn btn--outline">Log In</a>
+          <a href="/register" className="btn btn--primary">Get Started</a>
 
           {/* Mobile hamburger */}
           <button
@@ -94,22 +74,11 @@ function Navbar({ theme, toggleTheme }) {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="navbar__mobile-menu">
-          <a href={getHref("#features")} onClick={() => setMenuOpen(false)}>Features</a>
-          <Link to="/tickets" onClick={() => setMenuOpen(false)}>Tickets</Link>
-          
-          <div className="mobile-auth-switcher">
-            <label>Role:</label>
-            <select 
-              value={currentUser.id} 
-              onChange={(e) => switchUser(e.target.value)}
-            >
-              {MOCK_USERS.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.name} ({user.role})
-                </option>
-              ))}
-            </select>
-          </div>
+          <a href="#features" onClick={() => setMenuOpen(false)}>Features</a>
+          <a href="#how-it-works" onClick={() => setMenuOpen(false)}>How It Works</a>
+          <a href="#contact" onClick={() => setMenuOpen(false)}>Contact</a>
+          <a href="/login" className="btn btn--outline" onClick={() => setMenuOpen(false)}>Log In</a>
+          <a href="/register" className="btn btn--primary" onClick={() => setMenuOpen(false)}>Get Started</a>
         </div>
       )}
     </nav>

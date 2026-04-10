@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/common/Button/Button';
 import Badge from '../../components/common/Badge/Badge';
-import { ArrowLeft, Clock, MessageSquare, AlertCircle, User, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, Clock, MessageSquare, AlertCircle, User, ShieldAlert, Trash2, Edit2, Check, X } from 'lucide-react';
 import './TicketDetails.css';
 
 // Utility for Time Gap calculations (SLA requirement)
@@ -37,6 +37,16 @@ function TicketDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
+  
+  // Track specific admin/tech dialogs
+  const [resolutionPrompt, setResolutionPrompt] = useState(false);
+  const [resolutionNote, setResolutionNote] = useState('');
+  const [rejectPrompt, setRejectPrompt] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+
+  // Comment edit states
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingCommentText, setEditingCommentText] = useState('');
 
   useEffect(() => {
     fetchTicketData();
@@ -72,7 +82,15 @@ function TicketDetails() {
     setActionLoading(true);
     try {
       const payload = { newStatus, changedBy: currentUser.id };
-      if (newStatus === 'RESOLVED') payload.resolutionNote = "Resolved by technician.";
+      
+      if (newStatus === 'RESOLVED') {
+        payload.resolutionNote = resolutionNote;
+        setResolutionPrompt(false);
+      }
+      if (newStatus === 'REJECTED') {
+        payload.rejectionReason = rejectReason;
+        setRejectPrompt(false);
+      }
       
       const res = await fetch(`http://localhost:8080/api/tickets/${id}/status`, {
         method: 'PUT',
@@ -83,6 +101,30 @@ function TicketDetails() {
     } finally {
       setActionLoading(false);
     }
+  };
+
+  const deleteComment = async (commentId) => {
+    if (!window.confirm("Delete this comment permanently?")) return;
+    try {
+      const res = await fetch(`http://localhost:8080/api/tickets/${id}/comments/${commentId}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) fetchTicketData();
+    } catch (err) { }
+  };
+
+  const submitCommentEdit = async (commentId) => {
+    try {
+      const res = await fetch(`http://localhost:8080/api/tickets/${id}/comments/${commentId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: currentUser.id, message: editingCommentText })
+      });
+      if (res.ok) {
+        setEditingCommentId(null);
+        fetchTicketData();
+      }
+    } catch (err) { }
   };
 
   // Post Comment Action
@@ -102,6 +144,18 @@ function TicketDetails() {
     } finally {
       setActionLoading(false);
     }
+  };
+
+  // Assigment Action (Admin Only)
+  const handleAssignTech = async (techId) => {
+    try {
+      const res = await fetch(`http://localhost:8080/api/tickets/${id}/assign`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assignedTo: techId, assignedBy: currentUser.id })
+      });
+      if (res.ok) fetchTicketData();
+    } catch (err) { }
   };
 
   if (loading) return <div className="loading-state"><div className="spinner"></div></div>;
@@ -141,11 +195,41 @@ function TicketDetails() {
           {isStaff && ticket.status === 'OPEN' && (
              <Button variant="primary" onClick={() => handleStatusChange('IN_PROGRESS')} disabled={actionLoading}>Start Working</Button>
           )}
-          {isStaff && ticket.status === 'IN_PROGRESS' && (
-             <Button variant="primary" onClick={() => handleStatusChange('RESOLVED')} disabled={actionLoading}>Mark Resolved</Button>
+          
+          {isStaff && ticket.status === 'IN_PROGRESS' && !resolutionPrompt && (
+             <Button variant="success" onClick={() => setResolutionPrompt(true)} disabled={actionLoading}>Mark Resolved</Button>
+          )}
+
+          {currentUser.role === 'ADMIN' && ticket.status !== 'CLOSED' && ticket.status !== 'REJECTED' && !rejectPrompt && (
+            <Button variant="outline" onClick={() => setRejectPrompt(true)}>Reject Ticket</Button>
+          )}
+          {currentUser.role === 'ADMIN' && ticket.status === 'RESOLVED' && (
+            <Button variant="ghost" onClick={() => handleStatusChange('CLOSED')}>Close Ticket</Button>
           )}
         </div>
       </div>
+
+      {resolutionPrompt && (
+        <div className="inline-prompt">
+           <h4>Provide Resolution Note</h4>
+           <textarea value={resolutionNote} onChange={e => setResolutionNote(e.target.value)} placeholder="Explain the fix..." rows="3"></textarea>
+           <div className="prompt-actions">
+              <Button variant="ghost" onClick={() => setResolutionPrompt(false)}>Cancel</Button>
+              <Button variant="primary" onClick={() => handleStatusChange('RESOLVED')} disabled={actionLoading || !resolutionNote.trim()}>Complete Resolution</Button>
+           </div>
+        </div>
+      )}
+
+      {rejectPrompt && (
+        <div className="inline-prompt prompt-danger">
+           <h4>Provide Rejection Reason</h4>
+           <textarea value={rejectReason} onChange={e => setRejectReason(e.target.value)} placeholder="Reason for rejecting this request..." rows="3"></textarea>
+           <div className="prompt-actions">
+              <Button variant="ghost" onClick={() => setRejectPrompt(false)}>Cancel</Button>
+              <Button variant="primary" onClick={() => handleStatusChange('REJECTED')} disabled={actionLoading || !rejectReason.trim()}>Confirm Rejection</Button>
+           </div>
+        </div>
+      )}
 
       <div className="detail-grid">
         {/* Main Content Pane */}
@@ -158,10 +242,27 @@ function TicketDetails() {
             
             <p className="core-desc">{ticket.description}</p>
             
+            {ticket.attachments && ticket.attachments.length > 0 && (
+              <div className="attachments-gallery">
+                <h4>Attached Evidence</h4>
+                <div className="gallery-grid">
+                  {ticket.attachments.map((att, idx) => (
+                    <img key={idx} src={att} alt={`Attachment ${idx+1}`} />
+                  ))}
+                </div>
+              </div>
+            )}
+            
             {ticket.resolutionNote && (
               <div className="resolution-box">
                 <h4>Resolution Note</h4>
                 <p>{ticket.resolutionNote}</p>
+              </div>
+            )}
+            {ticket.rejectionReason && (
+              <div className="rejection-box">
+                <h4>Rejection Reason</h4>
+                <p>{ticket.rejectionReason}</p>
               </div>
             )}
           </div>
@@ -175,7 +276,26 @@ function TicketDetails() {
                     <strong>{getCreatorName(c.userId)}</strong>
                     <span>{new Date(c.createdAt).toLocaleString()}</span>
                   </div>
-                  <p>{c.message}</p>
+                  
+                  {editingCommentId === c.id ? (
+                     <div className="edit-mode">
+                       <textarea value={editingCommentText} onChange={e => setEditingCommentText(e.target.value)} />
+                       <div className="edit-actions">
+                         <button onClick={() => setEditingCommentId(null)}><X size={14}/></button>
+                         <button onClick={() => submitCommentEdit(c.id)}><Check size={14}/></button>
+                       </div>
+                     </div>
+                  ) : (
+                     <div className="comment-body">
+                       <p>{c.message}</p>
+                       {c.userId === currentUser.id && (
+                         <div className="comment-tools">
+                           <button onClick={() => { setEditingCommentText(c.message); setEditingCommentId(c.id); }}><Edit2 size={12}/></button>
+                           <button onClick={() => deleteComment(c.id)}><Trash2 size={12}/></button>
+                         </div>
+                       )}
+                     </div>
+                  )}
                 </div>
               ))}
               {comments.length === 0 && <p className="no-comments">No comments yet. Start the discussion!</p>}
@@ -214,9 +334,23 @@ function TicketDetails() {
               <span>Requester</span>
               <strong style={{display: 'flex', gap: '6px', alignItems: 'center'}}><User size={14}/> {getCreatorName(ticket.createdBy)}</strong>
             </div>
-            <div className="detail-row">
+            <div className="detail-row" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
               <span>Assigned To</span>
-              <strong>{ticket.assignedTo ? getCreatorName(ticket.assignedTo) : 'Unassigned'}</strong>
+              
+              {currentUser.role === 'ADMIN' ? (
+                <select 
+                   value={ticket.assignedTo || ''} 
+                   onChange={(e) => handleAssignTech(e.target.value)}
+                   style={{ width: '100%', padding: '6px', borderRadius: '4px', background: 'var(--bg-secondary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
+                >
+                  <option value="" disabled>Select Technician</option>
+                  {MOCK_USERS.filter(u => u.role === 'TECHNICIAN').map(tech => (
+                    <option key={tech.id} value={tech.id}>{tech.name}</option>
+                  ))}
+                </select>
+              ) : (
+                <strong>{ticket.assignedTo ? getCreatorName(ticket.assignedTo) : 'Unassigned'}</strong>
+              )}
             </div>
           </div>
 

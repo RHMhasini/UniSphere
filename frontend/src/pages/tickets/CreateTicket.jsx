@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/common/Button/Button';
-import { AlertCircle, ArrowLeft } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Upload, X } from 'lucide-react';
 import './CreateTicket.css';
 
 function CreateTicket() {
@@ -16,7 +16,8 @@ function CreateTicket() {
     priority: 'LOW',
     location: '',
     contactEmail: '',
-    contactPhone: ''
+    contactPhone: '',
+    attachments: [] // Stores base64 strings
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,6 +25,45 @@ function CreateTicket() {
 
   const handleChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleFileChange = async (e) => {
+    const files = Array.from(e.target.files);
+    
+    if (formData.attachments.length + files.length > 3) {
+      setError('You can only attach up to 3 images.');
+      return;
+    }
+    
+    setError(null);
+    const base64Files = [];
+    
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) {
+        setError('Only image files are allowed as evidence.');
+        return;
+      }
+      
+      const reader = new FileReader();
+      const promise = new Promise((resolve, reject) => {
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+      });
+      reader.readAsDataURL(file);
+      base64Files.push(await promise);
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      attachments: [...prev.attachments, ...base64Files].slice(0, 3)
+    }));
+  };
+
+  const removeAttachment = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      attachments: prev.attachments.filter((_, i) => i !== index)
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -48,7 +88,6 @@ function CreateTicket() {
         throw new Error(errData.message || 'Failed to create ticket');
       }
 
-      // Automatically redirect to the dashboard after creating
       navigate('/tickets');
     } catch (err) {
       setError(err.message);
@@ -118,6 +157,40 @@ function CreateTicket() {
               placeholder="Describe what is happening, when it started, and who is affected."
               required value={formData.description} onChange={handleChange} 
             />
+          </div>
+        </div>
+
+        {/* Attachment Evidence section */}
+        <div className="form-row section-divider">
+          <h3>Evidence Attachments</h3>
+        </div>
+        <div className="form-row">
+          <div className="form-group full-width">
+            <label>Images (Max 3)</label>
+            <div className="attachment-uploader">
+               <label htmlFor="file-upload" className="upload-btn">
+                 <Upload size={18} /> Choose Images
+               </label>
+               <input 
+                 id="file-upload" type="file" multiple accept="image/*"
+                 style={{ display: 'none' }} onChange={handleFileChange}
+                 disabled={formData.attachments.length >= 3}
+               />
+               <span className="upload-hint">({formData.attachments.length}/3 attached)</span>
+            </div>
+            
+            {formData.attachments.length > 0 && (
+              <div className="attachment-preview-grid">
+                {formData.attachments.map((base64, idx) => (
+                  <div key={idx} className="preview-item">
+                    <img src={base64} alt={`Attachment ${idx+1}`} />
+                    <button type="button" className="remove-btn" onClick={() => removeAttachment(idx)}>
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
