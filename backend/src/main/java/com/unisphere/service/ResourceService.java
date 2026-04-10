@@ -1,27 +1,37 @@
 package com.unisphere.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.unisphere.dto.ResourceRequest;
 import com.unisphere.dto.ResourceResponse;
 import com.unisphere.entity.Resource;
 import com.unisphere.repository.ResourceRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
+// Removed @RequiredArgsConstructor to fix the "not initialized" error
 public class ResourceService {
 
     private final ResourceRepository resourceRepository;
+
+    // MANUAL CONSTRUCTOR: This fixes the VS Code error immediately
+    public ResourceService(ResourceRepository resourceRepository) {
+        this.resourceRepository = resourceRepository;
+    }
 
     // ── CREATE ──────────────────────────────────────
     public ResourceResponse createResource(ResourceRequest request) {
         Resource resource = new Resource();
         mapRequestToEntity(request, resource);
+        resource.setCreatedAt(LocalDateTime.now());
+        resource.setUpdatedAt(LocalDateTime.now());
+        
         Resource savedResource = resourceRepository.save(resource);
         return mapToResponse(savedResource);
     }
@@ -35,34 +45,41 @@ public class ResourceService {
     }
 
     // ── READ (BY ID) ────────────────────────────────
-    public ResourceResponse getResourceById(Long id) {
+    public ResourceResponse getResourceById(@NonNull String id) {
         Resource resource = resourceRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found with id: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found"));
         return mapToResponse(resource);
     }
 
     // ── READ (BY TYPE & SEARCH) ─────────────────────
     public List<ResourceResponse> getResourcesByType(String type, String search) {
-        // This is a basic filter implementation
-        return resourceRepository.findAll().stream()
-                .filter(r -> r.getType().equalsIgnoreCase(type))
-                .filter(r -> search == null || r.getName().toLowerCase().contains(search.toLowerCase()))
+        // Using the custom repository method we defined earlier
+        List<Resource> resources;
+        if (search != null && !search.isEmpty()) {
+            resources = resourceRepository.findByTypeAndSearch(type, search);
+        } else {
+            resources = resourceRepository.findByTypeIgnoreCase(type);
+        }
+        
+        return resources.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     // ── UPDATE ──────────────────────────────────────
-    public ResourceResponse updateResource(Long id, ResourceRequest request) {
+    public ResourceResponse updateResource(@NonNull String id, ResourceRequest request) {
         Resource resource = resourceRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found"));
         
         mapRequestToEntity(request, resource);
+        resource.setUpdatedAt(LocalDateTime.now());
+        
         Resource updatedResource = resourceRepository.save(resource);
         return mapToResponse(updatedResource);
     }
 
     // ── DELETE ──────────────────────────────────────
-    public void deleteResource(Long id) {
+    public void deleteResource(@NonNull String id) {
         if (!resourceRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found");
         }
@@ -88,7 +105,10 @@ public class ResourceService {
         response.setCapacity(resource.getCapacity());
         response.setLocation(resource.getLocation());
         response.setAvailabilityWindows(resource.getAvailabilityWindows());
+        response.setAvailabilityWindowCount(resource.getAvailabilityWindows() != null ? resource.getAvailabilityWindows().size() : 0);
         response.setStatus(resource.getStatus());
+        response.setCreatedAt(resource.getCreatedAt());
+        response.setUpdatedAt(resource.getUpdatedAt());
         return response;
     }
 }

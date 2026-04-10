@@ -2,12 +2,9 @@ package com.unisphere.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 
 import java.util.List;
 
-@Data
 public class ResourceRequest {
 
     @NotBlank(message = "Resource name is required")
@@ -27,4 +24,55 @@ public class ResourceRequest {
 
     @NotBlank(message = "Status is required")
     private String status; // ACTIVE or OUT_OF_SERVICE
+
+    public ResourceRequest() {
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public List<String> getAvailabilityWindows() {
+        return availabilityWindows;
+    }
+
+    public void setAvailabilityWindows(List<String> availabilityWindows) {
+        this.availabilityWindows = availabilityWindows;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

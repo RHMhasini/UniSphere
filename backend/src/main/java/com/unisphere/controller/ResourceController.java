@@ -13,13 +13,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/resources")
-// Removed @RequiredArgsConstructor and @CrossOrigin to fix VS Code errors 
-// and keep code clean as per your global CorsConfig.
 public class ResourceController {
 
     private final ResourceService resourceService;
 
-    // Manual Constructor to fix the "Lombok/RequiredArgsConstructor" error in VS Code
+    // Manual Constructor to fix Lombok issues in VS Code
     public ResourceController(ResourceService resourceService) {
         this.resourceService = resourceService;
     }
@@ -33,18 +31,14 @@ public class ResourceController {
     }
 
     // ── GET /api/resources ──────────────────────────
-    // Added Search/Filter logic directly here as per your requirements
     @GetMapping
-    public ResponseEntity<List<ResourceResponse>> getAllResources(
-            @RequestParam(required = false) String type,
-            @RequestParam(required = false) Integer minCapacity) {
-        // You can later update service to handle these filters
+    public ResponseEntity<List<ResourceResponse>> getAllResources() {
         return ResponseEntity.ok(resourceService.getAllResources());
     }
 
     // ── GET /api/resources/{id} ─────────────────────
     @GetMapping("/{id}")
-    public ResponseEntity<ResourceResponse> getResourceById(@PathVariable Long id) {
+    public ResponseEntity<ResourceResponse> getResourceById(@PathVariable String id) {
         return ResponseEntity.ok(resourceService.getResourceById(id));
     }
 
@@ -59,14 +53,14 @@ public class ResourceController {
     // ── PUT /api/resources/{id} ─────────────────────
     @PutMapping("/{id}")
     public ResponseEntity<ResourceResponse> updateResource(
-            @PathVariable Long id,
+            @PathVariable String id,
             @Valid @RequestBody ResourceRequest request) {
         return ResponseEntity.ok(resourceService.updateResource(id, request));
     }
 
     // ── DELETE /api/resources/{id} ──────────────────
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> deleteResource(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> deleteResource(@PathVariable String id) {
         resourceService.deleteResource(id);
         return ResponseEntity.ok(Map.of(
             "message", "Resource deleted successfully", 
