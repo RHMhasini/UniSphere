@@ -5,120 +5,90 @@ import com.unisphere.dto.ResourceResponse;
 import com.unisphere.entity.Resource;
 import com.unisphere.repository.ResourceRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ResourceService {
 
     private final ResourceRepository resourceRepository;
 
-    // ────────────────────────────────────────────────
-    // CREATE
-    // ────────────────────────────────────────────────
+    // ── CREATE ──────────────────────────────────────
     public ResourceResponse createResource(ResourceRequest request) {
-        log.debug("Creating resource: {}", request.getName());
-
-        Resource resource = Resource.builder()
-                .name(request.getName())
-                .type(request.getType())
-                .capacity(request.getCapacity())
-                .location(request.getLocation())
-                .availabilityWindows(request.getAvailabilityWindows())
-                .status(request.getStatus())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
-
-        Resource saved = resourceRepository.save(resource);
-        log.debug("Resource saved with id: {}", saved.getId());
-        return toResponse(saved);
+        Resource resource = new Resource();
+        mapRequestToEntity(request, resource);
+        Resource savedResource = resourceRepository.save(resource);
+        return mapToResponse(savedResource);
     }
 
-    // ────────────────────────────────────────────────
-    // READ ALL
-    // ────────────────────────────────────────────────
+    // ── READ (ALL) ──────────────────────────────────
     public List<ResourceResponse> getAllResources() {
         return resourceRepository.findAll()
                 .stream()
-                .map(this::toResponse)
+                .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
-    // ────────────────────────────────────────────────
-    // READ BY TYPE (with optional search)
-    // ────────────────────────────────────────────────
-    public List<ResourceResponse> getResourcesByType(String type, String keyword) {
-        List<Resource> resources;
-        if (keyword != null && !keyword.isBlank()) {
-            resources = resourceRepository.findByTypeAndSearch(type.toUpperCase(), keyword);
-        } else {
-            resources = resourceRepository.findByType(type.toUpperCase());
-        }
-        return resources.stream().map(this::toResponse).collect(Collectors.toList());
-    }
-
-    // ────────────────────────────────────────────────
-    // READ BY ID
-    // ────────────────────────────────────────────────
-    public ResourceResponse getResourceById(String id) {
+    // ── READ (BY ID) ────────────────────────────────
+    public ResourceResponse getResourceById(Long id) {
         Resource resource = resourceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Resource not found with id: " + id));
-        return toResponse(resource);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found with id: " + id));
+        return mapToResponse(resource);
     }
 
-    // ────────────────────────────────────────────────
-    // UPDATE
-    // ────────────────────────────────────────────────
-    public ResourceResponse updateResource(String id, ResourceRequest request) {
-        Resource existing = resourceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Resource not found with id: " + id));
-
-        existing.setName(request.getName());
-        existing.setType(request.getType());
-        existing.setCapacity(request.getCapacity());
-        existing.setLocation(request.getLocation());
-        existing.setAvailabilityWindows(request.getAvailabilityWindows());
-        existing.setStatus(request.getStatus());
-        existing.setUpdatedAt(LocalDateTime.now());
-
-        Resource updated = resourceRepository.save(existing);
-        log.debug("Resource updated: {}", updated.getId());
-        return toResponse(updated);
+    // ── READ (BY TYPE & SEARCH) ─────────────────────
+    public List<ResourceResponse> getResourcesByType(String type, String search) {
+        // This is a basic filter implementation
+        return resourceRepository.findAll().stream()
+                .filter(r -> r.getType().equalsIgnoreCase(type))
+                .filter(r -> search == null || r.getName().toLowerCase().contains(search.toLowerCase()))
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
-    // ────────────────────────────────────────────────
-    // DELETE
-    // ────────────────────────────────────────────────
-    public void deleteResource(String id) {
+    // ── UPDATE ──────────────────────────────────────
+    public ResourceResponse updateResource(Long id, ResourceRequest request) {
+        Resource resource = resourceRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found"));
+        
+        mapRequestToEntity(request, resource);
+        Resource updatedResource = resourceRepository.save(resource);
+        return mapToResponse(updatedResource);
+    }
+
+    // ── DELETE ──────────────────────────────────────
+    public void deleteResource(Long id) {
         if (!resourceRepository.existsById(id)) {
-            throw new RuntimeException("Resource not found with id: " + id);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found");
         }
         resourceRepository.deleteById(id);
-        log.debug("Resource deleted: {}", id);
     }
 
-    // ────────────────────────────────────────────────
-    // MAPPER
-    // ────────────────────────────────────────────────
-    private ResourceResponse toResponse(Resource r) {
-        return ResourceResponse.builder()
-                .id(r.getId())
-                .name(r.getName())
-                .type(r.getType())
-                .capacity(r.getCapacity())
-                .location(r.getLocation())
-                .availabilityWindows(r.getAvailabilityWindows())
-                .availabilityWindowCount(r.getAvailabilityWindows() != null ? r.getAvailabilityWindows().size() : 0)
-                .status(r.getStatus())
-                .createdAt(r.getCreatedAt())
-                .updatedAt(r.getUpdatedAt())
-                .build();
+    // ── HELPER METHODS (MAPPING) ────────────────────
+    
+    private void mapRequestToEntity(ResourceRequest request, Resource resource) {
+        resource.setName(request.getName());
+        resource.setType(request.getType());
+        resource.setCapacity(request.getCapacity());
+        resource.setLocation(request.getLocation());
+        resource.setAvailabilityWindows(request.getAvailabilityWindows());
+        resource.setStatus(request.getStatus());
+    }
+
+    private ResourceResponse mapToResponse(Resource resource) {
+        ResourceResponse response = new ResourceResponse();
+        response.setId(resource.getId());
+        response.setName(resource.getName());
+        response.setType(resource.getType());
+        response.setCapacity(resource.getCapacity());
+        response.setLocation(resource.getLocation());
+        response.setAvailabilityWindows(resource.getAvailabilityWindows());
+        response.setStatus(resource.getStatus());
+        return response;
     }
 }
