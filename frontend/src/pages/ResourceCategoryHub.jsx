@@ -9,7 +9,7 @@ const categories = [
   {
     id: 'lecture-halls',
     label: 'Lecture Halls',
-    path: '/lecture-halls',
+    path: '/categories/lecture-halls',
     emoji: '🎓',
     description: 'Book large teaching spaces & auditoriums',
     gradient: 'linear-gradient(135deg, rgba(102,126,234,0.88) 0%, rgba(118,75,162,0.88) 100%)',
@@ -19,7 +19,7 @@ const categories = [
   {
     id: 'labs',
     label: 'Labs',
-    path: '/labs',
+    path: '/categories/labs',
     emoji: '🔬',
     description: 'Reserve computer labs & science facilities',
     gradient: 'linear-gradient(135deg, rgba(240,147,251,0.88) 0%, rgba(245,87,108,0.88) 100%)',
@@ -29,7 +29,7 @@ const categories = [
   {
     id: 'meeting-rooms',
     label: 'Meeting Rooms',
-    path: '/meeting-rooms',
+    path: '/categories/meeting-rooms',
     emoji: '🤝',
     description: 'Schedule collaborative workspaces',
     gradient: 'linear-gradient(135deg, rgba(79,172,254,0.88) 0%, rgba(0,242,254,0.88) 100%)',
@@ -39,7 +39,7 @@ const categories = [
   {
     id: 'equipment',
     label: 'Equipment',
-    path: '/equipment',
+    path: '/categories/equipment',
     emoji: '🖥️',
     description: 'Borrow projectors, cameras & gear',
     gradient: 'linear-gradient(135deg, rgba(67,233,123,0.88) 0%, rgba(56,249,215,0.88) 100%)',
