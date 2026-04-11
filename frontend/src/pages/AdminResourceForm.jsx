@@ -260,7 +260,7 @@ export default function AdminResourceForm() {
                   </tr>
                 </thead>
                 <tbody>
-                  {resources.map((resource) => (
+                  {filteredResources.map((resource) => (
                     <tr key={resource.id}>
                       <td>{resource.name}</td>
                       <td>{resource.capacity}</td>
