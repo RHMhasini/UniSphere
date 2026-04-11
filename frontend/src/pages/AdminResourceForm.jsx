@@ -26,6 +26,7 @@ export default function AdminResourceForm() {
   const [selectedResource, setSelectedResource] = useState(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [errors, setErrors] = useState({});
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [listLoading, setListLoading] = useState(false);
   const [toast, setToast] = useState(null);
@@ -50,6 +51,16 @@ export default function AdminResourceForm() {
       setListLoading(false);
     }
   };
+
+  const filteredResources = resources.filter((resource) => {
+    const normalized = searchTerm.trim().toLowerCase();
+    if (!normalized) return true;
+    return (
+      resource.name?.toLowerCase().includes(normalized) ||
+      resource.location?.toLowerCase().includes(normalized) ||
+      resource.capacity?.toString().toLowerCase().includes(normalized)
+    );
+  });
 
   const resetForm = () => {
     setForm(emptyForm);
@@ -216,14 +227,25 @@ export default function AdminResourceForm() {
       <div className="admin-content">
         <section className="admin-table-card">
           <div className="table-header">
-            <h2>All Resources</h2>
-            <span>{resources.length} total</span>
+            <div>
+              <h2>All Resources</h2>
+              <span>{filteredResources.length} of {resources.length} total</span>
+            </div>
+            <div className="search-row">
+              <input
+                type="search"
+                placeholder="Search by name, capacity or location"
+                className="search-input"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
 
           {listLoading ? (
             <div className="table-empty">Loading resources...</div>
-          ) : resources.length === 0 ? (
-            <div className="table-empty">No resources found. Click &ldquo;Add Resource&rdquo; to begin.</div>
+          ) : filteredResources.length === 0 ? (
+            <div className="table-empty">No resources match your search. Try another name, capacity or location.</div>
           ) : (
             <div className="table-wrap">
               <table className="admin-table">
