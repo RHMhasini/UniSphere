@@ -1,46 +1,50 @@
 import { useNavigate } from 'react-router-dom';
+import lectureBg from '../assets/backgrounds/landingbg1.png';
+import labsBg from '../assets/backgrounds/landingbg2.png';
+import meetingBg from '../assets/backgrounds/landingbg3.png';
+import equipmentBg from '../assets/backgrounds/landingbg1.png';
 import './ResourceCategoryHub.css';
 
 const categories = [
   {
     id: 'lecture-halls',
     label: 'Lecture Halls',
-    path: '/categories/lecture-halls',
+    path: '/lecture-halls',
     emoji: '🎓',
     description: 'Book large teaching spaces & auditoriums',
-    gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    gradient: 'linear-gradient(135deg, rgba(102,126,234,0.88) 0%, rgba(118,75,162,0.88) 100%)',
     type: 'LECTURE_HALL',
-    image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&auto=format&fit=crop&q=60',
+    image: lectureBg,
   },
   {
     id: 'labs',
     label: 'Labs',
-    path: '/categories/labs',
+    path: '/labs',
     emoji: '🔬',
     description: 'Reserve computer labs & science facilities',
-    gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    gradient: 'linear-gradient(135deg, rgba(240,147,251,0.88) 0%, rgba(245,87,108,0.88) 100%)',
     type: 'LAB',
-    image: 'https://images.unsplash.com/photo-1581093458791-9f3c3250a8b0?w=800&auto=format&fit=crop&q=60',
+    image: labsBg,
   },
   {
     id: 'meeting-rooms',
     label: 'Meeting Rooms',
-    path: '/categories/meeting-rooms',
+    path: '/meeting-rooms',
     emoji: '🤝',
     description: 'Schedule collaborative workspaces',
-    gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    gradient: 'linear-gradient(135deg, rgba(79,172,254,0.88) 0%, rgba(0,242,254,0.88) 100%)',
     type: 'MEETING_ROOM',
-    image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&fit=crop&q=60',
+    image: meetingBg,
   },
   {
     id: 'equipment',
     label: 'Equipment',
-    path: '/categories/equipment',
+    path: '/equipment',
     emoji: '🖥️',
     description: 'Borrow projectors, cameras & gear',
-    gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+    gradient: 'linear-gradient(135deg, rgba(67,233,123,0.88) 0%, rgba(56,249,215,0.88) 100%)',
     type: 'EQUIPMENT',
-    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60',
+    image: equipmentBg,
   },
 ];
 
@@ -55,9 +59,6 @@ export default function ResourceCategoryHub() {
         <p className="hub-hero__sub">
           Browse and book university facilities. Select a category below to explore available resources.
         </p>
-        <button className="hub-admin-btn" onClick={() => navigate('/admin/resources')}>
-          + Register New Resource
-        </button>
       </div>
 
       <div className="hub-grid">
