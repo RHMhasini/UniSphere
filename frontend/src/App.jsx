@@ -6,10 +6,10 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 // Pages
 import LandingPage from "./pages/landingPage/LandingPage";
-import CreateBookingPage from './pages/CreateBookingPage';
-import MyBookingsPage from './pages/MyBookingsPage';
-import BookingDetailPage from './pages/BookingDetailPage';
-import AdminBookingsPage from './pages/AdminBookingsPage';
+import CreateBookingPage from './pages/bookingPages/CreateBookingPage';
+import MyBookingsPage from './pages/bookingPages/MyBookingsPage';
+import BookingDetailPage from './pages/bookingPages/BookingDetailPage';
+import AdminBookingsPage from './pages/bookingPages/AdminBookingsPage';
 
 import "./index.css";
 
