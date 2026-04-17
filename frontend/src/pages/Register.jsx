@@ -69,23 +69,32 @@ const Register = () => {
   const [availableLabs, setAvailableLabs] = useState([]);
 
   // Validators
-  const validateName = (name) => /^[A-Za-z\s]{2,50}$/.test(name);
-  const validatePhone = (phone) => /^(?:7|0|(?:\+94))[0-9]{9,10}$/.test(phone);
-  const validateID = (id) => /^[A-Za-z0-9-]{4,20}$/.test(id);
-  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validateName = (name) => /^[A-Za-z\s]+$/.test(name);
+  const validatePhone = (phone) => /^[0-9]{10}$/.test(phone);
+  const validateStudentEmail = (email) => /^[A-Za-z]{2}[0-9]{8}@my\.sliit\.lk$/.test(email);
+  const validateLecturerEmail = (email) => /^[a-zA-Z0-9._%+-]+lec@gmail\.com$/.test(email);
+  const validateTechnicianEmail = (email) => /^[a-zA-Z0-9._%+-]+tec@gmail\.com$/.test(email);
+  const validateLecturerID = (id) => /^Lec-\d{4}$/.test(id);
+  const validateTechnicianID = (id) => /^Tec-\d{4}$/.test(id);
 
-  const validateField = (name, value) => {
+  const validateField = (name, value, role) => {
     switch (name) {
       case 'firstName':
       case 'lastName':
-        return validateName(value) ? '' : `${name === 'firstName' ? 'First' : 'Last'} name must contain only letters and be 2-50 characters long`;
+        return validateName(value) ? '' : `${name === 'firstName' ? 'First' : 'Last'} name must contain only letters and spaces`;
       case 'phone':
-        return validatePhone(value) ? '' : 'Please enter a valid Sri Lankan phone number';
+        return validatePhone(value) ? '' : 'Phone number must include exactly 10 digits';
       case 'email':
-        return validateEmail(value) ? '' : 'Please enter a valid email address';
+        if (role === 'STUDENT') return validateStudentEmail(value) ? '' : 'Please use your valid student mail (e.g. it23363434@my.sliit.lk)';
+        if (role === 'LECTURER') return validateLecturerEmail(value) ? '' : 'This role requires a valid lecturer email format (*lec@gmail.com)';
+        if (role === 'TECHNICIAN') return validateTechnicianEmail(value) ? '' : 'This role requires a valid technician email format (*tec@gmail.com)';
+        return 'Please enter a valid email address';
       case 'studentId':
+        return value.trim() ? '' : 'Student ID is required';
       case 'staffId':
-        return validateID(value) ? '' : 'ID must be 4-20 alphanumeric characters';
+        if (role === 'LECTURER') return validateLecturerID(value) ? '' : 'Invalid Lecturer ID format (e.g. Lec-3456)';
+        if (role === 'TECHNICIAN') return validateTechnicianID(value) ? '' : 'Invalid Technician ID format (e.g. Tec-3456)';
+        return value.trim() ? '' : 'Staff ID is required';
       case 'password':
         return value.length >= 6 ? '' : 'Password must be at least 6 characters';
       case 'confirmPassword':
@@ -101,7 +110,15 @@ const Register = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
+    
+    // Strict input filtering
+    if (name === 'firstName' || name === 'lastName') {
+      value = value.replace(/[^A-Za-z\s]/g, '');
+    }
+    if (name === 'phone') {
+      value = value.replace(/\D/g, '').slice(0, 10);
+    }
     
     // Cascading updates
     setFormData((prev) => {
@@ -111,6 +128,9 @@ const Register = () => {
         if (name === 'faculty') {
           updated.degreeProgram = '';
           setAvailableDegrees(STUDENT_FACULTIES[value] || []);
+        }
+        if (name === 'email' && validateStudentEmail(value)) {
+           updated.studentId = value.split('@')[0].toUpperCase();
         }
       } else if (updated.role === 'LECTURER') {
         if (name === 'faculty') {
@@ -133,7 +153,9 @@ const Register = () => {
       }
 
       // Automatically validate mapped fields
-      const fieldError = validateField(name, value);
+      const fieldError = validateField(name, value, updated.role);
+      
+      // Update form errors locally to ensure they capture the role dynamically
       setFormErrors(prevErrors => ({
         ...prevErrors,
         [name]: fieldError
