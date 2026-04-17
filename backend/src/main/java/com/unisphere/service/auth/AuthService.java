@@ -7,11 +7,18 @@ import com.unisphere.dto.response.UserProfileResponse;
 import com.unisphere.entity.enums.UserRole;
 import java.util.List;
 
+import com.unisphere.dto.request.LoginRequest;
+import com.unisphere.dto.request.ManualRegisterRequest;
+
 /**
  * Authentication Service Interface
  * Handles user authentication, registration, and user management
  */
 public interface AuthService {
+    
+    AuthResponse loginManual(LoginRequest request);
+    
+    AuthResponse registerManual(ManualRegisterRequest request);
     
     /**
      * Get current user profile

@@ -1,5 +1,7 @@
 package com.unisphere.controller.auth;
 
+import com.unisphere.dto.request.LoginRequest;
+import com.unisphere.dto.request.ManualRegisterRequest;
 import com.unisphere.dto.request.RegisterDetailsRequest;
 import com.unisphere.dto.request.UpdateProfileRequest;
 import com.unisphere.dto.response.ApiResponse;
@@ -40,6 +42,36 @@ public class AuthController {
     @Autowired
     private FileUploadService fileUploadService;
     
+    /**
+     * Standard Login
+     */
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
+        try {
+            AuthResponse response = authService.loginManual(request);
+            return ResponseEntity.ok(ApiResponse.success(response, "Login successful"));
+        } catch (Exception e) {
+            log.error("Error during manual login", e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Failed to login: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Standard Registration
+     */
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse<AuthResponse>> register(@Valid @RequestBody ManualRegisterRequest request) {
+        try {
+            AuthResponse response = authService.registerManual(request);
+            return ResponseEntity.ok(ApiResponse.success(response, "Registration successful. Waiting for admin approval."));
+        } catch (Exception e) {
+            log.error("Error during manual registration", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error("Failed to register: " + e.getMessage()));
+        }
+    }
+
     /**
      * Submit additional registration details
      */

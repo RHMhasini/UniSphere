@@ -9,9 +9,15 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.unisphere.dto.request.LoginRequest;
+import com.unisphere.dto.request.ManualRegisterRequest;
 import com.unisphere.dto.request.RegisterDetailsRequest;
 import com.unisphere.dto.request.UpdateProfileRequest;
 import com.unisphere.dto.response.AuthResponse;
@@ -38,6 +44,85 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Override
+    public AuthResponse loginManual(LoginRequest request) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (!user.getIsActive() && user.getRegistrationStatus() == RegistrationStatus.APPROVED) {
+            throw new UnauthorizedAccessException("Account has been suspended");
+        }
+
+        user.setLastLogin(LocalDateTime.now());
+        userRepository.save(user);
+
+        String accessToken = jwtTokenProvider.generateAccessToken(user.getEmail(), user.getId(), user.getRole().name());
+        String refreshToken = jwtTokenProvider.generateRefreshToken(user.getEmail(), user.getId(), user.getRole().name());
+
+        return buildAuthResponse(user, accessToken, refreshToken);
+    }
+
+    @Override
+    public AuthResponse registerManual(ManualRegisterRequest request) {
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new BadCredentialsException("Email already exists");
+        }
+
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new BadCredentialsException("Passwords do not match");
+        }
+
+        User user = new User();
+        user.setEmail(request.getEmail().toLowerCase());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setFullName(request.getFirstName() + " " + request.getLastName());
+        user.setPhone(request.getPhone());
+        user.setRole(request.getRole());
+        user.setRegistrationStatus(RegistrationStatus.PENDING_APPROVAL);
+        user.setIsActive(false); // They need admin approval
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
+        user.setGender(request.getGender());
+        user.setStudentId(request.getStudentId());
+        user.setFaculty(request.getFaculty());
+        user.setDegreeProgram(request.getDegreeProgram());
+        user.setYear(request.getYear());
+        user.setSemester(request.getSemester());
+        user.setStaffId(request.getStaffId());
+        user.setTitle(request.getTitle());
+        user.setDepartment(request.getDepartment());
+        user.setDesignation(request.getDesignation());
+        user.setSpecialization(request.getSpecialization());
+        user.setAssignedLab(request.getAssignedLab());
+        user.setOauthProvider("LOCAL");
+
+        User savedUser = userRepository.save(user);
+
+        // Notify admins regarding new registration
+        try {
+            notificationService.notifyAdminsNewRegistration(savedUser);
+        } catch (Exception e) {
+            log.error("Failed to notify admins about new registration: {}", e.getMessage());
+        }
+
+        String accessToken = jwtTokenProvider.generateAccessToken(savedUser.getEmail(), savedUser.getId(), savedUser.getRole().name());
+        String refreshToken = jwtTokenProvider.generateRefreshToken(savedUser.getEmail(), savedUser.getId(), savedUser.getRole().name());
+
+        return buildAuthResponse(savedUser, accessToken, refreshToken);
+    }
 
     @Override
     public UserProfileResponse getCurrentUser(String email) {
@@ -118,6 +203,10 @@ public class AuthServiceImpl implements AuthService {
 
         if (request.getProfilePictureUrl() != null && !request.getProfilePictureUrl().isEmpty()) {
             user.setProfilePictureUrl(request.getProfilePictureUrl());
+        }
+
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
 
         // FIX: Replaced if-else chain with switch expression
@@ -345,6 +434,8 @@ public class AuthServiceImpl implements AuthService {
         r.setNotificationPreferences(user.getNotificationPreferences());
 
         // Role specific details
+        r.setGender(user.getGender());
+        r.setTitle(user.getTitle());
         r.setStudentId(user.getStudentId());
         r.setFaculty(user.getFaculty());
         r.setDegreeProgram(user.getDegreeProgram());

@@ -32,8 +32,8 @@ public class CustomUserDetailsService implements UserDetailsService {
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
             
-            if (!user.getIsActive()) {
-                throw new UsernameNotFoundException("User account is inactive");
+            if (!user.getIsActive() && user.getRegistrationStatus() == com.unisphere.entity.enums.RegistrationStatus.APPROVED) {
+                throw new UsernameNotFoundException("User account has been suspended");
             }
             
             Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
@@ -46,7 +46,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                     .username(user.getEmail())
                     .password(password)
                     .authorities(authorities)
-                    .disabled(!user.getIsActive())
+                    .disabled(!user.getIsActive() && user.getRegistrationStatus() == com.unisphere.entity.enums.RegistrationStatus.APPROVED)
                     .build();
         } catch (UsernameNotFoundException e) {
             throw e;

@@ -23,6 +23,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -61,8 +67,36 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
+    }
+
+    private OAuth2AuthorizationRequestResolver customAuthorizationRequestResolver(ClientRegistrationRepository clientRegistrationRepository) {
+        DefaultOAuth2AuthorizationRequestResolver defaultResolver =
+                new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, "/oauth2/authorization");
+
+        return new OAuth2AuthorizationRequestResolver() {
+            @Override
+            public OAuth2AuthorizationRequest resolve(HttpServletRequest request) {
+                OAuth2AuthorizationRequest authorizationRequest = defaultResolver.resolve(request);
+                return customizeAuthorizationRequest(authorizationRequest);
+            }
+
+            @Override
+            public OAuth2AuthorizationRequest resolve(HttpServletRequest request, String clientRegistrationId) {
+                OAuth2AuthorizationRequest authorizationRequest = defaultResolver.resolve(request, clientRegistrationId);
+                return customizeAuthorizationRequest(authorizationRequest);
+            }
+
+            private OAuth2AuthorizationRequest customizeAuthorizationRequest(OAuth2AuthorizationRequest req) {
+                if (req == null) return null;
+                Map<String, Object> extraParams = new HashMap<>(req.getAdditionalParameters());
+                extraParams.put("prompt", "select_account");
+                return OAuth2AuthorizationRequest.from(req)
+                        .additionalParameters(extraParams)
+                        .build();
+            }
+        };
     }
 
     @Bean
@@ -78,7 +112,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/error", "/webjars/**").permitAll()
                         .requestMatchers("/test/**").permitAll()
                         .requestMatchers("/oauth2/**", "/login/**").permitAll()
-                        .requestMatchers("/auth/refresh-token").permitAll()
+                        .requestMatchers("/auth/refresh-token", "/auth/login", "/auth/register").permitAll()
                         .requestMatchers("/auth/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/auth/**").authenticated()
                         .anyRequest().authenticated()
@@ -88,6 +122,9 @@ public class SecurityConfig {
                 && customOAuth2UserService.getIfAvailable() != null
                 && oAuth2AuthenticationSuccessHandler.getIfAvailable() != null) {
             http.oauth2Login(oauth2 -> oauth2
+                    .authorizationEndpoint(auth -> auth
+                            .authorizationRequestResolver(customAuthorizationRequestResolver(clientRegistrationRepository.getIfAvailable()))
+                    )
                     .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService.getIfAvailable()))
                     .successHandler(oAuth2AuthenticationSuccessHandler.getIfAvailable())
             );
