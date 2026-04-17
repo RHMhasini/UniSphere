@@ -23,6 +23,9 @@ public class RegisterDetailsRequest {
 
     private String profilePictureUrl;
 
+    @NotBlank(message = "Password is required for setting up local authentication")
+    private String password;
+
     // Student specific
     private String studentId;
     private String faculty;
@@ -78,6 +81,14 @@ public class RegisterDetailsRequest {
 
     public void setProfilePictureUrl(String profilePictureUrl) {
         this.profilePictureUrl = profilePictureUrl;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getStudentId() {

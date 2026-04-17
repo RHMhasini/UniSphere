@@ -26,6 +26,10 @@ public class UserProfileResponse {
     private LocalDateTime lastLogin;
 
     // Additional fields for roles
+    private String gender;
+
+    private String title;
+
     private String studentId;
     private String faculty;
     private String degreeProgram;
@@ -171,6 +175,22 @@ public class UserProfileResponse {
 
     public void setLastLogin(LocalDateTime lastLogin) {
         this.lastLogin = lastLogin;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getStudentId() {

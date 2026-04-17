@@ -37,6 +37,10 @@ public class User {
 
     private String phone;
 
+    private String gender; // specific for student
+
+    private String title; // specific for lecturer
+
     private UserRole role = UserRole.STUDENT;
 
     private RegistrationStatus registrationStatus = RegistrationStatus.PENDING_DETAILS;
@@ -112,6 +116,22 @@ public class User {
         this.lastLogin = lastLogin;
         this.notificationIds = notificationIds != null ? notificationIds : new HashSet<>();
         this.notificationPreferences = notificationPreferences != null ? notificationPreferences : new HashMap<>();
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getId() {
