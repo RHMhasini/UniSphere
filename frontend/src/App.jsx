@@ -4,6 +4,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "./context/AuthContext";
 import LandingPage from "./pages/landingPage/LandingPage";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import OAuth2RedirectHandler from "./pages/OAuth2RedirectHandler";
 import RegisterDetails from "./pages/RegisterDetails";
 import RegisterPending from "./pages/RegisterPending";
@@ -42,6 +43,7 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage theme={theme} toggleTheme={toggleTheme} />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
             <Route path="/register/details" element={
               <ProtectedRoute>

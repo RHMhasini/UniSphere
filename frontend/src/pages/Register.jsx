@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { authAPI } from '../services/api';
 import {
   STUDENT_FACULTIES,
   LECTURER_FACULTIES,
@@ -21,7 +20,8 @@ import {
   BookOpen,
   Calendar,
   BadgeCheck,
-  Mail
+  Mail,
+  Lock
 } from 'lucide-react';
 
 const ROLES = [
@@ -30,20 +30,22 @@ const ROLES = [
   { id: 'TECHNICIAN', label: 'Technician', icon: <Wrench className="h-5 w-5" />, desc: 'Handle equipment & support' }
 ];
 
-const RegisterDetails = () => {
-  const { user, fetchCurrentUser } = useAuth();
+const Register = () => {
+  const { register, googleLogin } = useAuth();
   const navigate = useNavigate();
   
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    email: '',
     phone: '',
-    role: 'STUDENT',
     password: '',
     confirmPassword: '',
+    role: 'STUDENT',
     gender: '', // For Student
     studentId: '',
     faculty: '',
@@ -70,6 +72,7 @@ const RegisterDetails = () => {
   const validateName = (name) => /^[A-Za-z\s]{2,50}$/.test(name);
   const validatePhone = (phone) => /^(?:7|0|(?:\+94))[0-9]{9,10}$/.test(phone);
   const validateID = (id) => /^[A-Za-z0-9-]{4,20}$/.test(id);
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const validateField = (name, value) => {
     switch (name) {
@@ -78,6 +81,8 @@ const RegisterDetails = () => {
         return validateName(value) ? '' : `${name === 'firstName' ? 'First' : 'Last'} name must contain only letters and be 2-50 characters long`;
       case 'phone':
         return validatePhone(value) ? '' : 'Please enter a valid Sri Lankan phone number';
+      case 'email':
+        return validateEmail(value) ? '' : 'Please enter a valid email address';
       case 'studentId':
       case 'staffId':
         return validateID(value) ? '' : 'ID must be 4-20 alphanumeric characters';
@@ -88,6 +93,11 @@ const RegisterDetails = () => {
       default:
         return '';
     }
+  };
+
+  const handleGoogleLogin = () => {
+    setGoogleLoading(true);
+    googleLogin();
   };
 
   const handleChange = (e) => {
@@ -135,7 +145,7 @@ const RegisterDetails = () => {
 
   const isFormValid = () => {
     // Validate required fields
-    const requiredGeneral = ['firstName', 'lastName', 'phone', 'password', 'confirmPassword'];
+    const requiredGeneral = ['firstName', 'lastName', 'email', 'phone', 'password', 'confirmPassword'];
     const requiredStudent = ['studentId', 'gender', 'faculty', 'degreeProgram', 'year', 'semester'];
     const requiredLecturer = ['staffId', 'title', 'faculty', 'department', 'designation'];
     const requiredTechnician = ['staffId', 'department', 'specialization', 'assignedLab'];
@@ -162,39 +172,10 @@ const RegisterDetails = () => {
     setLoading(true);
 
     try {
-      const payload = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        phone: formData.phone,
-        password: formData.password,
-        role: formData.role,
-        profilePictureUrl: user?.profilePictureUrl,
-        ...(formData.role === 'STUDENT' && {
-          studentId: formData.studentId,
-          faculty: formData.faculty,
-          degreeProgram: formData.degreeProgram,
-          year: formData.year,
-          semester: formData.semester
-        }),
-        ...(formData.role === 'LECTURER' && {
-          staffId: formData.staffId,
-          faculty: formData.faculty,
-          department: formData.department,
-          designation: formData.designation
-        }),
-        ...(formData.role === 'TECHNICIAN' && {
-          staffId: formData.staffId,
-          department: formData.department,
-          specialization: formData.specialization,
-          assignedLab: formData.assignedLab
-        })
-      };
-
-      await authAPI.submitAdditionalDetails(payload);
-      await fetchCurrentUser();
+      await register(formData);
       navigate('/register/pending');
     } catch (err) {
-      setError(err?.response?.data?.message || err.message || 'Failed to submit additional details');
+      setError(err?.response?.data?.message || err.message || 'Failed to register account');
       setLoading(false);
     }
   };
@@ -211,7 +192,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <User className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="gender" required value={formData.gender} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="gender" required value={formData.gender} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg">
                     <option value="" disabled>Select Gender</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
@@ -225,7 +206,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <BadgeCheck className="h-4 w-4 text-slate-400" />
                   </div>
-                  <input type="text" name="studentId" required value={formData.studentId} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.studentId ? 'border-red-500 focus:ring-red-500' : ''}`} placeholder="STU-2024-001" />
+                  <input type="text" name="studentId" required value={formData.studentId} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg ${formErrors.studentId ? 'border-red-500 focus:ring-red-500' : ''}`} placeholder="STU-2024-001" />
                 </div>
                 {formErrors.studentId && <p className="text-xs text-red-500">{formErrors.studentId}</p>}
               </div>
@@ -236,7 +217,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Building className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="faculty" required value={formData.faculty} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="faculty" required value={formData.faculty} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg">
                     <option value="" disabled>Select Faculty</option>
                     {Object.keys(STUDENT_FACULTIES).map((faculty) => (
                       <option key={faculty} value={faculty}>{faculty}</option>
@@ -251,7 +232,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <BookOpen className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="degreeProgram" required value={formData.degreeProgram} onChange={handleChange} disabled={!formData.faculty} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="degreeProgram" required value={formData.degreeProgram} onChange={handleChange} disabled={!formData.faculty} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:cursor-not-allowed">
                     <option value="" disabled>Select Degree</option>
                     {availableDegrees.map((degree) => (
                       <option key={degree} value={degree}>{degree}</option>
@@ -266,7 +247,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Calendar className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="year" required value={formData.year} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="year" required value={formData.year} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg">
                     <option value="" disabled>Select Year</option>
                     {['Year 1', 'Year 2', 'Year 3', 'Year 4'].map((yr) => (
                       <option key={yr} value={yr}>{yr}</option>
@@ -281,7 +262,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Calendar className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="semester" required value={formData.semester} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="semester" required value={formData.semester} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg">
                     <option value="" disabled>Select Semester</option>
                     {['Semester 1', 'Semester 2'].map((sem) => (
                       <option key={sem} value={sem}>{sem}</option>
@@ -303,7 +284,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <User className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="title" required value={formData.title} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="title" required value={formData.title} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg">
                     <option value="" disabled>Select Title</option>
                     {['Mr.', 'Ms.', 'Mrs.', 'Dr.', 'Prof.'].map((title) => (
                       <option key={title} value={title}>{title}</option>
@@ -318,7 +299,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <BadgeCheck className="h-4 w-4 text-slate-400" />
                   </div>
-                  <input type="text" name="staffId" required value={formData.staffId} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.staffId ? 'border-red-500 focus:ring-red-500' : ''}`} placeholder="STF-2024-001" />
+                  <input type="text" name="staffId" required value={formData.staffId} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg ${formErrors.staffId ? 'border-red-500 focus:ring-red-500' : ''}`} placeholder="STF-2024-001" />
                 </div>
               </div>
 
@@ -328,7 +309,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Building className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="faculty" required value={formData.faculty} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="faculty" required value={formData.faculty} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg">
                     <option value="" disabled>Select Faculty</option>
                     {Object.keys(LECTURER_FACULTIES).map((faculty) => (
                       <option key={faculty} value={faculty}>{faculty}</option>
@@ -343,7 +324,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Building className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="department" required value={formData.department} onChange={handleChange} disabled={!formData.faculty} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="department" required value={formData.department} onChange={handleChange} disabled={!formData.faculty} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed">
                     <option value="" disabled>Select Department</option>
                     {availableDepartments.map((dept) => (
                       <option key={dept} value={dept}>{dept}</option>
@@ -358,7 +339,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Briefcase className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="designation" required value={formData.designation} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="designation" required value={formData.designation} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg">
                     <option value="" disabled>Select Position</option>
                     {['Lecturer', 'Senior Lecturer', 'Professor', 'Assistant Professor', 'Visiting Lecturer'].map((pos) => (
                       <option key={pos} value={pos}>{pos}</option>
@@ -380,7 +361,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <BadgeCheck className="h-4 w-4 text-slate-400" />
                   </div>
-                  <input type="text" name="staffId" required value={formData.staffId} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.staffId ? 'border-red-500 focus:ring-red-500' : ''}`} placeholder="TECH-2024-001" />
+                  <input type="text" name="staffId" required value={formData.staffId} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg ${formErrors.staffId ? 'border-red-500 focus:ring-red-500' : ''}`} placeholder="TECH-2024-001" />
                 </div>
               </div>
 
@@ -390,7 +371,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Building className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="department" required value={formData.department} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="department" required value={formData.department} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg">
                     <option value="" disabled>Select Department</option>
                     {Object.keys(TECHNICIAN_DEPARTMENTS).map((dept) => (
                       <option key={dept} value={dept}>{dept}</option>
@@ -405,7 +386,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Wrench className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="specialization" required value={formData.specialization} onChange={handleChange} disabled={!formData.department} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="specialization" required value={formData.specialization} onChange={handleChange} disabled={!formData.department} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed">
                     <option value="" disabled>Select Position</option>
                     {availableSpecializations.map((spec) => (
                       <option key={spec} value={spec}>{spec}</option>
@@ -420,7 +401,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Building className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="assignedLab" required value={formData.assignedLab} onChange={handleChange} disabled={!formData.specialization} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="assignedLab" required value={formData.assignedLab} onChange={handleChange} disabled={!formData.specialization} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed">
                     <option value="" disabled>Select Assigned Lab</option>
                     {availableLabs.map((lab) => (
                       <option key={lab} value={lab}>{lab}</option>
@@ -453,21 +434,21 @@ const RegisterDetails = () => {
                     <p className="text-xs text-slate-400">Smart Campus</p>
                   </div>
                 </div>
-                <h2 className="mt-12 text-3xl font-semibold leading-tight text-white">Complete Your Registration</h2>
+                <h2 className="mt-12 text-3xl font-semibold leading-tight text-white">Join the operations hub.</h2>
                 <p className="mt-4 text-sm text-slate-400 leading-relaxed">
-                  Provide a few more details to set up your role context properly before you enter the operations hub.
+                  Create an account to manage classes, facilities, resources, and help shape the future of your campus.
                 </p>
              </div>
              <div className="relative z-10 mt-10">
                <ShieldCheck className="h-10 w-10 text-indigo-400 mb-3" />
-               <p className="text-sm font-medium">Secured with your institutional Google account.</p>
+               <p className="text-sm font-medium">Secured with Enterprise-Grade encryption.</p>
              </div>
           </div>
 
           <div className="flex flex-1 flex-col py-10 px-8 sm:px-12 bg-white/50 dark:bg-slate-900/50">
             <div className="mb-8">
-               <h2 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Profile Details</h2>
-               <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Almost there! Complete the fields below.</p>
+               <h2 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Create Account</h2>
+               <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Get started completely free.</p>
             </div>
 
             {error && (
@@ -476,21 +457,20 @@ const RegisterDetails = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-8">
-              
-              {/* Profile Image Preview from Google */}
+            <form onSubmit={handleSubmit} className="space-y-8" autoComplete="off">
+              {/* Profile Image Preview (Auto-generated) */}
               <div className="flex flex-col items-center justify-center pb-2">
                 <div className="relative">
                   <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                     <img 
-                      src={user?.profilePictureUrl || `https://ui-avatars.com/api/?name=${user?.fullName || 'User'}&background=random`} 
-                      alt="Profile" 
+                      src={`https://ui-avatars.com/api/?name=${formData.firstName || 'U'}+${formData.lastName || 'S'}&background=random`} 
+                      alt="Avatar" 
                       className="w-full h-full object-cover" 
                     />
                   </div>
                 </div>
                 <span className="mt-3 text-sm font-medium text-slate-500 dark:text-slate-400">Profile Photo</span>
-                <span className="mt-1 text-xs text-slate-400 dark:text-slate-500">(Synced from your Google Account)</span>
+                <span className="mt-1 text-xs text-slate-400 dark:text-slate-500">(Auto-generated from your name)</span>
               </div>
 
               {/* Profile Basics */}
@@ -501,49 +481,44 @@ const RegisterDetails = () => {
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">First Name</label>
                     <div className="relative">
                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><User className="h-4 w-4 text-slate-400" /></span>
-                       <input type="text" name="firstName" required value={formData.firstName} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.firstName ? 'border-red-500' : ''}`} placeholder="John" />
+                       <input type="text" name="firstName" required autoComplete="off" value={formData.firstName} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg ${formErrors.firstName ? 'border-red-500' : ''}`} placeholder="John" />
                     </div>
                    </div>
                    <div className="space-y-1.5">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Last Name</label>
                     <div className="relative">
                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><User className="h-4 w-4 text-slate-400" /></span>
-                       <input type="text" name="lastName" required value={formData.lastName} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.lastName ? 'border-red-500' : ''}`} placeholder="Doe" />
+                       <input type="text" name="lastName" required autoComplete="off" value={formData.lastName} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg ${formErrors.lastName ? 'border-red-500' : ''}`} placeholder="Doe" />
                     </div>
                    </div>
                    <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email Address (Read-only)</label>
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email Address</label>
                     <div className="relative">
                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Mail className="h-4 w-4 text-slate-400" /></span>
-                       <input 
-                          type="email" 
-                          name="email" 
-                          readOnly 
-                          value={user?.email || ""} 
-                          className="w-full pl-10 pr-4 py-2 border rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 cursor-not-allowed" 
-                       />
+                       <input type="email" name="email" required autoComplete="off" value={formData.email} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg ${formErrors.email ? 'border-red-500' : ''}`} placeholder="john@unisphere.edu" />
                     </div>
                    </div>
                    <div className="space-y-1.5">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Phone</label>
                     <div className="relative">
                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Phone className="h-4 w-4 text-slate-400" /></span>
-                       <input type="tel" name="phone" required value={formData.phone} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.phone ? 'border-red-500' : ''}`} placeholder="07XXXXXXXX" />
+                       <input type="tel" name="phone" required autoComplete="off" value={formData.phone} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg ${formErrors.phone ? 'border-red-500' : ''}`} placeholder="07XXXXXXXX" />
                     </div>
                    </div>
+
                    <div className="space-y-1.5">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
                     <div className="relative">
-                       <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><ShieldCheck className="h-4 w-4 text-slate-400" /></span>
-                       <input type="password" name="password" required value={formData.password} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.password ? 'border-red-500' : ''}`} placeholder="••••••••" />
+                       <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Lock className="h-4 w-4 text-slate-400" /></span>
+                       <input type="password" name="password" required autoComplete="new-password" value={formData.password} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg ${formErrors.password ? 'border-red-500' : ''}`} placeholder="••••••••" />
                     </div>
                     {formErrors.password && <p className="text-xs text-red-500 mt-1">{formErrors.password}</p>}
                    </div>
                    <div className="space-y-1.5">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Confirm Password</label>
                     <div className="relative">
-                       <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><ShieldCheck className="h-4 w-4 text-slate-400" /></span>
-                       <input type="password" name="confirmPassword" required value={formData.confirmPassword} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.confirmPassword ? 'border-red-500' : ''}`} placeholder="••••••••" />
+                       <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Lock className="h-4 w-4 text-slate-400" /></span>
+                       <input type="password" name="confirmPassword" required autoComplete="new-password" value={formData.confirmPassword} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg ${formErrors.confirmPassword ? 'border-red-500' : ''}`} placeholder="••••••••" />
                     </div>
                     {formErrors.confirmPassword && <p className="text-xs text-red-500 mt-1">{formErrors.confirmPassword}</p>}
                    </div>
@@ -558,10 +533,10 @@ const RegisterDetails = () => {
                     <div
                       key={role.id}
                       onClick={() => setFormData({ ...formData, role: role.id, faculty: '', department: '', degreeProgram: '', semester: '', year: '', staffId: '', studentId: '', assignedLab: '', specialization: '' })}
-                      className={`relative flex cursor-pointer rounded-xl border p-4 shadow-sm focus:outline-none transition-all ${
+                      className={`relative flex cursor-pointer rounded-xl border p-4 shadow-sm focus:outline-none ${
                         formData.role === role.id
                           ? 'border-indigo-600 bg-indigo-50/50 ring-1 ring-indigo-600 dark:bg-indigo-900/20'
-                          : 'border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700'
+                          : 'border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800'
                       }`}
                     >
                       <div className="flex w-full items-center justify-between">
@@ -596,12 +571,44 @@ const RegisterDetails = () => {
                  <button
                    type="submit"
                    disabled={loading || !isFormValid()}
-                   className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
+                   className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
                  >
-                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <BadgeCheck className="w-5 h-5" />}
-                   {loading ? 'Submitting...' : 'Complete Profile Setup'}
+                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Register for UniSphere'}
                  </button>
+
+                 <div className="relative">
+                   <div className="absolute inset-0 flex items-center">
+                     <div className="w-full border-t border-slate-300 dark:border-slate-700" />
+                   </div>
+                   <div className="relative flex justify-center text-sm">
+                     <span className="px-2 bg-white dark:bg-slate-900 rounded text-slate-500">
+                       Or continue with
+                     </span>
+                   </div>
+                 </div>
+
+                 <button
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  disabled={googleLoading}
+                  className="w-full flex items-center justify-center gap-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm transition-all hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none"
+                >
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden>
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                  </svg>
+                  {googleLoading ? 'Redirecting…' : 'Google'}
+                </button>
               </div>
+
+               <p className="text-center text-sm text-slate-600 dark:text-slate-400 pt-2">
+                 Already have an account?{' '}
+                 <Link to="/login" className="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 transition-colors">
+                   Sign in instead
+                 </Link>
+               </p>
             </form>
           </div>
         </div>
@@ -611,4 +618,4 @@ const RegisterDetails = () => {
   );
 };
 
-export default RegisterDetails;
+export default Register;

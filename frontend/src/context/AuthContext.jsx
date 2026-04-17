@@ -100,6 +100,40 @@ export const AuthProvider = ({ children }) => {
     window.location.href = 'http://localhost:8081/api/oauth2/authorization/google';
   }, []);
 
+  const login = useCallback(async (credentials) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await authAPI.login(credentials);
+      const { accessToken, refreshToken } = response.data;
+      setTokens(accessToken, refreshToken);
+      return response.data;
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [setTokens]);
+
+  const register = useCallback(async (details) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await authAPI.register(details);
+      const { accessToken, refreshToken } = response.data;
+      if (accessToken && refreshToken) {
+        setTokens(accessToken, refreshToken);
+      }
+      return response.data;
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [setTokens]);
+
   const isAuthenticated = !!user;
 
   return (
@@ -110,6 +144,8 @@ export const AuthProvider = ({ children }) => {
         error,
         isAuthenticated,
         logout,
+        login,
+        register,
         updateProfile,
         deleteAccount,
         setTokens,
