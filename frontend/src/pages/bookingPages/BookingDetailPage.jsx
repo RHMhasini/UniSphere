@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getBookingById, approveBooking, rejectBooking, cancelBooking } from "../../../services/bookingService";
-import { useAuth } from "../../../context/AuthContext";
-import "../../../styles/bookingPagesCSS/BookingDetailPage.css";
+import { getBookingById, approveBooking, rejectBooking, cancelBooking } from "../../services/bookingService";
+import { useAuth } from "../../context/AuthContext";
+import "../../styles/bookingPagesCSS/BookingDetailPage.css";
 
 const StatusBadge = ({ status }) => {
   const styles = {

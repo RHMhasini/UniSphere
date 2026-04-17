@@ -10,6 +10,9 @@ import CreateBookingPage from './pages/bookingPages/CreateBookingPage';
 import MyBookingsPage from './pages/bookingPages/MyBookingsPage';
 import BookingDetailPage from './pages/bookingPages/BookingDetailPage';
 import AdminBookingsPage from './pages/bookingPages/AdminBookingsPage';
+import BookingPoliciesPage from './pages/bookingPages/BookingPoliciesPage';
+import SupportCenterPage from './pages/bookingPages/SupportCenterPage';
+import UsageInsightsPage from './pages/bookingPages/UsageInsightsPage';
 
 import "./index.css";
 
@@ -58,6 +61,24 @@ function App() {
               <Route path="/admin/bookings" element={
                 <ProtectedRoute requiredRole="ADMIN">
                   <AdminBookingsPage />
+                </ProtectedRoute>
+              } />
+
+              <Route path="/booking/policies" element={
+                <ProtectedRoute>
+                  <BookingPoliciesPage />
+                </ProtectedRoute>
+              } />
+
+              <Route path="/booking/support" element={
+                <ProtectedRoute>
+                  <SupportCenterPage />
+                </ProtectedRoute>
+              } />
+
+              <Route path="/booking/insights" element={
+                <ProtectedRoute>
+                  <UsageInsightsPage />
                 </ProtectedRoute>
               } />
 

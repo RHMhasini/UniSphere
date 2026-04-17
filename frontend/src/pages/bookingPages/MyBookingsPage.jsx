@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getMyBookings, cancelBooking } from "../../../services/bookingService";
-import "../../../styles/bookingPagesCSS/MyBookingsPage.css";
+import { getMyBookings, cancelBooking } from "../../services/bookingService";
+import "../../styles/bookingPagesCSS/MyBookingsPage.css";
 
 const StatusBadge = ({ status }) => {
   const styles = {
@@ -186,7 +186,7 @@ const MyBookingsPage = () => {
 
         {/* Bottom Banner Cards */}
         <div className="mb-bottom-grid">
-          <div className="mb-policy-card">
+          <Link to="/booking/policies" className="mb-policy-card hover:border-[#2ac88c] transition-all">
              <div className="mb-policy-icon">
                <span className="text-[#2ac88c] font-serif text-xl">?</span>
              </div>
@@ -194,8 +194,8 @@ const MyBookingsPage = () => {
              <p className="mb-policy-desc">
                Review resource-specific guidelines and cancellation windows.
              </p>
-          </div>
-          <div className="mb-support-card">
+          </Link>
+          <Link to="/booking/support" className="mb-support-card hover:border-[#2563eb] transition-all">
              <div className="mb-support-icon">
                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
              </div>
@@ -203,8 +203,8 @@ const MyBookingsPage = () => {
              <p className="mb-support-desc">
                Need help with complex facility requirements? Talk to a coordinator.
              </p>
-          </div>
-          <div className="mb-insight-card">
+          </Link>
+          <Link to="/booking/insights" className="mb-insight-card hover:border-[#064e3b] transition-all">
              <div className="mb-insight-icon">
                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#064e3b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg>
              </div>
@@ -212,7 +212,7 @@ const MyBookingsPage = () => {
              <p className="mb-insight-desc">
                View your monthly facility utilization and efficiency metrics.
              </p>
-          </div>
+          </Link>
         </div>
 
         {/* Floating FAB for Mobile or Bottom Right */}

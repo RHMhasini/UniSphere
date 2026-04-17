@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { createBooking, getResourceById } from "../../../services/bookingService";
-import "../../../styles/bookingPagesCSS/CreateBookingPage.css";
+import { createBooking, getResourceById } from "../../services/bookingService";
+import "../../styles/bookingPagesCSS/CreateBookingPage.css";
 
 const CreateBookingPage = () => {
   const [searchParams] = useSearchParams();

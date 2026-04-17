@@ -1,0 +1,83 @@
+.bp-container {
+  @apply min-h-screen bg-[#f7f8fc] text-[#0d1117] font-sans pb-20;
+}
+
+.bp-main {
+  @apply max-w-4xl mx-auto px-6 py-12;
+}
+
+.bp-header {
+  @apply mb-12 text-center;
+}
+
+.bp-title {
+  @apply text-4xl font-bold mb-4 tracking-tight font-serif text-[#0d1117];
+}
+
+.bp-subtitle {
+  @apply text-[#64748b] text-lg max-w-2xl mx-auto;
+}
+
+.bp-section {
+  @apply bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-8;
+}
+
+.bp-section-title {
+  @apply flex items-center gap-3 text-xl font-bold mb-6 text-[#1e293b];
+}
+
+.bp-icon-box {
+  @apply bg-[#2ac88c] bg-opacity-20 p-2 rounded-lg text-[#2ac88c];
+}
+
+.bp-rule-list {
+  @apply space-y-4;
+}
+
+.bp-rule-item {
+  @apply flex gap-4 items-start;
+}
+
+.bp-bullet {
+  @apply mt-1.5 w-1.5 h-1.5 rounded-full bg-[#2ac88c] flex-shrink-0;
+}
+
+.bp-rule-text {
+  @apply text-[#4a5568] leading-relaxed;
+}
+
+.bp-stat-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4 mt-6;
+}
+
+.bp-stat-card {
+  @apply bg-[#f8fafc] p-4 rounded-xl border border-gray-100;
+}
+
+.bp-stat-label {
+  @apply text-[10px] font-bold tracking-widest text-[#64748b] uppercase mb-1;
+}
+
+.bp-stat-value {
+  @apply text-lg font-bold text-[#1e293b];
+}
+
+.bp-contact-box {
+  @apply mt-12 p-8 rounded-2xl bg-[#1e293b] text-white text-center shadow-lg;
+}
+
+.bp-contact-title {
+  @apply text-xl font-bold mb-2;
+}
+
+.bp-contact-desc {
+  @apply text-[#a6b0cf] text-sm mb-6;
+}
+
+.bp-contact-btn {
+  @apply inline-flex items-center gap-2 px-6 py-3 bg-[#2ac88c] hover:bg-[#23a574] text-white font-bold rounded-lg transition-colors;
+}
+
+.bp-back-link {
+  @apply mb-8 inline-flex items-center gap-2 text-sm font-bold text-[#64748b] hover:text-[#0d1117] transition-colors;
+}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { getAllBookings, approveBooking, rejectBooking } from "../../../services/bookingService";
-import "../../../styles/bookingPagesCSS/AdminBookingsPage.css";
+import { getAllBookings, approveBooking, rejectBooking } from "../../services/bookingService";
+import "../../styles/bookingPagesCSS/AdminBookingsPage.css";
 
 const StatusBadge = ({ status }) => {
   const styles = {

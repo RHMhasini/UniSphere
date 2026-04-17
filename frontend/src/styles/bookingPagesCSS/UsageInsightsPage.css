@@ -1,0 +1,104 @@
+.ui-container {
+  @apply min-h-screen bg-[#f7f8fc] text-[#0d1117] font-sans pb-20;
+}
+
+.ui-main {
+  @apply max-w-6xl mx-auto px-6 py-12;
+}
+
+.ui-header {
+  @apply mb-10;
+}
+
+.ui-title {
+  @apply text-4xl font-bold mb-2 tracking-tight font-serif text-[#0d1117];
+}
+
+.ui-subtitle {
+  @apply text-[#64748b] text-base;
+}
+
+.ui-stats-row {
+  @apply grid grid-cols-1 md:grid-cols-4 gap-6 mb-10;
+}
+
+.ui-stat-card {
+  @apply bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between;
+}
+
+.ui-stat-label {
+  @apply text-[10px] font-bold tracking-widest text-[#64748b] uppercase mb-2;
+}
+
+.ui-stat-value {
+  @apply text-3xl font-light text-[#1e293b];
+}
+
+.ui-stat-footer {
+  @apply mt-4 text-[11px] font-bold;
+}
+
+.ui-stat-footer-up {
+  @apply text-[#2ac88c];
+}
+
+.ui-stat-footer-neutral {
+  @apply text-[#64748b];
+}
+
+.ui-grid {
+  @apply grid grid-cols-1 lg:grid-cols-12 gap-8;
+}
+
+.ui-chart-box {
+  @apply lg:col-span-8 bg-white rounded-2xl p-8 shadow-sm border border-gray-100;
+}
+
+.ui-history-box {
+  @apply lg:col-span-4 bg-white rounded-2xl p-8 shadow-sm border border-gray-100;
+}
+
+.ui-section-title {
+  @apply text-lg font-bold mb-6 text-[#1e293b];
+}
+
+/* History List */
+.ui-history-list {
+  @apply space-y-4;
+}
+
+.ui-history-item {
+  @apply flex items-center gap-3 p-3 rounded-xl hover:bg-[#f8fafc] transition-colors;
+}
+
+.ui-history-icon {
+  @apply w-10 h-10 rounded-lg bg-[#f1f5f9] flex items-center justify-center flex-shrink-0;
+}
+
+.ui-history-name {
+  @apply text-[13px] font-bold text-[#1e293b] line-clamp-1;
+}
+
+.ui-history-date {
+  @apply text-[11px] text-[#64748b];
+}
+
+.ui-chart-placeholder {
+  @apply w-full h-64 bg-[#f8fafc] rounded-xl border border-dashed border-gray-200 flex items-center justify-center relative overflow-hidden;
+}
+
+.ui-chart-bar-container {
+  @apply flex items-end gap-2 h-32 absolute bottom-8 left-1/2 -translate-x-1/2;
+}
+
+.ui-chart-bar {
+  @apply w-8 bg-[#2ac88c] rounded-t-lg transition-all hover:bg-[#23a574];
+}
+
+.ui-label-row {
+  @apply flex justify-between mt-4 text-[10px] font-bold text-[#64748b] uppercase tracking-wider;
+}
+
+.ui-back-link {
+  @apply mb-8 inline-flex items-center gap-2 text-sm font-bold text-[#64748b] hover:text-[#0d1117] transition-colors;
+}

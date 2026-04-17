@@ -1,0 +1,115 @@
+.sc-container {
+  @apply min-h-screen bg-[#f7f8fc] text-[#0d1117] font-sans pb-20;
+}
+
+.sc-main {
+  @apply max-w-5xl mx-auto px-6 py-12;
+}
+
+.sc-header {
+  @apply mb-12 flex flex-col md:flex-row justify-between items-end gap-6;
+}
+
+.sc-title {
+  @apply text-4xl font-bold mb-2 tracking-tight font-serif text-[#0d1117];
+}
+
+.sc-subtitle {
+  @apply text-[#64748b] text-base;
+}
+
+.sc-grid {
+  @apply grid grid-cols-1 lg:grid-cols-12 gap-8;
+}
+
+.sc-left-col {
+  @apply lg:col-span-7 space-y-8;
+}
+
+.sc-right-col {
+  @apply lg:col-span-5 space-y-6;
+}
+
+/* FAQ Styles */
+.sc-card {
+  @apply bg-white rounded-2xl p-8 shadow-sm border border-gray-100;
+}
+
+.sc-card-title {
+  @apply text-xl font-bold mb-6 text-[#1e293b] flex items-center gap-2;
+}
+
+.sc-faq-list {
+  @apply space-y-4;
+}
+
+.sc-faq-item {
+  @apply border-b border-gray-100 pb-4;
+}
+
+.sc-faq-question {
+  @apply font-bold text-[#1e293b] mb-2 cursor-pointer flex justify-between items-center hover:text-[#2563eb] transition-colors;
+}
+
+.sc-faq-answer {
+  @apply text-sm text-[#4a5568] leading-relaxed pr-4;
+}
+
+/* Form Styles */
+.sc-form-group {
+  @apply space-y-2 mb-4;
+}
+
+.sc-label {
+  @apply text-sm font-bold text-[#1e293b];
+}
+
+.sc-input, .sc-textarea {
+  @apply w-full bg-[#f8fafc] border border-gray-200 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2ac88c] focus:border-transparent transition-all;
+}
+
+.sc-submit-btn {
+  @apply w-full py-3 bg-[#1e293b] hover:bg-[#0f172a] text-white font-bold rounded-lg transition-colors shadow-md mt-4;
+}
+
+/* Support Team Card */
+.sc-team-card {
+  @apply bg-[#2a3042] rounded-2xl p-6 text-white shadow-lg overflow-hidden relative;
+}
+
+.sc-team-title {
+  @apply text-lg font-bold mb-4 relative z-10;
+}
+
+.sc-team-contact {
+  @apply space-y-4 relative z-10;
+}
+
+.sc-team-item {
+  @apply flex items-center gap-3 text-sm text-[#a6b0cf];
+}
+
+.sc-team-icon {
+  @apply text-[#2ac88c];
+}
+
+/* Dept Links */
+.sc-link-list {
+  @apply space-y-3;
+}
+
+.sc-link-item {
+  @apply flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:bg-[#f8fafc] transition-colors;
+}
+
+.sc-link-item:hover .sc-link-name {
+  @apply text-[#2563eb];
+}
+
+.sc-link-name {
+  @apply text-sm font-bold text-[#4a5568] transition-colors;
+}
+
+.sc-back-link {
+  @apply mb-8 inline-flex items-center gap-2 text-sm font-bold text-[#64748b] hover:text-[#0d1117] transition-colors;
+}
