@@ -67,20 +67,27 @@ const RegisterDetails = () => {
   const [availableLabs, setAvailableLabs] = useState([]);
 
   // Validators
-  const validateName = (name) => /^[A-Za-z\s]{2,50}$/.test(name);
-  const validatePhone = (phone) => /^(?:7|0|(?:\+94))[0-9]{9,10}$/.test(phone);
-  const validateID = (id) => /^[A-Za-z0-9-]{4,20}$/.test(id);
+  const validateName = (name) => /^[A-Za-z\s]+$/.test(name);
+  const validatePhone = (phone) => /^[0-9]{10}$/.test(phone);
+  const validateStudentEmail = (email) => /^[A-Za-z]{2}[0-9]{8}@my\.sliit\.lk$/.test(email);
+  const validateLecturerEmail = (email) => /^[a-zA-Z0-9._%+-]+lec@gmail\.com$/.test(email);
+  const validateTechnicianEmail = (email) => /^[a-zA-Z0-9._%+-]+tec@gmail\.com$/.test(email);
+  const validateLecturerID = (id) => /^Lec-\d{4}$/.test(id);
+  const validateTechnicianID = (id) => /^Tec-\d{4}$/.test(id);
 
-  const validateField = (name, value) => {
+  const validateField = (name, value, role) => {
     switch (name) {
       case 'firstName':
       case 'lastName':
-        return validateName(value) ? '' : `${name === 'firstName' ? 'First' : 'Last'} name must contain only letters and be 2-50 characters long`;
+        return validateName(value) ? '' : `${name === 'firstName' ? 'First' : 'Last'} name must contain only letters and spaces`;
       case 'phone':
-        return validatePhone(value) ? '' : 'Please enter a valid Sri Lankan phone number';
+        return validatePhone(value) ? '' : 'Phone number must include exactly 10 digits';
       case 'studentId':
+        return value.trim() ? '' : 'Student ID is required';
       case 'staffId':
-        return validateID(value) ? '' : 'ID must be 4-20 alphanumeric characters';
+        if (role === 'LECTURER') return validateLecturerID(value) ? '' : 'Invalid Lecturer ID format (e.g. Lec-3456)';
+        if (role === 'TECHNICIAN') return validateTechnicianID(value) ? '' : 'Invalid Technician ID format (e.g. Tec-3456)';
+        return value.trim() ? '' : 'Staff ID is required';
       case 'password':
         return value.length >= 6 ? '' : 'Password must be at least 6 characters';
       case 'confirmPassword':
@@ -91,11 +98,24 @@ const RegisterDetails = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
+    
+    // Strict input filtering
+    if (name === 'firstName' || name === 'lastName') {
+      value = value.replace(/[^A-Za-z\s]/g, '');
+    }
+    if (name === 'phone') {
+      value = value.replace(/\D/g, '').slice(0, 10);
+    }
     
     // Cascading updates
     setFormData((prev) => {
       const updated = { ...prev, [name]: value };
+
+      // Auto-fill studentId when role switches to STUDENT if email is valid
+      if (name === 'role' && value === 'STUDENT' && user?.email && validateStudentEmail(user.email)) {
+         updated.studentId = user.email.split('@')[0].toUpperCase();
+      }
 
       if (updated.role === 'STUDENT') {
         if (name === 'faculty') {
@@ -123,7 +143,7 @@ const RegisterDetails = () => {
       }
 
       // Automatically validate mapped fields
-      const fieldError = validateField(name, value);
+      const fieldError = validateField(name, value, updated.role);
       setFormErrors(prevErrors => ({
         ...prevErrors,
         [name]: fieldError
@@ -134,6 +154,22 @@ const RegisterDetails = () => {
   };
 
   const isFormValid = () => {
+    if (!user || !user.email) return false;
+
+    // Validate email constraints against role explicitly securely
+    if (formData.role === 'STUDENT' && !validateStudentEmail(user.email)) {
+       setError("Your Google email is not a valid student email (requires ITxxxx@my.sliit.lk)");
+       return false;
+    }
+    if (formData.role === 'LECTURER' && !validateLecturerEmail(user.email)) {
+       setError("Your Google email is not a valid lecturer email (requires *lec@gmail.com)");
+       return false;
+    }
+    if (formData.role === 'TECHNICIAN' && !validateTechnicianEmail(user.email)) {
+       setError("Your Google email is not a valid technician email (requires *tec@gmail.com)");
+       return false;
+    }
+
     // Validate required fields
     const requiredGeneral = ['firstName', 'lastName', 'phone', 'password', 'confirmPassword'];
     const requiredStudent = ['studentId', 'gender', 'faculty', 'degreeProgram', 'year', 'semester'];
