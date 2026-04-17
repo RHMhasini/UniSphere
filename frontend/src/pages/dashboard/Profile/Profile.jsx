@@ -83,20 +83,20 @@ const Profile = () => {
     }
     
     if (name === 'studentId' && currentRole === 'STUDENT') {
-      if (value && !/^STU\/\d{4}\/\d{3}$/.test(value)) {
-        errorMsg = 'Format must be STU/YYYY/XXX (e.g. STU/2024/001)';
+      if (value && !value.trim()) {
+        errorMsg = 'Student ID is required';
       }
     }
     
     if (name === 'staffId' && currentRole === 'LECTURER') {
-      if (value && !/^LEC\/\d{4}$/.test(value)) {
-        errorMsg = 'Format must be LEC/XXXX (e.g. LEC/0045)';
+      if (value && !/^Lec-\d{4}$/.test(value)) {
+        errorMsg = 'Format must be Lec-XXXX (e.g. Lec-3456)';
       }
     }
     
     if (name === 'staffId' && currentRole === 'TECHNICIAN') {
-      if (value && !/^TEC\/\d{4}$/.test(value)) {
-        errorMsg = 'Format must be TEC/XXXX (e.g. TEC/0012)';
+      if (value && !/^Tec-\d{4}$/.test(value)) {
+        errorMsg = 'Format must be Tec-XXXX (e.g. Tec-3456)';
       }
     }
 
