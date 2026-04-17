@@ -32,6 +32,19 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    
+    // Strict domain validation
+    const emailStr = formData.email.trim();
+    const isStudent = /^[A-Za-z]{2}[0-9]{8}@my\.sliit\.lk$/.test(emailStr);
+    const isLecturer = /^[a-zA-Z0-9._%+-]+lec@gmail\.com$/.test(emailStr);
+    const isTechnician = /^[a-zA-Z0-9._%+-]+tec@gmail\.com$/.test(emailStr);
+    const isAdmin = emailStr === 'shashikashyamali60@gmail.com';
+    
+    if (!isStudent && !isLecturer && !isTechnician && !isAdmin) {
+       setError("Please use your valid institutional email based on your role (e.g. ITxxxx@my.sliit.lk, *lec@gmail.com, *tec@gmail.com)");
+       return;
+    }
+
     setLoading(true);
     
     try {
