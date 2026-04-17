@@ -91,8 +91,15 @@ public class AuthServiceImpl implements AuthService {
         user.setFullName(request.getFirstName() + " " + request.getLastName());
         user.setPhone(request.getPhone());
         user.setRole(request.getRole());
-        user.setRegistrationStatus(RegistrationStatus.PENDING_APPROVAL);
-        user.setIsActive(false); // They need admin approval
+        
+        if (request.getRole() == UserRole.STUDENT) {
+            user.setRegistrationStatus(RegistrationStatus.APPROVED);
+            user.setIsActive(true); // Students do not need admin approval
+        } else {
+            user.setRegistrationStatus(RegistrationStatus.PENDING_APPROVAL);
+            user.setIsActive(false); // Staff need admin approval
+        }
+        
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
         user.setGender(request.getGender());
@@ -199,7 +206,14 @@ public class AuthServiceImpl implements AuthService {
         user.setFullName(request.getFirstName() + " " + request.getLastName());
         user.setPhone(request.getPhone());
         user.setRole(request.getRole());
-        user.setRegistrationStatus(RegistrationStatus.PENDING_APPROVAL);
+        
+        if (request.getRole() == UserRole.STUDENT) {
+            user.setRegistrationStatus(RegistrationStatus.APPROVED);
+            user.setIsActive(true);
+        } else {
+            user.setRegistrationStatus(RegistrationStatus.PENDING_APPROVAL);
+            user.setIsActive(false);
+        }
 
         if (request.getProfilePictureUrl() != null && !request.getProfilePictureUrl().isEmpty()) {
             user.setProfilePictureUrl(request.getProfilePictureUrl());

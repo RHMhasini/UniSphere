@@ -35,6 +35,20 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String email = (String) oAuth2User.getAttributes().get("email");
         String name = (String) oAuth2User.getAttributes().get("name");
+        String picture = (String) oAuth2User.getAttributes().get("picture");
+
+        // Validate that the Google email matches an allowed institutional format
+        boolean isStudent    = email != null && email.matches("^[A-Za-z]{2}[0-9]{8}@my\\.sliit\\.lk$");
+        boolean isLecturer   = email != null && email.matches("^[a-zA-Z0-9._%+\\-]+lec@gmail\\.com$");
+        boolean isTechnician = email != null && email.matches("^[a-zA-Z0-9._%+\\-]+tec@gmail\\.com$");
+        boolean isAdmin      = "admin23unisphere@gmail.com".equalsIgnoreCase(email);
+
+        if (!isStudent && !isLecturer && !isTechnician && !isAdmin) {
+            log.warn("OAuth2 login blocked for unauthorized email: {}", email);
+            String errorUrl = "http://localhost:5173/login?error=invalid_email";
+            getRedirectStrategy().sendRedirect(request, response, errorUrl);
+            return;
+        }
 
         User user = userRepository.findByEmail(email).orElseGet(() -> {
             log.info("Creating new user from OAuth2 login: email={}", email);
@@ -43,10 +57,17 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             newUser.setFullName(name != null ? name : "OAuth2 User");
             newUser.setFirstName(name != null ? name.split(" ")[0] : "User");
             newUser.setLastName(name != null && name.split(" ").length > 1 ? name.split(" ")[1] : "");
+            newUser.setProfilePictureUrl(picture);
             newUser.setIsActive(true);
             // User is created with default role STUDENT and status PENDING_DETAILS
             return userRepository.save(newUser);
         });
+
+        // Always update the profile picture from Google if we don't have one
+        if ((user.getProfilePictureUrl() == null || user.getProfilePictureUrl().isEmpty()) && picture != null) {
+            user.setProfilePictureUrl(picture);
+            userRepository.save(user);
+        }
 
         String accessToken = jwtTokenProvider.generateAccessToken(user.getEmail(), user.getId(), user.getRole().name());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getEmail(), user.getId(), user.getRole().name());
