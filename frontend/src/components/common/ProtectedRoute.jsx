@@ -18,18 +18,24 @@ const ProtectedRoute = ({ children, roles }) => {
     return <Navigate to="/login" replace />;
   }
 
+  // If user is authenticated but registrationStatus not yet loaded, wait
+  if (!user?.registrationStatus) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mx-auto"></div>
+      </div>
+    );
+  }
+
   // Handle registration status redirections
-  // If user needs to fill details and isn't already on that page
   if (user?.registrationStatus === 'PENDING_DETAILS' && location.pathname !== '/register/details') {
     return <Navigate to="/register/details" replace />;
   }
 
-  // If user is waiting for approval and isn't already on that page
   if (user?.registrationStatus === 'PENDING_APPROVAL' && location.pathname !== '/register/pending') {
     return <Navigate to="/register/pending" replace />;
   }
 
-  // If user is rejected and isn't already on the rejected page
   if (user?.registrationStatus === 'REJECTED' && location.pathname !== '/register/rejected') {
     return <Navigate to="/register/rejected" replace />;
   }

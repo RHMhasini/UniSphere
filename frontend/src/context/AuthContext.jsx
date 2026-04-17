@@ -24,7 +24,8 @@ export const AuthProvider = ({ children }) => {
   const fetchCurrentUser = useCallback(async () => {
     try {
       const response = await authAPI.getCurrentUser();
-      const userData = response.data; 
+      // The API returns an ApiResponse, so the actual user profile is in response.data.data
+      const userData = response.data?.data || response.data; 
       
       const token = localStorage.getItem('accessToken');
       const decoded = decodeToken(token);
@@ -36,7 +37,12 @@ export const AuthProvider = ({ children }) => {
       setError(null);
     } catch (err) {
       console.error('Failed to fetch current user:', err);
-      logout();
+      // Only fully logout if there's no token at all (truly unauthenticated)
+      // Don't logout on temporary network errors when user data may already be set
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        logout();
+      }
     } finally {
       setLoading(false);
     }
@@ -52,7 +58,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [fetchCurrentUser]);
 
-  const setTokens = useCallback((accessToken, refreshToken) => {
+  const setTokens = useCallback((accessToken, refreshToken, registrationStatus) => {
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
     
@@ -61,7 +67,8 @@ export const AuthProvider = ({ children }) => {
     if (decoded) {
       setUser({
         email: decoded.sub || decoded.email,
-        role: decoded.role || 'STUDENT'
+        role: decoded.role || 'STUDENT',
+        registrationStatus: registrationStatus || 'PENDING_DETAILS'
       });
     }
     
@@ -105,8 +112,8 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       const response = await authAPI.login(credentials);
-      const { accessToken, refreshToken } = response.data;
-      setTokens(accessToken, refreshToken);
+      const { accessToken, refreshToken, registrationStatus } = response.data;
+      setTokens(accessToken, refreshToken, registrationStatus);
       return response.data;
     } catch (err) {
       setError(err.response?.data?.message || err.message);
@@ -121,9 +128,9 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       const response = await authAPI.register(details);
-      const { accessToken, refreshToken } = response.data;
+      const { accessToken, refreshToken, registrationStatus } = response.data;
       if (accessToken && refreshToken) {
-        setTokens(accessToken, refreshToken);
+        setTokens(accessToken, refreshToken, registrationStatus);
       }
       return response.data;
     } catch (err) {

@@ -21,7 +21,7 @@ const OAuth2RedirectHandler = () => {
       }
 
       console.log('Tokens found, status:', status);
-      setTokens(token, refreshToken);
+      setTokens(token, refreshToken, status);
       
       // Handle redirection based on registration status
       if (status === 'PENDING_DETAILS') {

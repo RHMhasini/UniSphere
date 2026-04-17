@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Building2, ShieldCheck, Mail, Lock, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
   const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState('');
@@ -15,6 +16,15 @@ const Login = () => {
     password: '',
     rememberMe: false
   });
+
+  // Show error if redirected back from backend OAuth2 block
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const err = params.get('error');
+    if (err === 'invalid_email') {
+      setError('Please use your correct campus email to sign in with Google (e.g. ITxxxx@my.sliit.lk, *lec@gmail.com, *tec@gmail.com)');
+    }
+  }, [location.search]);
 
   const handleGoogleLogin = () => {
     setGoogleLoading(true);
@@ -33,13 +43,13 @@ const Login = () => {
     e.preventDefault();
     setError('');
     
-    // Strict domain validation
-    const emailStr = formData.email.trim();
-    const isStudent = /^[A-Za-z]{2}[0-9]{8}@my\.sliit\.lk$/.test(emailStr);
-    const isLecturer = /^[a-zA-Z0-9._%+-]+lec@gmail\.com$/.test(emailStr);
-    const isTechnician = /^[a-zA-Z0-9._%+-]+tec@gmail\.com$/.test(emailStr);
-    const isAdmin = emailStr === 'shashikashyamali60@gmail.com';
-    
+    // Strict domain validation - block non-institutional emails
+    const emailStr = formData.email.trim().toLowerCase();
+    const isStudent = /^[a-z]{2}[0-9]{8}@my\.sliit\.lk$/.test(emailStr);
+    const isLecturer = /^[a-z0-9._%+-]+lec@gmail\.com$/.test(emailStr);
+    const isTechnician = /^[a-z0-9._%+-]+tec@gmail\.com$/.test(emailStr);
+    const isAdmin = emailStr === 'admin23unisphere@gmail.com';
+
     if (!isStudent && !isLecturer && !isTechnician && !isAdmin) {
        setError("Please use your valid institutional email based on your role (e.g. ITxxxx@my.sliit.lk, *lec@gmail.com, *tec@gmail.com)");
        return;
@@ -89,11 +99,10 @@ const Login = () => {
               </div>
             </div>
             <h1 className="mt-16 text-3xl font-semibold leading-tight tracking-tight lg:text-4xl">
-              One place for facilities, access, and campus operations.
+              Welcome Back to Smart Campus Hub!
             </h1>
             <p className="mt-4 max-w-md text-sm leading-relaxed text-slate-400">
-              Secure sign-in with your institution account. Role-aware dashboards
-              for students, faculty, technicians, and administrators.
+              From lecture schedules and lab bookings to assignments and campus announcements — everything you need for a productive academic life is right here. Stay organized, stay connected, and make the most of your campus experience.
             </p>
           </div>
           <div className="relative flex items-start gap-3 text-sm text-slate-400">
