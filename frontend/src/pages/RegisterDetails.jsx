@@ -58,6 +58,19 @@ const RegisterDetails = () => {
     assignedLab: '', // For Technician
   });
 
+  useEffect(() => {
+    if (user?.email && formData.role === 'STUDENT') {
+      const isStudent = /^[A-Za-z]{2}[0-9]{8}@my\.sliit\.lk$/.test(user.email);
+      if (isStudent) {
+         const newId = user.email.split('@')[0].toUpperCase();
+         setFormData(prev => {
+           if (prev.studentId === newId) return prev;
+           return { ...prev, studentId: newId };
+         });
+      }
+    }
+  }, [user, formData.role]);
+
   const [formErrors, setFormErrors] = useState({});
 
   // Dynamic dropdown state for options available based on parent selection
@@ -85,8 +98,8 @@ const RegisterDetails = () => {
       case 'studentId':
         return value.trim() ? '' : 'Student ID is required';
       case 'staffId':
-        if (role === 'LECTURER') return validateLecturerID(value) ? '' : 'Invalid Lecturer ID format (e.g. Lec-3456)';
-        if (role === 'TECHNICIAN') return validateTechnicianID(value) ? '' : 'Invalid Technician ID format (e.g. Tec-3456)';
+        if (role === 'LECTURER') return validateLecturerID(value) ? '' : 'Invalid Lecturer ID format (e.g. Lec-XXXX)';
+        if (role === 'TECHNICIAN') return validateTechnicianID(value) ? '' : 'Invalid Technician ID format (e.g. Tec-XXXX)';
         return value.trim() ? '' : 'Staff ID is required';
       case 'password':
         return value.length >= 6 ? '' : 'Password must be at least 6 characters';
@@ -153,20 +166,20 @@ const RegisterDetails = () => {
     });
   };
 
-  const isFormValid = () => {
+  const isFormValid = (showErrors = false) => {
     if (!user || !user.email) return false;
 
     // Validate email constraints against role explicitly securely
     if (formData.role === 'STUDENT' && !validateStudentEmail(user.email)) {
-       setError("Your Google email is not a valid student email (requires ITxxxx@my.sliit.lk)");
+       if (showErrors) setError("Your Google email is not a valid student email (requires ITxxxx@my.sliit.lk)");
        return false;
     }
     if (formData.role === 'LECTURER' && !validateLecturerEmail(user.email)) {
-       setError("Your Google email is not a valid lecturer email (requires *lec@gmail.com)");
+       if (showErrors) setError("Your Google email is not a valid lecturer email (requires *lec@gmail.com)");
        return false;
     }
     if (formData.role === 'TECHNICIAN' && !validateTechnicianEmail(user.email)) {
-       setError("Your Google email is not a valid technician email (requires *tec@gmail.com)");
+       if (showErrors) setError("Your Google email is not a valid technician email (requires *tec@gmail.com)");
        return false;
     }
 
@@ -184,6 +197,12 @@ const RegisterDetails = () => {
     if (formData.role === 'LECTURER' && !checkFields(requiredLecturer)) return false;
     if (formData.role === 'TECHNICIAN' && !checkFields(requiredTechnician)) return false;
 
+    // Cross-validate email and ID dynamically to prevent role-switching bypass
+    if (validateField('email', user?.email, formData.role)) return false;
+    if (formData.role === 'LECTURER' || formData.role === 'TECHNICIAN') {
+       if (validateField('staffId', formData.staffId, formData.role)) return false;
+    }
+
     // Check if any specific field has an active error
     if (Object.values(formErrors).some(err => err !== '')) return false;
 
@@ -192,7 +211,7 @@ const RegisterDetails = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!isFormValid()) return;
+    if (!isFormValid(true)) return;
     
     setError(null);
     setLoading(true);
@@ -261,7 +280,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <BadgeCheck className="h-4 w-4 text-slate-400" />
                   </div>
-                  <input type="text" name="studentId" required value={formData.studentId} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.studentId ? 'border-red-500 focus:ring-red-500' : ''}`} placeholder="STU-2024-001" />
+                  <input type="text" name="studentId" required value={formData.studentId} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.studentId ? 'border-red-500 focus:ring-red-500' : ''}`} placeholder="ITXXXXXXXX" />
                 </div>
                 {formErrors.studentId && <p className="text-xs text-red-500">{formErrors.studentId}</p>}
               </div>
@@ -354,8 +373,9 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <BadgeCheck className="h-4 w-4 text-slate-400" />
                   </div>
-                  <input type="text" name="staffId" required value={formData.staffId} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.staffId ? 'border-red-500 focus:ring-red-500' : ''}`} placeholder="STF-2024-001" />
+                  <input type="text" name="staffId" required value={formData.staffId} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.staffId ? 'border-red-500 focus:ring-red-500' : ''}`} placeholder="Lec-XXXX" />
                 </div>
+                {formErrors.staffId && <p className="text-xs text-red-500">{formErrors.staffId}</p>}
               </div>
 
               <div className="space-y-1.5">
@@ -416,8 +436,9 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <BadgeCheck className="h-4 w-4 text-slate-400" />
                   </div>
-                  <input type="text" name="staffId" required value={formData.staffId} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.staffId ? 'border-red-500 focus:ring-red-500' : ''}`} placeholder="TECH-2024-001" />
+                  <input type="text" name="staffId" required value={formData.staffId} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.staffId ? 'border-red-500 focus:ring-red-500' : ''}`} placeholder="Tec-XXXX" />
                 </div>
+                {formErrors.staffId && <p className="text-xs text-red-500">{formErrors.staffId}</p>}
               </div>
 
               <div className="space-y-1.5">
@@ -489,9 +510,9 @@ const RegisterDetails = () => {
                     <p className="text-xs text-slate-400">Smart Campus</p>
                   </div>
                 </div>
-                <h2 className="mt-12 text-3xl font-semibold leading-tight text-white">Complete Your Registration</h2>
+                <h2 className="mt-12 text-3xl font-semibold leading-tight text-white">Almost There, Friend!</h2>
                 <p className="mt-4 text-sm text-slate-400 leading-relaxed">
-                  Provide a few more details to set up your role context properly before you enter the operations hub.
+                  Complete your profile setup to fully personalize your dashboard. Tell us a bit more about your academic role to unlock a tailored, connected, and smarter campus experience.
                 </p>
              </div>
              <div className="relative z-10 mt-10">
@@ -512,15 +533,16 @@ const RegisterDetails = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-8" autoComplete="off">
               
               {/* Profile Image Preview from Google */}
               <div className="flex flex-col items-center justify-center pb-2">
                 <div className="relative">
                   <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                     <img 
-                      src={user?.profilePictureUrl || `https://ui-avatars.com/api/?name=${user?.fullName || 'User'}&background=random`} 
+                      src={user?.profilePictureUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'User')}&background=random`} 
                       alt="Profile" 
+                      referrerPolicy="no-referrer"
                       className="w-full h-full object-cover" 
                     />
                   </div>
@@ -529,64 +551,7 @@ const RegisterDetails = () => {
                 <span className="mt-1 text-xs text-slate-400 dark:text-slate-500">(Synced from your Google Account)</span>
               </div>
 
-              {/* Profile Basics */}
-              <div className="space-y-4">
-                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-2">Basic Info</h3>
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                   <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">First Name</label>
-                    <div className="relative">
-                       <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><User className="h-4 w-4 text-slate-400" /></span>
-                       <input type="text" name="firstName" required value={formData.firstName} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.firstName ? 'border-red-500' : ''}`} placeholder="John" />
-                    </div>
-                   </div>
-                   <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Last Name</label>
-                    <div className="relative">
-                       <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><User className="h-4 w-4 text-slate-400" /></span>
-                       <input type="text" name="lastName" required value={formData.lastName} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.lastName ? 'border-red-500' : ''}`} placeholder="Doe" />
-                    </div>
-                   </div>
-                   <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email Address (Read-only)</label>
-                    <div className="relative">
-                       <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Mail className="h-4 w-4 text-slate-400" /></span>
-                       <input 
-                          type="email" 
-                          name="email" 
-                          readOnly 
-                          value={user?.email || ""} 
-                          className="w-full pl-10 pr-4 py-2 border rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 cursor-not-allowed" 
-                       />
-                    </div>
-                   </div>
-                   <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Phone</label>
-                    <div className="relative">
-                       <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Phone className="h-4 w-4 text-slate-400" /></span>
-                       <input type="tel" name="phone" required value={formData.phone} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.phone ? 'border-red-500' : ''}`} placeholder="07XXXXXXXX" />
-                    </div>
-                   </div>
-                   <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
-                    <div className="relative">
-                       <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><ShieldCheck className="h-4 w-4 text-slate-400" /></span>
-                       <input type="password" name="password" required value={formData.password} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.password ? 'border-red-500' : ''}`} placeholder="••••••••" />
-                    </div>
-                    {formErrors.password && <p className="text-xs text-red-500 mt-1">{formErrors.password}</p>}
-                   </div>
-                   <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Confirm Password</label>
-                    <div className="relative">
-                       <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><ShieldCheck className="h-4 w-4 text-slate-400" /></span>
-                       <input type="password" name="confirmPassword" required value={formData.confirmPassword} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.confirmPassword ? 'border-red-500' : ''}`} placeholder="••••••••" />
-                    </div>
-                    {formErrors.confirmPassword && <p className="text-xs text-red-500 mt-1">{formErrors.confirmPassword}</p>}
-                   </div>
-                 </div>
-              </div>
-
-               {/* Role Selection */}
+               {/* Role Selection - FIRST so validation knows the role */}
               <div className="space-y-4">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-2">Select Your Role</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -618,6 +583,66 @@ const RegisterDetails = () => {
                     </div>
                   ))}
                 </div>
+              </div>
+
+              {/* Profile Basics */}
+              <div className="space-y-4">
+                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-2">Basic Info</h3>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">First Name</label>
+                    <div className="relative">
+                       <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><User className="h-4 w-4 text-slate-400" /></span>
+                       <input type="text" name="firstName" required value={formData.firstName} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.firstName ? 'border-red-500' : ''}`} placeholder="John" />
+                    </div>
+                    {formErrors.firstName && <p className="text-xs text-red-500 mt-1">{formErrors.firstName}</p>}
+                   </div>
+                   <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Last Name</label>
+                    <div className="relative">
+                       <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><User className="h-4 w-4 text-slate-400" /></span>
+                       <input type="text" name="lastName" required value={formData.lastName} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.lastName ? 'border-red-500' : ''}`} placeholder="Doe" />
+                    </div>
+                    {formErrors.lastName && <p className="text-xs text-red-500 mt-1">{formErrors.lastName}</p>}
+                   </div>
+                   <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email Address (Read-only)</label>
+                    <div className="relative">
+                       <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Mail className="h-4 w-4 text-slate-400" /></span>
+                       <input 
+                          type="email" 
+                          name="email" 
+                          readOnly 
+                          value={user?.email || ""} 
+                          className="w-full pl-10 pr-4 py-2 border rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 cursor-not-allowed" 
+                       />
+                    </div>
+                   </div>
+                   <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Phone</label>
+                    <div className="relative">
+                       <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Phone className="h-4 w-4 text-slate-400" /></span>
+                       <input type="tel" name="phone" required value={formData.phone} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.phone ? 'border-red-500' : ''}`} placeholder="07XXXXXXXX" />
+                    </div>
+                    {formErrors.phone && <p className="text-xs text-red-500 mt-1">{formErrors.phone}</p>}
+                   </div>
+                   <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
+                    <div className="relative">
+                       <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><ShieldCheck className="h-4 w-4 text-slate-400" /></span>
+                       <input type="password" name="password" autoComplete="new-password" required value={formData.password} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.password ? 'border-red-500' : ''}`} placeholder="••••••••" />
+                    </div>
+                    {formErrors.password && <p className="text-xs text-red-500 mt-1">{formErrors.password}</p>}
+                   </div>
+                   <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Confirm Password</label>
+                    <div className="relative">
+                       <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><ShieldCheck className="h-4 w-4 text-slate-400" /></span>
+                       <input type="password" name="confirmPassword" autoComplete="new-password" required value={formData.confirmPassword} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.confirmPassword ? 'border-red-500' : ''}`} placeholder="••••••••" />
+                    </div>
+                    {formErrors.confirmPassword && <p className="text-xs text-red-500 mt-1">{formErrors.confirmPassword}</p>}
+                   </div>
+                 </div>
               </div>
 
               {/* Specific details */}
