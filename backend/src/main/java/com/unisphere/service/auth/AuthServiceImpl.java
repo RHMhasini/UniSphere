@@ -60,9 +60,6 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        if (!user.getIsActive() && user.getRegistrationStatus() == RegistrationStatus.APPROVED) {
-            throw new UnauthorizedAccessException("Account has been suspended");
-        }
 
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
@@ -325,17 +322,17 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserProfileResponse updateUserRole(String adminEmail, String userId, UserRole newRole) {
+    public UserProfileResponse updateUserStatus(String adminEmail, String userId, boolean isActive) {
         validateAdmin(adminEmail);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        user.setRole(newRole);
+        user.setIsActive(isActive);
         user.setUpdatedAt(LocalDateTime.now());
 
         user = userRepository.save(user);
-        log.info("Admin {} updated role of {} to {}", adminEmail, user.getEmail(), newRole);
+        log.info("Admin {} updated active status of {} to {}", adminEmail, user.getEmail(), isActive);
 
         return mapToUserProfileResponse(user);
     }
@@ -385,10 +382,6 @@ public class AuthServiceImpl implements AuthService {
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-            if (!user.getIsActive()) {
-                throw new BadCredentialsException("User account is inactive");
-            }
-
             String accessToken = jwtTokenProvider.generateAccessToken(
                     user.getEmail(), user.getId(), user.getRole().name());
             String newRefreshToken = jwtTokenProvider.generateRefreshToken(
@@ -427,6 +420,7 @@ public class AuthServiceImpl implements AuthService {
         response.setAccessToken(accessToken);
         response.setRefreshToken(refreshToken);
         response.setExpiresAt(expiresAt);
+        response.setIsActive(user.getIsActive());
         return response;
     }
 

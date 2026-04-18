@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { authAPI } from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
-import { Loader2, AlertTriangle, Users, CheckCircle, XCircle } from 'lucide-react';
+import { Loader2, AlertTriangle, Users, CheckCircle, XCircle, ShieldOff, ShieldCheck } from 'lucide-react';
 
 const roleBadgeClass = (role) => {
   const r = (role || '').toLowerCase();
@@ -56,23 +56,20 @@ const UserManagement = () => {
     fetchUsers();
   }, []);
 
-  const handleRoleChange = async (userId, newRole) => {
-    if (
-      window.confirm(
-        `Are you sure you want to change this user's role to ${newRole}?`
-      )
-    ) {
+  const handleStatusToggle = async (userId, currentIsActive) => {
+    const newStatus = !currentIsActive;
+    const label = newStatus ? 'activate' : 'deactivate';
+    if (window.confirm(`Are you sure you want to ${label} this user?`)) {
       try {
-        const response = await authAPI.adminUpdateRole(userId, newRole);
+        const response = await authAPI.adminUpdateStatus(userId, newStatus);
         if (response.success) {
-          setUsers(users.map((u) => (u.id === userId ? { ...u, role: newRole } : u)));
-          alert('Role updated successfully!');
+          setUsers(users.map((u) => (u.id === userId ? { ...u, isActive: newStatus } : u)));
         } else {
-          alert('Failed to update role: ' + response.message);
+          alert('Failed to update status: ' + response.message);
         }
       } catch (err) {
-        console.error('Error updating role:', err);
-        alert('Failed to update role.');
+        console.error('Error toggling status:', err);
+        alert('Failed to update status.');
       }
     }
   };
@@ -241,11 +238,24 @@ const UserManagement = () => {
                       </span>
                     </td>
                     <td className="px-4 py-4">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${statusBadgeClass(user.registrationStatus)}`}
-                      >
-                        {user.registrationStatus?.replace('_', ' ')}
-                      </span>
+                      <div className="flex flex-col gap-1">
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${statusBadgeClass(user.registrationStatus)}`}
+                        >
+                          {user.registrationStatus?.replace('_', ' ')}
+                        </span>
+                        {user.registrationStatus === 'APPROVED' && (
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${
+                              user.isActive
+                                ? 'bg-emerald-50 text-emerald-800 ring-emerald-600/15 dark:bg-emerald-950/40 dark:text-emerald-300'
+                                : 'bg-slate-100 text-slate-600 ring-slate-600/10 dark:bg-slate-800 dark:text-slate-400'
+                            }`}
+                          >
+                            {user.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="whitespace-nowrap px-4 py-4 text-slate-700 dark:text-slate-300">
                       {user.createdAt
@@ -275,18 +285,22 @@ const UserManagement = () => {
                               </button>
                             </div>
                           )}
-                          <select
-                            className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-medium text-slate-800 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
-                            value={user.role}
-                            onChange={(e) =>
-                              handleRoleChange(user.id, e.target.value)
-                            }
-                          >
-                            <option value="STUDENT">STUDENT</option>
-                            <option value="LECTURER">LECTURER</option>
-                            <option value="TECHNICIAN">TECHNICIAN</option>
-                            <option value="ADMIN">ADMIN</option>
-                          </select>
+                          {user.registrationStatus === 'APPROVED' && (
+                            <button
+                              type="button"
+                              title={user.isActive ? 'Deactivate user' : 'Activate user'}
+                              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition ${
+                                user.isActive
+                                  ? 'bg-amber-500 hover:bg-amber-600'
+                                  : 'bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600'
+                              }`}
+                              onClick={() => handleStatusToggle(user.id, user.isActive)}
+                            >
+                              {user.isActive
+                                ? <><ShieldOff className="h-3.5 w-3.5" /> Deactivate</>
+                                : <><ShieldCheck className="h-3.5 w-3.5" /> Activate</>}
+                            </button>
+                          )}
                           <button
                             type="button"
                             className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"

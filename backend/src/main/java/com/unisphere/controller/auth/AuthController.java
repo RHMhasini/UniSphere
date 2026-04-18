@@ -216,25 +216,29 @@ public class AuthController {
     }
 
     /**
-     * Admin: Update user role
+     * Admin: Update user active status
      */
-    @PutMapping("/admin/users/{userId}/role")
+    @PutMapping("/admin/users/{userId}/status")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<ApiResponse<UserProfileResponse>> updateUserRole(
+    public ResponseEntity<ApiResponse<UserProfileResponse>> updateUserStatus(
             @PathVariable String userId,
-            @RequestBody Map<String, String> roleUpdate) {
+            @RequestBody Map<String, Boolean> statusUpdate) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String adminEmail = authentication.getName();
             
-            UserRole newRole = UserRole.valueOf(roleUpdate.get("role"));
-            UserProfileResponse updatedUser = authService.updateUserRole(adminEmail, userId, newRole);
+            Boolean isActive = statusUpdate.get("isActive");
+            if (isActive == null) {
+                throw new IllegalArgumentException("isActive flag must be provided");
+            }
             
-            return ResponseEntity.ok(ApiResponse.success(updatedUser, "User role updated successfully"));
+            UserProfileResponse updatedUser = authService.updateUserStatus(adminEmail, userId, isActive);
+            
+            return ResponseEntity.ok(ApiResponse.success(updatedUser, "User status updated successfully"));
         } catch (Exception e) {
-            log.error("Error updating user role", e);
+            log.error("Error updating user status", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(ApiResponse.error("Failed to update role: " + e.getMessage()));
+                    .body(ApiResponse.error("Failed to update status: " + e.getMessage()));
         }
     }
 

@@ -4,7 +4,6 @@ import com.unisphere.dto.request.RegisterDetailsRequest;
 import com.unisphere.dto.request.UpdateProfileRequest;
 import com.unisphere.dto.response.AuthResponse;
 import com.unisphere.dto.response.UserProfileResponse;
-import com.unisphere.entity.enums.UserRole;
 import java.util.List;
 
 import com.unisphere.dto.request.LoginRequest;
@@ -58,7 +57,7 @@ public interface AuthService {
     /**
      * Admin: Update user role
      */
-    UserProfileResponse updateUserRole(String adminEmail, String userId, UserRole newRole);
+    UserProfileResponse updateUserStatus(String adminEmail, String userId, boolean isActive);
 
     /**
      * Admin: Delete any user

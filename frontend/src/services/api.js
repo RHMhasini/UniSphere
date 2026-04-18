@@ -118,8 +118,8 @@ export const authAPI = {
     return response.data;
   },
 
-  adminUpdateRole: async (userId, role) => {
-    const response = await api.put(`/auth/admin/users/${userId}/role`, { role });
+  adminUpdateStatus: async (userId, isActive) => {
+    const response = await api.put(`/auth/admin/users/${userId}/status`, { isActive });
     return response.data;
   },
 

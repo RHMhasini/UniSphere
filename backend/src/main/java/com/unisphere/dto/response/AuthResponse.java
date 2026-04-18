@@ -21,6 +21,7 @@ public class AuthResponse {
     private String accessToken;
     private String refreshToken;
     private LocalDateTime expiresAt;
+    private Boolean isActive;
 
     public AuthResponse() {
     }
@@ -36,7 +37,8 @@ public class AuthResponse {
             Boolean emailVerified,
             String accessToken,
             String refreshToken,
-            LocalDateTime expiresAt
+            LocalDateTime expiresAt,
+            Boolean isActive
     ) {
         this.id = id;
         this.fullName = fullName;
@@ -49,6 +51,7 @@ public class AuthResponse {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.expiresAt = expiresAt;
+        this.isActive = isActive;
     }
 
     public String getId() {
@@ -137,5 +140,13 @@ public class AuthResponse {
 
     public void setExpiresAt(LocalDateTime expiresAt) {
         this.expiresAt = expiresAt;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
     }
 }
