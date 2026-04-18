@@ -40,6 +40,15 @@ const ProtectedRoute = ({ children, roles }) => {
     return <Navigate to="/register/rejected" replace />;
   }
 
+  // If approved but inactive → show inactive dashboard
+  if (
+    user?.registrationStatus === 'APPROVED' &&
+    user?.isActive === false &&
+    location.pathname !== '/dashboard/inactive'
+  ) {
+    return <Navigate to="/dashboard/inactive" replace />;
+  }
+
   // Check for roles if they are provided
   if (roles && !roles.includes(user?.role)) {
     return <Navigate to="/access-denied" replace />;

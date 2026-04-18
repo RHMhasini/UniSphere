@@ -18,6 +18,7 @@ import Analytics from "./pages/dashboard/Analytics/Analytics";
 import SimulatorPage from "./pages/dashboard/Simulator/SimulatorPage";
 import SettingsPage from "./pages/dashboard/Settings/SettingsPage";
 import AccessDenied from "./pages/error/AccessDenied";
+import InactiveDashboard from "./pages/dashboard/InactiveDashboard";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 
 const GOOGLE_CLIENT_ID = "625444495391-kea4ugn1uhhn8m78c3o6ptjujk42bi8e.apps.googleusercontent.com";
@@ -57,6 +58,11 @@ function App() {
             } />
             <Route path="/register/rejected" element={<RegisterRejected />} />
             <Route path="/access-denied" element={<AccessDenied />} />
+            <Route path="/dashboard/inactive" element={
+              <ProtectedRoute>
+                <InactiveDashboard />
+              </ProtectedRoute>
+            } />
             
             {/* Protected Dashboard Routes */}
             <Route path="/dashboard" element={
