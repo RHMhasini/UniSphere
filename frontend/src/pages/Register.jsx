@@ -25,9 +25,9 @@ import {
 } from 'lucide-react';
 
 const ROLES = [
-  { id: 'STUDENT', label: 'Student', icon: <GraduationCap className="h-5 w-5" />, desc: 'Access course materials & schedules' },
-  { id: 'LECTURER', label: 'Lecturer', icon: <Briefcase className="h-5 w-5" />, desc: 'Manage courses & view resources' },
-  { id: 'TECHNICIAN', label: 'Technician', icon: <Wrench className="h-5 w-5" />, desc: 'Handle equipment & support' }
+  { id: 'STUDENT', label: 'Student', icon: <GraduationCap className="h-5 w-5" />, desc: 'Book labs & rooms, report faults, track your requests' },
+  { id: 'LECTURER', label: 'Lecturer', icon: <Briefcase className="h-5 w-5" />, desc: 'Reserve spaces, request equipment, coordinate work orders' },
+  { id: 'TECHNICIAN', label: 'Technician', icon: <Wrench className="h-5 w-5" />, desc: 'Handle work orders, log assets, close maintenance tickets' }
 ];
 
 const Register = () => {
@@ -85,7 +85,7 @@ const Register = () => {
       case 'phone':
         return validatePhone(value) ? '' : 'Phone number must include exactly 10 digits';
       case 'email':
-        if (role === 'STUDENT') return validateStudentEmail(value) ? '' : 'Please use your valid student mail (e.g. it23363434@my.sliit.lk)';
+        if (role === 'STUDENT') return validateStudentEmail(value) ? '' : 'Please use your valid student mail (e.g. itXXXXXXXX@my.sliit.lk)';
         if (role === 'LECTURER') return validateLecturerEmail(value) ? '' : 'This role requires a valid lecturer email format (*lec@gmail.com)';
         if (role === 'TECHNICIAN') return validateTechnicianEmail(value) ? '' : 'This role requires a valid technician email format (*tec@gmail.com)';
         return 'Please enter a valid email address';
@@ -220,7 +220,7 @@ const Register = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <User className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="gender" required value={formData.gender} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg">
+                  <select name="gender" required value={formData.gender} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Gender</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
@@ -245,7 +245,7 @@ const Register = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Building className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="faculty" required value={formData.faculty} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg">
+                  <select name="faculty" required value={formData.faculty} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Faculty</option>
                     {Object.keys(STUDENT_FACULTIES).map((faculty) => (
                       <option key={faculty} value={faculty}>{faculty}</option>
@@ -260,7 +260,7 @@ const Register = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <BookOpen className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="degreeProgram" required value={formData.degreeProgram} onChange={handleChange} disabled={!formData.faculty} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:cursor-not-allowed">
+                  <select name="degreeProgram" required value={formData.degreeProgram} onChange={handleChange} disabled={!formData.faculty} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:cursor-not-allowed bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Degree</option>
                     {availableDegrees.map((degree) => (
                       <option key={degree} value={degree}>{degree}</option>
@@ -275,7 +275,7 @@ const Register = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Calendar className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="year" required value={formData.year} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg">
+                  <select name="year" required value={formData.year} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Year</option>
                     {['Year 1', 'Year 2', 'Year 3', 'Year 4'].map((yr) => (
                       <option key={yr} value={yr}>{yr}</option>
@@ -290,7 +290,7 @@ const Register = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Calendar className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="semester" required value={formData.semester} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg">
+                  <select name="semester" required value={formData.semester} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Semester</option>
                     {['Semester 1', 'Semester 2'].map((sem) => (
                       <option key={sem} value={sem}>{sem}</option>
@@ -312,7 +312,7 @@ const Register = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <User className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="title" required value={formData.title} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg">
+                  <select name="title" required value={formData.title} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Title</option>
                     {['Mr.', 'Ms.', 'Mrs.', 'Dr.', 'Prof.'].map((title) => (
                       <option key={title} value={title}>{title}</option>
@@ -338,7 +338,7 @@ const Register = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Building className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="faculty" required value={formData.faculty} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg">
+                  <select name="faculty" required value={formData.faculty} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Faculty</option>
                     {Object.keys(LECTURER_FACULTIES).map((faculty) => (
                       <option key={faculty} value={faculty}>{faculty}</option>
@@ -353,7 +353,7 @@ const Register = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Building className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="department" required value={formData.department} onChange={handleChange} disabled={!formData.faculty} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed">
+                  <select name="department" required value={formData.department} onChange={handleChange} disabled={!formData.faculty} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Department</option>
                     {availableDepartments.map((dept) => (
                       <option key={dept} value={dept}>{dept}</option>
@@ -368,7 +368,7 @@ const Register = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Briefcase className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="designation" required value={formData.designation} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg">
+                  <select name="designation" required value={formData.designation} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Position</option>
                     {['Lecturer', 'Senior Lecturer', 'Professor', 'Assistant Professor', 'Visiting Lecturer'].map((pos) => (
                       <option key={pos} value={pos}>{pos}</option>
@@ -401,7 +401,7 @@ const Register = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Building className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="department" required value={formData.department} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg">
+                  <select name="department" required value={formData.department} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Department</option>
                     {Object.keys(TECHNICIAN_DEPARTMENTS).map((dept) => (
                       <option key={dept} value={dept}>{dept}</option>
@@ -416,7 +416,7 @@ const Register = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Wrench className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="specialization" required value={formData.specialization} onChange={handleChange} disabled={!formData.department} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed">
+                  <select name="specialization" required value={formData.specialization} onChange={handleChange} disabled={!formData.department} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Position</option>
                     {availableSpecializations.map((spec) => (
                       <option key={spec} value={spec}>{spec}</option>
@@ -431,7 +431,7 @@ const Register = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Building className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="assignedLab" required value={formData.assignedLab} onChange={handleChange} disabled={!formData.specialization} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed">
+                  <select name="assignedLab" required value={formData.assignedLab} onChange={handleChange} disabled={!formData.specialization} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Assigned Lab</option>
                     {availableLabs.map((lab) => (
                       <option key={lab} value={lab}>{lab}</option>
@@ -464,9 +464,9 @@ const Register = () => {
                     <p className="text-xs text-slate-400">Smart Campus</p>
                   </div>
                 </div>
-                <h2 className="mt-12 text-3xl font-semibold leading-tight text-white">Hello, Friend!</h2>
+                <h2 className="mt-12 text-3xl font-semibold leading-tight text-white">Let's get you set up.</h2>
                 <p className="mt-4 text-sm text-slate-400 leading-relaxed">
-                  Create your account and unlock access to everything you need for your campus life — all in one place. Connect, learn, and grow as part of a smarter, seamless academic community.
+                  Create your account in minutes. Once you're in, you can book spaces, report issues, and manage everything on campus without chasing anyone.
                 </p>
              </div>
              <div className="relative z-10 mt-10">

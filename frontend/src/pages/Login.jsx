@@ -99,10 +99,10 @@ const Login = () => {
               </div>
             </div>
             <h1 className="mt-16 text-3xl font-semibold leading-tight tracking-tight lg:text-4xl">
-              Welcome Back to Smart Campus Hub!
+              Good to see you again.
             </h1>
             <p className="mt-4 max-w-md text-sm leading-relaxed text-slate-400">
-              From lecture schedules and lab bookings to assignments and campus announcements — everything you need for a productive academic life is right here. Stay organized, stay connected, and make the most of your campus experience.
+              Sign in to book facilities, track maintenance requests, manage assets, and stay on top of everything happening on campus — all from one place.
             </p>
           </div>
           <div className="relative flex items-start gap-3 text-sm text-slate-400">
