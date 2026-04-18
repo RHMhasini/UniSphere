@@ -25,9 +25,9 @@ import {
 } from 'lucide-react';
 
 const ROLES = [
-  { id: 'STUDENT', label: 'Student', icon: <GraduationCap className="h-5 w-5" />, desc: 'Access course materials & schedules' },
-  { id: 'LECTURER', label: 'Lecturer', icon: <Briefcase className="h-5 w-5" />, desc: 'Manage courses & view resources' },
-  { id: 'TECHNICIAN', label: 'Technician', icon: <Wrench className="h-5 w-5" />, desc: 'Handle equipment & support' }
+  { id: 'STUDENT', label: 'Student', icon: <GraduationCap className="h-5 w-5" />, desc: 'Book labs & rooms, report faults, track your requests' },
+  { id: 'LECTURER', label: 'Lecturer', icon: <Briefcase className="h-5 w-5" />, desc: 'Reserve spaces, request equipment, coordinate work orders' },
+  { id: 'TECHNICIAN', label: 'Technician', icon: <Wrench className="h-5 w-5" />, desc: 'Handle work orders, log assets, close maintenance tickets' }
 ];
 
 const RegisterDetails = () => {
@@ -58,18 +58,27 @@ const RegisterDetails = () => {
     assignedLab: '', // For Technician
   });
 
+  const enforcedRole = React.useMemo(() => {
+    if (!user?.email) return null;
+    if (/^[A-Za-z]{2}[0-9]{8}@my\.sliit\.lk$/.test(user.email)) return 'STUDENT';
+    if (/^[a-zA-Z0-9._%+-]+lec@gmail\.com$/.test(user.email)) return 'LECTURER';
+    if (/^[a-zA-Z0-9._%+-]+tec@gmail\.com$/.test(user.email)) return 'TECHNICIAN';
+    return null;
+  }, [user?.email]);
+
   useEffect(() => {
-    if (user?.email && formData.role === 'STUDENT') {
-      const isStudent = /^[A-Za-z]{2}[0-9]{8}@my\.sliit\.lk$/.test(user.email);
-      if (isStudent) {
-         const newId = user.email.split('@')[0].toUpperCase();
-         setFormData(prev => {
-           if (prev.studentId === newId) return prev;
-           return { ...prev, studentId: newId };
-         });
+    if (enforcedRole) {
+      setFormData(prev => ({ ...prev, role: enforcedRole }));
+      
+      if (enforcedRole === 'STUDENT' && user?.email) {
+        const newId = user.email.split('@')[0].toUpperCase();
+        setFormData(prev => {
+          if (prev.studentId === newId) return prev;
+          return { ...prev, studentId: newId };
+        });
       }
     }
-  }, [user, formData.role]);
+  }, [enforcedRole, user?.email]);
 
   const [formErrors, setFormErrors] = useState({});
 
@@ -266,7 +275,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <User className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="gender" required value={formData.gender} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="gender" required value={formData.gender} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Gender</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
@@ -291,7 +300,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Building className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="faculty" required value={formData.faculty} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="faculty" required value={formData.faculty} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Faculty</option>
                     {Object.keys(STUDENT_FACULTIES).map((faculty) => (
                       <option key={faculty} value={faculty}>{faculty}</option>
@@ -306,7 +315,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <BookOpen className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="degreeProgram" required value={formData.degreeProgram} onChange={handleChange} disabled={!formData.faculty} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="degreeProgram" required value={formData.degreeProgram} onChange={handleChange} disabled={!formData.faculty} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Degree</option>
                     {availableDegrees.map((degree) => (
                       <option key={degree} value={degree}>{degree}</option>
@@ -321,7 +330,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Calendar className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="year" required value={formData.year} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="year" required value={formData.year} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Year</option>
                     {['Year 1', 'Year 2', 'Year 3', 'Year 4'].map((yr) => (
                       <option key={yr} value={yr}>{yr}</option>
@@ -336,7 +345,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Calendar className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="semester" required value={formData.semester} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="semester" required value={formData.semester} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Semester</option>
                     {['Semester 1', 'Semester 2'].map((sem) => (
                       <option key={sem} value={sem}>{sem}</option>
@@ -358,7 +367,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <User className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="title" required value={formData.title} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="title" required value={formData.title} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Title</option>
                     {['Mr.', 'Ms.', 'Mrs.', 'Dr.', 'Prof.'].map((title) => (
                       <option key={title} value={title}>{title}</option>
@@ -384,7 +393,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Building className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="faculty" required value={formData.faculty} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="faculty" required value={formData.faculty} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Faculty</option>
                     {Object.keys(LECTURER_FACULTIES).map((faculty) => (
                       <option key={faculty} value={faculty}>{faculty}</option>
@@ -399,7 +408,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Building className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="department" required value={formData.department} onChange={handleChange} disabled={!formData.faculty} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="department" required value={formData.department} onChange={handleChange} disabled={!formData.faculty} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Department</option>
                     {availableDepartments.map((dept) => (
                       <option key={dept} value={dept}>{dept}</option>
@@ -414,7 +423,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Briefcase className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="designation" required value={formData.designation} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="designation" required value={formData.designation} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Position</option>
                     {['Lecturer', 'Senior Lecturer', 'Professor', 'Assistant Professor', 'Visiting Lecturer'].map((pos) => (
                       <option key={pos} value={pos}>{pos}</option>
@@ -447,7 +456,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Building className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="department" required value={formData.department} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="department" required value={formData.department} onChange={handleChange} className="w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Department</option>
                     {Object.keys(TECHNICIAN_DEPARTMENTS).map((dept) => (
                       <option key={dept} value={dept}>{dept}</option>
@@ -462,7 +471,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Wrench className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="specialization" required value={formData.specialization} onChange={handleChange} disabled={!formData.department} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="specialization" required value={formData.specialization} onChange={handleChange} disabled={!formData.department} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Position</option>
                     {availableSpecializations.map((spec) => (
                       <option key={spec} value={spec}>{spec}</option>
@@ -477,7 +486,7 @@ const RegisterDetails = () => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Building className="h-4 w-4 text-slate-400" />
                   </div>
-                  <select name="assignedLab" required value={formData.assignedLab} onChange={handleChange} disabled={!formData.specialization} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                  <select name="assignedLab" required value={formData.assignedLab} onChange={handleChange} disabled={!formData.specialization} className="w-full pl-10 pr-4 py-2 border rounded-lg disabled:bg-slate-100 disabled:cursor-not-allowed hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <option value="" disabled>Select Assigned Lab</option>
                     {availableLabs.map((lab) => (
                       <option key={lab} value={lab}>{lab}</option>
@@ -510,9 +519,9 @@ const RegisterDetails = () => {
                     <p className="text-xs text-slate-400">Smart Campus</p>
                   </div>
                 </div>
-                <h2 className="mt-12 text-3xl font-semibold leading-tight text-white">Almost There, Friend!</h2>
+                <h2 className="mt-12 text-3xl font-semibold leading-tight text-white">One last step.</h2>
                 <p className="mt-4 text-sm text-slate-400 leading-relaxed">
-                  Complete your profile setup to fully personalize your dashboard. Tell us a bit more about your academic role to unlock a tailored, connected, and smarter campus experience.
+                  Pick your role so we can set up the right experience for you. Students, lecturers, and technicians each get a dashboard built around how they use the campus.
                 </p>
              </div>
              <div className="relative z-10 mt-10">
@@ -555,33 +564,44 @@ const RegisterDetails = () => {
               <div className="space-y-4">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-2">Select Your Role</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {ROLES.map((role) => (
+                  {ROLES.map((role) => {
+                    const isLocked = enforcedRole && enforcedRole !== role.id;
+                    const isSelected = formData.role === role.id;
+                    
+                    return (
                     <div
                       key={role.id}
-                      onClick={() => setFormData({ ...formData, role: role.id, faculty: '', department: '', degreeProgram: '', semester: '', year: '', staffId: '', studentId: '', assignedLab: '', specialization: '' })}
-                      className={`relative flex cursor-pointer rounded-xl border p-4 shadow-sm focus:outline-none transition-all ${
-                        formData.role === role.id
-                          ? 'border-indigo-600 bg-indigo-50/50 ring-1 ring-indigo-600 dark:bg-indigo-900/20'
-                          : 'border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700'
+                      onClick={() => !isLocked && setFormData({ ...formData, role: role.id, faculty: '', department: '', degreeProgram: '', semester: '', year: '', staffId: '', studentId: '', assignedLab: '', specialization: '' })}
+                      className={`relative flex rounded-xl border p-4 shadow-sm transition-all ${
+                        isLocked 
+                          ? 'opacity-50 cursor-not-allowed bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-800' 
+                          : 'cursor-pointer focus:outline-none ' + (isSelected
+                              ? 'border-indigo-600 bg-indigo-50/50 ring-1 ring-indigo-600 dark:bg-indigo-900/20'
+                              : 'border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700')
                       }`}
                     >
                       <div className="flex w-full items-center justify-between">
                         <div className="flex flex-col">
                           <div className="flex items-center gap-2">
-                            <div className={`${formData.role === role.id ? 'text-indigo-600' : 'text-slate-500'}`}>
+                            <div className={`${isSelected ? 'text-indigo-600' : 'text-slate-500'}`}>
                               {role.icon}
                             </div>
-                            <span className={`block text-sm font-medium ${formData.role === role.id ? 'text-indigo-900 dark:text-indigo-200' : 'text-slate-900 dark:text-slate-200'}`}>
+                            <span className={`block text-sm font-medium ${isSelected ? 'text-indigo-900 dark:text-indigo-200' : 'text-slate-900 dark:text-slate-200'}`}>
                               {role.label}
                             </span>
                           </div>
-                          <span className={`mt-2 block text-xs ${formData.role === role.id ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-500'}`}>
+                          <span className={`mt-2 block text-xs ${isSelected ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-500'}`}>
                             {role.desc}
                           </span>
+                          {isLocked && (
+                            <div className="mt-3 flex items-center gap-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded w-fit">
+                              Locked
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
-                  ))}
+                  )})}
                 </div>
               </div>
 
