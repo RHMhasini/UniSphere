@@ -64,6 +64,7 @@ const Login = () => {
       });
 
       const status = resp.registrationStatus;
+      const isActive = resp.isActive;
       
       if (status === 'PENDING_DETAILS') {
         navigate('/register/details', { replace: true });
@@ -71,6 +72,8 @@ const Login = () => {
         navigate('/register/pending', { replace: true });
       } else if (status === 'REJECTED') {
         navigate('/register/rejected', { replace: true });
+      } else if (isActive === false) {
+        navigate('/dashboard/inactive', { replace: true });
       } else {
         navigate('/dashboard', { replace: true });
       }

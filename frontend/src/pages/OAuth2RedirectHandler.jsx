@@ -12,6 +12,7 @@ const OAuth2RedirectHandler = () => {
     const token = params.get('token');
     const refreshToken = params.get('refreshToken');
     const status = params.get('status');
+    const isActive = params.get('isActive');
 
     if (token && refreshToken) {
       if (status === 'REJECTED') {
@@ -20,7 +21,7 @@ const OAuth2RedirectHandler = () => {
         return;
       }
 
-      console.log('Tokens found, status:', status);
+      console.log('Tokens found, status:', status, 'isActive:', isActive);
       setTokens(token, refreshToken, status);
       
       // Handle redirection based on registration status
@@ -28,6 +29,9 @@ const OAuth2RedirectHandler = () => {
         navigate('/register/details', { replace: true });
       } else if (status === 'PENDING_APPROVAL') {
         navigate('/register/pending', { replace: true });
+      } else if (isActive === 'false') {
+        // Approved but account is suspended by admin
+        navigate('/dashboard/inactive', { replace: true });
       } else {
         navigate('/dashboard', { replace: true });
       }

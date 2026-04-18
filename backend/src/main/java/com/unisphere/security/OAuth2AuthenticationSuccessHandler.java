@@ -77,6 +77,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 .queryParam("refreshToken", refreshToken)
                 .queryParam("status", user.getRegistrationStatus().name())
                 .queryParam("role", user.getRole().name())
+                .queryParam("isActive", user.getIsActive())
                 .build().toUriString();
 
         log.info("OAuth2 authentication successful for email={}, redirecting to {}", email, targetUrl);
