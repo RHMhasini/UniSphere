@@ -5,7 +5,7 @@ import '../../styles/facilitiesPagesCSS/ResourceCategoryHub.css';
 const lectureBg = lectureHallImages.Lecture_Halls_main;
 const labsBg = labImages.Labs_Main;
 const meetingBg = meetingRoomImages.Meeting_rooms_main;
-const equipmentBg = equipmentImages.equipment_Main;
+const equipmentBg = equipmentImages.equipment_main;
 
 const categories = [
   {
