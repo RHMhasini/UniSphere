@@ -121,8 +121,10 @@ function TicketDetails() {
   };
 
   // Post Comment Action
+  const COMMENT_MIN = 3;
+  const COMMENT_MAX = 500;
   const handlePostComment = async () => {
-    if (!newComment.trim()) return;
+    if (newComment.trim().length < COMMENT_MIN) return;
     setActionLoading(true);
     try {
       await api.post(`/tickets/${id}/comments`, { message: newComment });
@@ -197,10 +199,14 @@ function TicketDetails() {
       {resolutionPrompt && (
         <div className="inline-prompt">
            <h4>Provide Resolution Note</h4>
-           <textarea value={resolutionNote} onChange={e => setResolutionNote(e.target.value)} placeholder="Explain the fix..." rows="3"></textarea>
+           <textarea value={resolutionNote} onChange={e => setResolutionNote(e.target.value)} placeholder="Explain the fix... (min 5 characters)" rows="3" maxLength={500}></textarea>
+           <div className="prompt-footer">
+             <span className="prompt-char-count">{resolutionNote.length}/500</span>
+             {resolutionNote.trim().length > 0 && resolutionNote.trim().length < 5 && <span className="prompt-hint">At least 5 characters required</span>}
+           </div>
            <div className="prompt-actions">
               <Button variant="ghost" onClick={() => setResolutionPrompt(false)}>Cancel</Button>
-              <Button variant="primary" onClick={() => handleStatusChange('RESOLVED')} disabled={actionLoading || !resolutionNote.trim()}>Complete Resolution</Button>
+              <Button variant="primary" onClick={() => handleStatusChange('RESOLVED')} disabled={actionLoading || resolutionNote.trim().length < 5}>Complete Resolution</Button>
            </div>
         </div>
       )}
@@ -208,10 +214,14 @@ function TicketDetails() {
       {rejectPrompt && (
         <div className="inline-prompt prompt-danger">
            <h4>Provide Rejection Reason</h4>
-           <textarea value={rejectReason} onChange={e => setRejectReason(e.target.value)} placeholder="Reason for rejecting this request..." rows="3"></textarea>
+           <textarea value={rejectReason} onChange={e => setRejectReason(e.target.value)} placeholder="Reason for rejecting this request... (min 5 characters)" rows="3" maxLength={500}></textarea>
+           <div className="prompt-footer">
+             <span className="prompt-char-count">{rejectReason.length}/500</span>
+             {rejectReason.trim().length > 0 && rejectReason.trim().length < 5 && <span className="prompt-hint">At least 5 characters required</span>}
+           </div>
            <div className="prompt-actions">
               <Button variant="ghost" onClick={() => setRejectPrompt(false)}>Cancel</Button>
-              <Button variant="primary" onClick={() => handleStatusChange('REJECTED')} disabled={actionLoading || !rejectReason.trim()}>Confirm Rejection</Button>
+              <Button variant="primary" onClick={() => handleStatusChange('REJECTED')} disabled={actionLoading || rejectReason.trim().length < 5}>Confirm Rejection</Button>
            </div>
         </div>
       )}
@@ -301,13 +311,17 @@ function TicketDetails() {
 
             <div className="comment-composer">
               <textarea 
-                placeholder="Write a comment..." 
+                placeholder="Write a comment... (min 3 characters)" 
                 value={newComment} onChange={e => setNewComment(e.target.value)}
                 rows="3"
+                maxLength={COMMENT_MAX}
               />
-              <Button variant="primary" onClick={handlePostComment} disabled={!newComment.trim() || actionLoading}>
-                Post Comment
-              </Button>
+              <div className="composer-footer">
+                <span className="composer-char-count">{newComment.length}/{COMMENT_MAX}</span>
+                <Button variant="primary" onClick={handlePostComment} disabled={newComment.trim().length < COMMENT_MIN || actionLoading}>
+                  Post Comment
+                </Button>
+              </div>
             </div>
           </div>
         </div>

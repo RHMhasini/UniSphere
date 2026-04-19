@@ -6,6 +6,13 @@ import { AlertCircle, ArrowLeft, Upload, X } from 'lucide-react';
 import { api } from '../../services/api';
 import '../../styles/ticketingPagesCSS/CreateTicket.css';
 
+// Validation rules — centralised for easy adjustment
+const RULES = {
+  title:       { min: 5,  max: 100, label: 'Title' },
+  description: { min: 10, max: 500, label: 'Description' },
+  location:    { min: 3,  max: 100, label: 'Location' },
+};
+
 function CreateTicket() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
@@ -23,9 +30,37 @@ function CreateTicket() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [touched, setTouched] = useState({});
+
+  // Per-field validator
+  const validateField = (name, value) => {
+    const rule = RULES[name];
+    if (rule) {
+      if (!value.trim()) return `${rule.label} is required`;
+      if (value.trim().length < rule.min) return `${rule.label} must be at least ${rule.min} characters`;
+      if (value.trim().length > rule.max) return `${rule.label} must be at most ${rule.max} characters`;
+    }
+    if (name === 'contactEmail') {
+      if (!value.trim()) return 'Contact email is required';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) return 'Please enter a valid email address';
+    }
+    return '';
+  };
 
   const handleChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    // Live-validate only after the field has been touched
+    if (touched[name]) {
+      setFieldErrors(prev => ({ ...prev, [name]: validateField(name, value) }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    setFieldErrors(prev => ({ ...prev, [name]: validateField(name, value) }));
   };
 
   const handleFileChange = async (e) => {
@@ -67,8 +102,36 @@ function CreateTicket() {
     }));
   };
 
+  // Full-form validation on submit
+  const validateAll = () => {
+    const errors = {};
+    ['title', 'description', 'location', 'contactEmail'].forEach(name => {
+      const msg = validateField(name, formData[name]);
+      if (msg) errors[name] = msg;
+    });
+    return errors;
+  };
+
+  // Derived: is the form currently valid? (used to disable submit)
+  const isFormValid = () => {
+    return ['title', 'description', 'location', 'contactEmail'].every(
+      name => !validateField(name, formData[name])
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Mark all fields as touched and run full validation
+    const allTouched = { title: true, description: true, location: true, contactEmail: true };
+    setTouched(prev => ({ ...prev, ...allTouched }));
+    const errors = validateAll();
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      setError('Please fix the highlighted errors before submitting.');
+      return;
+    }
+
     setIsSubmitting(true);
     setError(null);
 
@@ -112,9 +175,12 @@ function CreateTicket() {
             <label htmlFor="title">Issue Title <span className="req">*</span></label>
             <input 
               id="title" name="title" type="text"
+              className={fieldErrors.title && touched.title ? 'input-error' : ''}
               placeholder="e.g. Broken projector in Room 4A"
-              required value={formData.title} onChange={handleChange} 
+              maxLength={RULES.title.max}
+              required value={formData.title} onChange={handleChange} onBlur={handleBlur}
             />
+            {fieldErrors.title && touched.title && <span className="field-error">{fieldErrors.title}</span>}
           </div>
         </div>
 
@@ -145,9 +211,15 @@ function CreateTicket() {
             <label htmlFor="description">Detailed Description <span className="req">*</span></label>
             <textarea 
               id="description" name="description" rows="5"
+              className={fieldErrors.description && touched.description ? 'input-error' : ''}
               placeholder="Describe what is happening, when it started, and who is affected."
-              required value={formData.description} onChange={handleChange} 
+              maxLength={RULES.description.max}
+              required value={formData.description} onChange={handleChange} onBlur={handleBlur}
             />
+            <div className="field-footer">
+              {fieldErrors.description && touched.description && <span className="field-error">{fieldErrors.description}</span>}
+              <span className="char-counter">{formData.description.length}/{RULES.description.max}</span>
+            </div>
           </div>
         </div>
 
@@ -194,17 +266,22 @@ function CreateTicket() {
             <label htmlFor="location">Location / Room <span className="req">*</span></label>
             <input 
               id="location" name="location" type="text"
+              className={fieldErrors.location && touched.location ? 'input-error' : ''}
               placeholder="e.g. IT Building, Lab 2"
-              required value={formData.location} onChange={handleChange} 
+              maxLength={RULES.location.max}
+              required value={formData.location} onChange={handleChange} onBlur={handleBlur}
             />
+            {fieldErrors.location && touched.location && <span className="field-error">{fieldErrors.location}</span>}
           </div>
           <div className="form-group">
             <label htmlFor="contactEmail">Contact Email <span className="req">*</span></label>
             <input 
               id="contactEmail" name="contactEmail" type="email"
+              className={fieldErrors.contactEmail && touched.contactEmail ? 'input-error' : ''}
               placeholder="your.email@university.edu"
-              required value={formData.contactEmail} onChange={handleChange} 
+              required value={formData.contactEmail} onChange={handleChange} onBlur={handleBlur}
             />
+            {fieldErrors.contactEmail && touched.contactEmail && <span className="field-error">{fieldErrors.contactEmail}</span>}
           </div>
           <div className="form-group">
             <label htmlFor="contactPhone">Contact Phone</label>
@@ -218,7 +295,7 @@ function CreateTicket() {
 
         <div className="form-actions">
           <Button variant="outline" type="button" onClick={() => navigate(-1)}>Cancel</Button>
-          <Button variant="primary" type="submit" disabled={isSubmitting}>
+          <Button variant="primary" type="submit" disabled={isSubmitting || !isFormValid()}>
             {isSubmitting ? 'Submitting...' : 'Submit Ticket'}
           </Button>
         </div>

@@ -199,6 +199,40 @@
   background: #dc2626;
 }
 
+/* ── Validation Styles ─────────────────────────────────── */
+
+.field-error {
+  color: #dc2626;
+  font-size: 0.82rem;
+  font-weight: 500;
+  margin-top: 2px;
+}
+[data-theme="dark"] .field-error {
+  color: #f87171;
+}
+
+.input-error {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.15) !important;
+}
+[data-theme="dark"] .input-error {
+  border-color: #f87171 !important;
+  box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.15) !important;
+}
+
+.field-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.char-counter {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
 @media (max-width: 600px) {
   .create-ticket-form {
     padding: 24px;

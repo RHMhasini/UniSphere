@@ -387,3 +387,38 @@
   }
 }
 
+/* ── Validation Styles ─────────────────────────────────── */
+
+.composer-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.composer-char-count {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.prompt-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.prompt-char-count {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.prompt-hint {
+  font-size: 0.82rem;
+  color: #dc2626;
+  font-weight: 500;
+}
+[data-theme="dark"] .prompt-hint {
+  color: #f87171;
+}
+
