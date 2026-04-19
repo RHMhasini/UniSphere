@@ -4,7 +4,7 @@ import {
   getAllResources,
   updateResource,
   deleteResource,
-} from '../services/resourceService';
+} from '../../services/resourceService';
 import './AdminResourceForm.css';
 
 const RESOURCE_TYPES = ['LECTURE_HALL', 'LAB', 'MEETING_ROOM', 'EQUIPMENT'];

@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 
 import LandingPage from './pages/landingPage/LandingPage';
-import AdminResourceForm from './pages/AdminResourceForm';
-import ResourceCategoryHub from './pages/ResourceCategoryHub';
+import AdminResourceForm from './pages/facilitiesPages/AdminResourceForm';
+import ResourceCategoryHub from './pages/facilitiesPages/ResourceCategoryHub';
 import LectureHalls from './pages/LectureHalls';
 import Labs from './pages/Labs';
 import MeetingRooms from './pages/MeetingRooms';

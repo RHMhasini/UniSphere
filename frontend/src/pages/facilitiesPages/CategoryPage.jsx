@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getResourcesByType, deleteResource, updateResource } from '../services/resourceService';
+import { getResourcesByType, deleteResource, updateResource } from '../../services/resourceService';
 import './CategoryPage.css';
 
 export default function CategoryPage({ type, title, emoji, accentColor }) {
