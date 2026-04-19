@@ -83,8 +83,8 @@ const Profile = () => {
     }
     
     if (name === 'studentId' && currentRole === 'STUDENT') {
-      if (value && !value.trim()) {
-        errorMsg = 'Student ID is required';
+      if (value && !/^[A-Za-z]{2}[0-9]{8}$/.test(value)) {
+        errorMsg = 'Invalid Student ID format (e.g. IT21000000)';
       }
     }
     
@@ -164,9 +164,9 @@ const Profile = () => {
          (formData.firstName && !/^[A-Za-z\s]+$/.test(formData.firstName)) ||
          (formData.lastName && !/^[A-Za-z\s]+$/.test(formData.lastName)) ||
          (formData.phone && !/^\d{10}$/.test(formData.phone)) ||
-         (role === 'STUDENT' && formData.studentId && !/^STU\/\d{4}\/\d{3}$/.test(formData.studentId)) ||
-         (role === 'LECTURER' && formData.staffId && !/^LEC\/\d{4}$/.test(formData.staffId)) ||
-         (role === 'TECHNICIAN' && formData.staffId && !/^TEC\/\d{4}$/.test(formData.staffId));
+         (role === 'STUDENT' && formData.studentId && !/^[A-Za-z]{2}[0-9]{8}$/.test(formData.studentId)) ||
+         (role === 'LECTURER' && formData.staffId && !/^Lec-\d{4}$/.test(formData.staffId)) ||
+         (role === 'TECHNICIAN' && formData.staffId && !/^Tec-\d{4}$/.test(formData.staffId));
 
     if (hasErrors) {
       alert('Please fix the errors in the form before submitting.');
@@ -417,7 +417,12 @@ const Profile = () => {
                       {!isEditing ? (
                         <p className="text-slate-900 dark:text-slate-200">{formData.year}</p>
                       ) : (
-                        <input name="year" value={formData.year} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm" />
+                        <select name="year" value={formData.year} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm active:outline-none focus:outline-none focus:ring-2 focus:ring-indigo-500/80">
+                          <option value="" disabled>Select Year</option>
+                          {['Year 1', 'Year 2', 'Year 3', 'Year 4'].map((yr) => (
+                            <option key={yr} value={yr}>{yr}</option>
+                          ))}
+                        </select>
                       )}
                     </div>
                     <div className="space-y-2">
@@ -425,7 +430,12 @@ const Profile = () => {
                       {!isEditing ? (
                         <p className="text-slate-900 dark:text-slate-200">{formData.semester}</p>
                       ) : (
-                        <input name="semester" value={formData.semester} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm" />
+                        <select name="semester" value={formData.semester} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm active:outline-none focus:outline-none focus:ring-2 focus:ring-indigo-500/80">
+                          <option value="" disabled>Select Semester</option>
+                          {['Semester 1', 'Semester 2'].map((sem) => (
+                            <option key={sem} value={sem}>{sem}</option>
+                          ))}
+                        </select>
                       )}
                     </div>
                   </div>
@@ -451,7 +461,12 @@ const Profile = () => {
                       {!isEditing ? (
                         <p className="text-slate-900 dark:text-slate-200">{formData.designation}</p>
                       ) : (
-                        <input name="designation" value={formData.designation} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm" />
+                        <select name="designation" value={formData.designation} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm active:outline-none focus:outline-none focus:ring-2 focus:ring-indigo-500/80">
+                          <option value="" disabled>Select Position</option>
+                          {['Lecturer', 'Senior Lecturer', 'Professor', 'Assistant Professor', 'Visiting Lecturer'].map((pos) => (
+                            <option key={pos} value={pos}>{pos}</option>
+                          ))}
+                        </select>
                       )}
                     </div>
                   </div>
@@ -501,6 +516,22 @@ const Profile = () => {
                       )}
                     </div>
                     <div className="space-y-2">
+                      <label className="text-xs font-medium uppercase tracking-wider text-slate-500">Designation</label>
+                      {!isEditing ? (
+                        <p className="text-slate-900 dark:text-slate-200">{formData.designation}</p>
+                      ) : (
+                        <select name="designation" value={formData.designation} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm active:outline-none focus:outline-none focus:ring-2 focus:ring-indigo-500/80">
+                          <option value="" disabled>Select Position</option>
+                          {['Senior Technician', 'Lab Assistant', 'System Administrator', 'Network Engineer', 'Maintenance Staff'].map((pos) => (
+                            <option key={pos} value={pos}>{pos}</option>
+                          ))}
+                        </select>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
                       <label className="text-xs font-medium uppercase tracking-wider text-slate-500">Department</label>
                       {!isEditing ? (
                         <p className="text-slate-900 dark:text-slate-200">{formData.department}</p>
@@ -514,6 +545,7 @@ const Profile = () => {
                       )}
                     </div>
                   </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-xs font-medium uppercase tracking-wider text-slate-500">Specialization</label>
