@@ -58,7 +58,6 @@ export default function Labs() {
           ← Back
         </button>
         <div className="cat-header__inner">
-          <span className="cat-emoji">🔬</span>
           <div>
             <h1 className="cat-title">Labs</h1>
             <p className="cat-subtitle">Browse available lab resources and find a space that fits your schedule.</p>
@@ -68,7 +67,6 @@ export default function Labs() {
 
       <div className="cat-toolbar">
         <div className="cat-search-wrap">
-          <span className="cat-search-icon">🔍</span>
           <input
             id="search-labs"
             type="text"
