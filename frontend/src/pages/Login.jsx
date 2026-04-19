@@ -28,6 +28,7 @@ const Login = () => {
 
   const handleGoogleLogin = () => {
     setGoogleLoading(true);
+    localStorage.setItem('oauth_source', '/login');
     googleLogin();
   };
 
@@ -90,9 +91,9 @@ const Login = () => {
         <div className="relative hidden w-0 flex-1 flex-col justify-between bg-slate-900 px-10 py-12 text-white lg:flex lg:w-[42%] lg:max-w-xl">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_20%_0%,rgba(99,102,241,0.35),transparent)]" />
           <div className="relative">
-            <div className="flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/20">
-                <Building2 className="h-6 w-6 text-indigo-200" />
+            <div className="flex items-center gap-2">
+              <span className="flex items-center justify-center text-[28px] leading-none font-bold text-indigo-400 mb-0.5">
+                ◈
               </span>
               <div>
                 <p className="text-sm font-semibold tracking-wide text-slate-200">

@@ -45,7 +45,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         if (!isStudent && !isLecturer && !isTechnician && !isAdmin) {
             log.warn("OAuth2 login blocked for unauthorized email: {}", email);
-            String errorUrl = "http://localhost:5173/login?error=invalid_email";
+            String errorUrl = "http://localhost:5173/oauth2/redirect?error=invalid_email";
             getRedirectStrategy().sendRedirect(request, response, errorUrl);
             return;
         }
