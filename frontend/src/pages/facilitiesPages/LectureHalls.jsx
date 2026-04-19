@@ -58,7 +58,6 @@ export default function LectureHalls() {
           ← Back
         </button>
         <div className="cat-header__inner">
-          <span className="cat-emoji">🎓</span>
           <div>
             <h1 className="cat-title">Lecture Halls</h1>
             <p className="cat-subtitle">Browse all lecture hall resources available for booking.</p>
@@ -68,7 +67,6 @@ export default function LectureHalls() {
 
       <div className="cat-toolbar">
         <div className="cat-search-wrap">
-          <span className="cat-search-icon">🔍</span>
           <input
             id="search-lecture-halls"
             type="text"
@@ -122,9 +120,9 @@ export default function LectureHalls() {
                 <div className="lh-card__body">
                   <h2 className="lh-card__name">{resource.name || 'Unnamed Hall'}</h2>
                   <p className="lh-card__location">{resource.location || 'Location unknown'}</p>
-                  <div className="lh-card__meta">
-                    <span className="lh-card__meta-item">Capacity: {resource.capacity ?? '—'}</span>
-                    <span className="lh-card__meta-item">
+                  <div className="lab-card__details">
+                    <span>Capacity: {resource.capacity ?? '—'}</span>
+                    <span>
                       {resource.availabilityWindows?.[0] || 'No time window assigned'}
                     </span>
                   </div>
