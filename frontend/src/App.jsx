@@ -12,6 +12,7 @@ import RegisterRejected from "./pages/RegisterRejected";
 import Dashboard from "./pages/dashboard/Dashboard";
 import DashboardHome from "./pages/dashboard/Home/DashboardHome";
 import UserManagement from "./pages/dashboard/UserManagement/UserManagement";
+import UserDetailPage from "./pages/dashboard/UserManagement/UserDetailPage";
 import NotificationsPage from "./pages/dashboard/Notifications/NotificationsPage";
 import Profile from "./pages/dashboard/Profile/Profile";
 import Analytics from "./pages/dashboard/Analytics/Analytics";
@@ -74,6 +75,11 @@ function App() {
               <Route path="users" element={
                 <ProtectedRoute roles={['ADMIN']}>
                   <UserManagement />
+                </ProtectedRoute>
+              } />
+              <Route path="users/:id" element={
+                <ProtectedRoute roles={['ADMIN']}>
+                  <UserDetailPage />
                 </ProtectedRoute>
               } />
               <Route path="notifications" element={<NotificationsPage />} />

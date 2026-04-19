@@ -298,7 +298,8 @@ const UserManagement = () => {
                 filteredAndSortedUsers.map((user) => (
                   <tr
                     key={user.id}
-                    className="transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/40"
+                    onClick={() => navigate(`/dashboard/users/${user.id}`, { state: { user } })}
+                    className="cursor-pointer transition-colors hover:bg-indigo-50/60 dark:hover:bg-indigo-950/20"
                   >
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
@@ -355,7 +356,7 @@ const UserManagement = () => {
                         ? new Date(user.createdAt).toLocaleDateString()
                         : '—'}
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
                       {user.id !== adminUser?.id ? (
                         <div className="flex flex-wrap items-center gap-2">
                           {user.registrationStatus === 'PENDING_APPROVAL' && (
