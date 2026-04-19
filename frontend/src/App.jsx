@@ -15,7 +15,7 @@ import UserManagement from "./pages/dashboard/UserManagement/UserManagement";
 import NotificationsPage from "./pages/dashboard/Notifications/NotificationsPage";
 import Profile from "./pages/dashboard/Profile/Profile";
 import Analytics from "./pages/dashboard/Analytics/Analytics";
-import SimulatorPage from "./pages/dashboard/Simulator/SimulatorPage";
+
 import SettingsPage from "./pages/dashboard/Settings/SettingsPage";
 import AccessDenied from "./pages/error/AccessDenied";
 import InactiveDashboard from "./pages/dashboard/InactiveDashboard";
@@ -82,11 +82,7 @@ function App() {
                   <Analytics />
                 </ProtectedRoute>
               } />
-              <Route path="simulator" element={
-                <ProtectedRoute roles={['ADMIN']}>
-                  <SimulatorPage />
-                </ProtectedRoute>
-              } />
+
               <Route path="profile" element={<Profile />} />
               <Route path="settings" element={<SettingsPage />} />
               <Route

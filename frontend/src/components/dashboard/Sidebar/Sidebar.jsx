@@ -112,26 +112,8 @@ const Sidebar = ({ mobileOpen = false, onCloseMobile }) => {
                     User management
                   </NavLink>
                 </li>
-                <li>
-                  <NavLink
-                    to="/dashboard/analytics"
-                    className={navCls}
-                    onClick={closeIfMobile}
-                  >
-                    <BarChart4 className="h-5 w-5 shrink-0 opacity-80" />
-                    Analytics
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to="/dashboard/simulator"
-                    className={navCls}
-                    onClick={closeIfMobile}
-                  >
-                    <Wrench className="h-5 w-5 shrink-0 opacity-80" />
-                    Dev Simulator
-                  </NavLink>
-                </li>
+
+
               </>
             )}
 

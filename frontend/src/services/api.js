@@ -171,10 +171,7 @@ export const notificationAPI = {
     return response.data;
   },
 
-  createTestNotification: async (payload) => {
-    const response = await api.post('/notifications/test', payload);
-    return response.data;
-  },
+
 };
 
 export default api;
