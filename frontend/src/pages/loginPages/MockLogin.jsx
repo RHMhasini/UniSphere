@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/common/Button/Button';
-import './MockLogin.css';
+import '../../styles/loginPagesCSS/MockLogin.css';
 
 function MockLogin() {
   const navigate = useNavigate();

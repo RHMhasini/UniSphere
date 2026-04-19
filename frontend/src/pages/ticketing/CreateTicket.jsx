@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import Button from '../../components/common/Button/Button';
 import { AlertCircle, ArrowLeft, Upload, X } from 'lucide-react';
 import { api } from '../../services/api';
-import './CreateTicket.css';
+import '../../styles/ticketingPagesCSS/CreateTicket.css';
 
 function CreateTicket() {
   const navigate = useNavigate();

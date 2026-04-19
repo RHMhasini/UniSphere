@@ -5,7 +5,7 @@ import Button from '../../components/common/Button/Button';
 import Badge from '../../components/common/Badge/Badge';
 import { ArrowLeft, Clock, MessageSquare, AlertCircle, User, ShieldAlert, Trash2, Edit2, Check, X, FileText } from 'lucide-react';
 import { api } from '../../services/api';
-import './TicketDetails.css';
+import '../../styles/ticketingPagesCSS/TicketDetails.css';
 
 // Utility for Time Gap calculations (SLA requirement)
 const formatTimeGap = (startStr, endStr) => {

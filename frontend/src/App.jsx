@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import LandingPage from "./pages/landingPage/LandingPage";
-import TicketDashboard from "./pages/tickets/TicketDashboard";
-import CreateTicket from "./pages/tickets/CreateTicket";
-import TicketDetails from "./pages/tickets/TicketDetails";
-import MockLogin from "./pages/login/MockLogin";
+import TicketDashboard from "./pages/ticketing/TicketDashboard";
+import CreateTicket from "./pages/ticketing/CreateTicket";
+import TicketDetails from "./pages/ticketing/TicketDetails";
+import MockLogin from "./pages/loginPages/MockLogin";
 import PageLayout from "./components/common/PageLayout/PageLayout";
 import { AuthProvider } from "./context/AuthContext";
 import "./index.css";

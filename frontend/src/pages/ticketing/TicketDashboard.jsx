@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Plus, Filter, LayoutGrid, List as ListIcon, AlertCircle } from 'lucide-react';
 import TicketCard from '../../components/tickets/TicketCard/TicketCard';
 import Button from '../../components/common/Button/Button';
-import './TicketDashboard.css';
+import '../../styles/ticketingPagesCSS/TicketDashboard.css';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
