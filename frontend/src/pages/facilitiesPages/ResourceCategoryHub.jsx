@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import lectureBg from '../../assets/backgrounds/landingbg1.png';
-import labsBg from '../../assets/backgrounds/landingbg2.png';
-import meetingBg from '../../assets/backgrounds/landingbg3.png';
-import equipmentBg from '../../assets/backgrounds/landingbg1.png';
 import '../../styles/facilitiesPagesCSS/ResourceCategoryHub.css';
+
+const lectureBg = 'https://www.sliit.lk/wp-content/uploads/2017/12/sliit-career-guidance-and-counseling-img-6.jpg';
+const labsBg = 'https://www.sliit.lk/wp-content/uploads/2018/03/sliit-engineering-department-of-Computer-engineering-1.jpg';
+const meetingBg = 'https://static.sliit.lk/wp-content/uploads/2019/04/03084037/A-discussions-on-academic-collaboration-between-SLIIT-Business-School-and-QUT-1.jpg';
+const equipmentBg = 'https://static.sliit.lk/wp-content/uploads/2017/11/Controls-and-Automation-Lab-1.jpg';
 
 const categories = [
   {
@@ -54,7 +55,6 @@ export default function ResourceCategoryHub() {
   return (
     <div className="hub-page">
       <div className="hub-hero">
-        <div className="hub-hero__badge">🏛️ UniSphere</div>
         <h1 className="hub-hero__title">Campus Resource Hub</h1>
         <p className="hub-hero__sub">
           Browse and book university facilities. Select a category below to explore available resources.

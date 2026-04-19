@@ -4,10 +4,10 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-route
 import LandingPage from './pages/landingPage/LandingPage';
 import AdminResourceForm from './pages/facilitiesPages/AdminResourceForm';
 import ResourceCategoryHub from './pages/facilitiesPages/ResourceCategoryHub';
-import LectureHalls from './pages/LectureHalls';
-import Labs from './pages/Labs';
-import MeetingRooms from './pages/MeetingRooms';
-import Equipment from './pages/Equipment';
+import LectureHalls from './pages/facilitiesPages/LectureHalls';
+import Labs from './pages/facilitiesPages/Labs';
+import MeetingRooms from './pages/facilitiesPages/MeetingRooms';
+import Equipment from './pages/facilitiesPages/Equipment';
 import './index.css';
 
 function NavBar({ theme, toggleTheme }) {

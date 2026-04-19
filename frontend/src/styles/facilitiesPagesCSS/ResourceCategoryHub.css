@@ -90,17 +90,18 @@
   height: 260px;
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
 }
 
 .hub-card__overlay {
   position: absolute;
   inset: 0;
-  opacity: 0.72;
-  transition: opacity 0.25s;
+  opacity: 0.32;
+  transition: opacity 0.25s ease;
 }
 
 .hub-card:hover .hub-card__overlay {
-  opacity: 0.82;
+  opacity: 0.42;
 }
 
 .hub-card__emoji {
