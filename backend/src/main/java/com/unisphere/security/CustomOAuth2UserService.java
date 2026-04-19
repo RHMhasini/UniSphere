@@ -21,7 +21,7 @@ import java.util.Optional;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private static final Logger log = LoggerFactory.getLogger(CustomOAuth2UserService.class);
-    private static final String ADMIN_EMAIL = "shashikashyamali60@gmail.com";
+    private static final String ADMIN_EMAIL = "admin23unisphere@gmail.com";
 
     private final UserRepository userRepository;
 
@@ -58,6 +58,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         if (email == null || email.isEmpty()) {
             throw new RuntimeException("Email not found from OAuth2 provider");
+        }
+
+        boolean isStudent    = email.matches("^[A-Za-z]{2}[0-9]{8}@my\\.sliit\\.lk$");
+        boolean isLecturer   = email.matches("^[a-zA-Z0-9._%+\\-]+lec@gmail\\.com$");
+        boolean isTechnician = email.matches("^[a-zA-Z0-9._%+\\-]+tec@gmail\\.com$");
+        boolean isAdmin      = ADMIN_EMAIL.equalsIgnoreCase(email);
+
+        if (!isStudent && !isLecturer && !isTechnician && !isAdmin) {
+            log.warn("Invalid email format OAuth2 attempt: {}. Not saving to DB.", email);
+            return oAuth2User; // Return Google's user without saving, SuccessHandler will reject
         }
 
         Optional<User> userOptional = userRepository.findByEmail(email);
