@@ -56,8 +56,8 @@ const Sidebar = ({ mobileOpen = false, onCloseMobile }) => {
       >
         <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-slate-200/50 px-4 dark:border-slate-700/50">
           <div className="flex min-w-0 items-center gap-2.5">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-sm font-bold text-white shadow-md">
-              U
+            <span className="flex items-center justify-center text-[28px] leading-none font-bold text-indigo-600 dark:text-indigo-500 mb-0.5">
+              ◈
             </span>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
