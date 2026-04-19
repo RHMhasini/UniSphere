@@ -10,7 +10,9 @@ import {
   LineChart as LineChartIcon,
   Loader2,
   TrendingUp,
+  ArrowLeft,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { 
   PieChart, 
   Pie, 
@@ -56,6 +58,7 @@ const Analytics = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -180,6 +183,15 @@ const Analytics = () => {
 
   return (
     <div className="space-y-6">
+      <div className="mb-2">
+        <button
+          onClick={() => navigate('/dashboard/users')}
+          className="flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to User Management
+        </button>
+      </div>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Admin Analytics</h1>
         <div className="flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300">

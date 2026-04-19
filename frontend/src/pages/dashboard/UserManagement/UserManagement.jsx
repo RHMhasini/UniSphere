@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { authAPI } from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
-import { Loader2, AlertTriangle, Users, CheckCircle, XCircle, ShieldOff, ShieldCheck } from 'lucide-react';
+import { Loader2, AlertTriangle, Users, CheckCircle, XCircle, ShieldOff, ShieldCheck, Download, Search, Filter, BarChart4 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const roleBadgeClass = (role) => {
   const r = (role || '').toLowerCase();
@@ -33,6 +36,10 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { user: adminUser } = useAuth();
+  const navigate = useNavigate();
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState('ALL');
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -125,6 +132,48 @@ const UserManagement = () => {
     }
   };
 
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    doc.text('UniSphere Users Report', 14, 15);
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 22);
+
+    const tableColumn = ['Name', 'Email', 'Role', 'Status', 'Joined'];
+    const tableRows = [];
+
+    filteredAndSortedUsers.forEach((u) => {
+      const rowData = [
+        u.fullName || 'N/A',
+        u.email || 'N/A',
+        u.role || 'N/A',
+        (u.registrationStatus || '').replace('_', ' ') + (u.isActive ? ' (Active)' : ''),
+        u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A',
+      ];
+      tableRows.push(rowData);
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 30,
+    });
+
+    const filename = `unisphere_users_report_${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(filename);
+  };
+
+  const filteredAndSortedUsers = [...users]
+    .filter((u) => {
+      const q = searchQuery.toLowerCase();
+      const matchesSearch = (u.fullName || '').toLowerCase().includes(q) ||
+                            (u.email || '').toLowerCase().includes(q) ||
+                            (u.role || '').toLowerCase().includes(q);
+      
+      const matchesRole = roleFilter === 'ALL' || u.role === roleFilter;
+
+      return matchesSearch && matchesRole;
+    });
+
   if (loading) {
     return (
       <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4 rounded-xl border border-slate-200 bg-white py-16 dark:border-slate-800 dark:bg-slate-900">
@@ -154,8 +203,8 @@ const UserManagement = () => {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
             User management
           </h1>
@@ -163,9 +212,53 @@ const UserManagement = () => {
             View accounts, assign roles, and remove users.
           </p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-          <Users className="h-4 w-4" />
-          <span>{users.length} user{users.length !== 1 ? 's' : ''}</span>
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-2 mr-2 text-sm text-slate-500 dark:text-slate-400">
+            <Users className="h-4 w-4" />
+            <span>{filteredAndSortedUsers.length} user{filteredAndSortedUsers.length !== 1 ? 's' : ''}</span>
+          </div>
+          <button
+            onClick={() => navigate('/dashboard/analytics')}
+            className="flex items-center gap-2 rounded-lg bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-600 transition hover:bg-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:hover:bg-indigo-500/20"
+          >
+            <BarChart4 className="w-4 h-4" />
+            View Analytics
+          </button>
+          <button
+            onClick={handleExportPDF}
+            className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm border border-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
+          >
+            <Download className="w-4 h-4" />
+            Export PDF
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-4 mb-4 items-start sm:items-center justify-between">
+        <div className="relative flex-1 max-w-sm w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search by name, email, or role..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 bg-white text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+          />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {['ALL', 'STUDENT', 'LECTURER', 'TECHNICIAN'].map((role) => (
+            <button
+              key={role}
+              onClick={() => setRoleFilter(role)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                roleFilter === role
+                  ? 'bg-indigo-100 text-indigo-700 ring-1 ring-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300 dark:ring-indigo-500'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
+              }`}
+            >
+              {role.charAt(0) + role.slice(1).toLowerCase()}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -192,17 +285,17 @@ const UserManagement = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {users.length === 0 ? (
+              {filteredAndSortedUsers.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={4}
+                    colSpan={5}
                     className="px-4 py-12 text-center text-sm italic text-slate-500 dark:text-slate-400"
                   >
-                    No users found in the system.
+                    No users found matching your search.
                   </td>
                 </tr>
               ) : (
-                users.map((user) => (
+                filteredAndSortedUsers.map((user) => (
                   <tr
                     key={user.id}
                     className="transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/40"
