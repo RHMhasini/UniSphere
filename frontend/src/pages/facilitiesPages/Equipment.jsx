@@ -58,7 +58,6 @@ export default function Equipment() {
           ← Back
         </button>
         <div className="cat-header__inner">
-          <span className="cat-emoji">🖥️</span>
           <div>
             <h1 className="cat-title">Equipment</h1>
             <p className="cat-subtitle">Browse available equipment resources and find exactly what you need.</p>
@@ -68,7 +67,6 @@ export default function Equipment() {
 
       <div className="cat-toolbar">
         <div className="cat-search-wrap">
-          <span className="cat-search-icon">🔍</span>
           <input
             id="search-equipment"
             type="text"
