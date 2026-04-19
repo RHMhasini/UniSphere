@@ -9,6 +9,17 @@ import PageLayout from "./components/common/PageLayout/PageLayout";
 import { AuthProvider } from "./context/AuthContext";
 import "./index.css";
 
+import { Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
+
+function ProtectedRoute({ children }) {
+  const { currentUser } = useAuth();
+  if (!currentUser) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+}
+
 function AppRoutes({ theme, toggleTheme }) {
   const location = useLocation();
   const isLogin = location.pathname === "/login";
@@ -21,9 +32,15 @@ function AppRoutes({ theme, toggleTheme }) {
     <PageLayout theme={theme} toggleTheme={toggleTheme}>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/tickets" element={<TicketDashboard />} />
-        <Route path="/tickets/create" element={<CreateTicket />} />
-        <Route path="/tickets/:id" element={<TicketDetails />} />
+        <Route path="/tickets" element={
+          <ProtectedRoute><TicketDashboard /></ProtectedRoute>
+        } />
+        <Route path="/tickets/create" element={
+          <ProtectedRoute><CreateTicket /></ProtectedRoute>
+        } />
+        <Route path="/tickets/:id" element={
+          <ProtectedRoute><TicketDetails /></ProtectedRoute>
+        } />
       </Routes>
     </PageLayout>
   );

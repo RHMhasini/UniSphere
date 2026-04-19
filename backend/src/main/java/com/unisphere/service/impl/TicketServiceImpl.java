@@ -31,6 +31,8 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public TicketResponse createTicket(CreateTicketRequest req) {
+        validateAttachments(req.getAttachments());
+
         Ticket ticket = Ticket.builder()
                 .title(req.getTitle())
                 .description(req.getDescription())
@@ -73,9 +75,26 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public TicketResponse getTicketById(String id) {
-        return ticketRepository.findById(id)
-                .map(this::mapToResponse)
-                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found: " + id));
+        Ticket ticket = findOrThrow(id);
+
+        // --- Role Security (Backend Side) ---
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            String email = auth.getName();
+            String role = auth.getAuthorities().iterator().next().getAuthority();
+
+            boolean isStaff = "ADMIN".equals(role) || "TECHNICIAN".equals(role);
+            boolean isCreator = ticket.getCreatedBy().equals(email);
+            boolean isPublic = ticket.getCategory() == Category.FACILITY;
+
+            if (!isStaff && !isCreator && !isPublic) {
+                throw new com.unisphere.exception.UnauthorizedAccessException(
+                    "Access Denied: You do not have permission to view this ticket."
+                );
+            }
+        }
+
+        return mapToResponse(ticket);
     }
 
     @Override
@@ -123,6 +142,14 @@ public class TicketServiceImpl implements TicketService {
             throw new IllegalArgumentException("newStatus is required");
         }
 
+        // --- Role Validation ---
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        String role = (auth != null && !auth.getAuthorities().isEmpty()) 
+                ? auth.getAuthorities().iterator().next().getAuthority() 
+                : "STUDENT";
+
+        validateStatusTransition(role, ticket.getStatus(), req.getNewStatus());
+
         TicketStatus oldStatus = ticket.getStatus();
         ticket.setStatus(req.getNewStatus());
 
@@ -136,7 +163,7 @@ public class TicketServiceImpl implements TicketService {
         Ticket updated = ticketRepository.save(ticket);
 
         // Audit
-        String changedBy = req.getChangedBy() != null ? req.getChangedBy() : "system";
+        String changedBy = (auth != null) ? auth.getName() : (req.getChangedBy() != null ? req.getChangedBy() : "system");
         saveHistory(id, oldStatus, req.getNewStatus(), changedBy);
 
         // Notify ticket creator of status change
@@ -210,6 +237,8 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public List<TicketResponse> filterTickets(TicketStatus status, Category category,
                                               TicketPriority priority, String createdBy, String assignedTo) {
+        // Core logic: if specific filters are provided, we use them.
+        // But the Controller will now call getTicketsForUser for the main dashboard view.
         List<Ticket> result;
         if (status != null && category != null) {
             result = ticketRepository.findByStatusAndCategory(status, category);
@@ -233,6 +262,20 @@ public class TicketServiceImpl implements TicketService {
             result = ticketRepository.findAll();
         }
         return result.stream().map(this::mapToResponse).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TicketResponse> getTicketsForUser(String email, String role) {
+        List<Ticket> tickets;
+        if ("ADMIN".equals(role)) {
+            tickets = ticketRepository.findAll();
+        } else if ("TECHNICIAN".equals(role)) {
+            tickets = ticketRepository.findByAssignedTo(email);
+        } else {
+            // STUDENT / LECTURER / OTHERS
+            tickets = ticketRepository.findByCreatedBy(email);
+        }
+        return tickets.stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
     // ── History ────────────────────────────────────────────────────────────────
@@ -302,5 +345,60 @@ public class TicketServiceImpl implements TicketService {
                 .createdAt(t.getCreatedAt())
                 .updatedAt(t.getUpdatedAt())
                 .build();
+    }
+
+    private void validateStatusTransition(String role, TicketStatus currentStatus, TicketStatus newStatus) {
+        if (currentStatus == newStatus) return;
+
+        // 1. Strict Workflow State Machine logic
+        boolean isValidTransition = switch (currentStatus) {
+            case OPEN -> newStatus == TicketStatus.IN_PROGRESS || newStatus == TicketStatus.REJECTED;
+            case IN_PROGRESS -> newStatus == TicketStatus.RESOLVED;
+            case RESOLVED -> newStatus == TicketStatus.CLOSED;
+            case REJECTED, CLOSED -> false; // Final states
+        };
+
+        if (!isValidTransition) {
+            throw new IllegalArgumentException(
+                String.format("Invalid workflow transition: Cannot move from %s to %s.", currentStatus, newStatus)
+            );
+        }
+
+        // 2. Role Security enforcement (Backend)
+        if ("ADMIN".equals(role)) return;
+
+        if ("TECHNICIAN".equals(role)) {
+            // Technicians can only move to IN_PROGRESS or RESOLVED
+            if (newStatus == TicketStatus.IN_PROGRESS || newStatus == TicketStatus.RESOLVED) {
+                return;
+            }
+            throw new com.unisphere.exception.UnauthorizedAccessException(
+                "Technicians are only permitted to mark tickets as IN_PROGRESS or RESOLVED."
+            );
+        }
+
+        throw new com.unisphere.exception.UnauthorizedAccessException(
+            "Security Alert: Your role does not have permission to modify ticket status."
+        );
+    }
+
+    private void validateAttachments(List<String> attachments) {
+        if (attachments == null || attachments.isEmpty()) return;
+
+        // Requirement: Limit = 3
+        if (attachments.size() > 3) {
+            throw new IllegalArgumentException("Attachment limit exceeded: Maximum 3 images allowed.");
+        }
+
+        for (String att : attachments) {
+            // Validate File Type (for extra marks)
+            if (!att.startsWith("data:image/")) {
+                throw new IllegalArgumentException("Invalid file type: Only images (JPG, PNG) are allowed.");
+            }
+            // Mock File Size validation (~5MB base64)
+            if (att.length() > 5 * 1024 * 1024 * 1.33) {
+                throw new IllegalArgumentException("File too large: Each attachment must be under 5MB.");
+            }
+        }
     }
 }

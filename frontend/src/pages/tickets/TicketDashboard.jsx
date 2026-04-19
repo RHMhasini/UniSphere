@@ -4,9 +4,12 @@ import { Search, Plus, Filter, LayoutGrid, List as ListIcon, AlertCircle } from 
 import TicketCard from '../../components/tickets/TicketCard/TicketCard';
 import Button from '../../components/common/Button/Button';
 import './TicketDashboard.css';
+import { api } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 function TicketDashboard() {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,14 +22,12 @@ function TicketDashboard() {
   const fetchTickets = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8080/api/tickets');
-      if (!response.ok) throw new Error('Failed to fetch tickets');
-      const data = await response.json();
+      const data = await api.get('/tickets');
       const ticketsArray = data.value || data;
       setTickets(Array.isArray(ticketsArray) ? ticketsArray : []);
       setError(null);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Failed to fetch tickets');
     } finally {
       setLoading(false);
     }
@@ -44,6 +45,10 @@ function TicketDashboard() {
     resolved: tickets.filter(t => t.status === 'RESOLVED').length,
   };
 
+  const isTechnician = currentUser?.role === 'TECHNICIAN';
+  const isAdmin = currentUser?.role === 'ADMIN';
+  const isStudent = currentUser?.role === 'STUDENT' || currentUser?.role === 'LECTURER';
+
   return (
     <div className="dashboard-container">
       {/* Header Section */}
@@ -56,9 +61,11 @@ function TicketDashboard() {
           <Button variant="outline">
             <Filter size={18} /> Filter
           </Button>
-          <Button variant="primary" onClick={() => navigate('/tickets/create')}>
-            <Plus size={18} /> New Ticket
-          </Button>
+          {(isStudent || isAdmin) && (
+            <Button variant="primary" onClick={() => navigate('/tickets/create')}>
+              <Plus size={18} /> New Ticket
+            </Button>
+          )}
         </div>
       </div>
 

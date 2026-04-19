@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from "../../context/AuthContext";
 import Button from '../../components/common/Button/Button';
 import { AlertCircle, ArrowLeft, Upload, X } from 'lucide-react';
+import { api } from '../../services/api';
 import './CreateTicket.css';
 
 function CreateTicket() {
@@ -74,23 +75,13 @@ function CreateTicket() {
     try {
       const payload = {
         ...formData,
-        createdBy: currentUser.id
+        createdBy: currentUser.email // use email as identifier per plan
       };
 
-      const response = await fetch('http://localhost:8080/api/tickets', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.message || 'Failed to create ticket');
-      }
-
+      await api.post('/tickets', payload);
       navigate('/tickets');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Failed to create ticket');
     } finally {
       setIsSubmitting(false);
     }

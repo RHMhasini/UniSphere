@@ -7,6 +7,7 @@ com\unisphere\dto\AssignTicketRequest$AssignTicketRequestBuilder.class
 com\unisphere\dto\TicketHistoryResponse.class
 com\unisphere\exception\ErrorResponse$ErrorResponseBuilder.class
 com\unisphere\service\NotificationService.class
+com\unisphere\exception\UnauthorizedAccessException.class
 com\unisphere\dto\CreateCommentRequest$CreateCommentRequestBuilder.class
 com\unisphere\repository\TicketRepository.class
 com\unisphere\dto\UpdateTicketRequest$UpdateTicketRequestBuilder.class
@@ -19,8 +20,10 @@ com\unisphere\service\impl\NotificationServiceImpl.class
 com\unisphere\entity\Notification$NotificationBuilder.class
 com\unisphere\dto\CommentResponse.class
 com\unisphere\controller\CommentController.class
+com\unisphere\service\impl\TicketServiceImpl$1.class
 com\unisphere\dto\UpdateTicketStatusRequest.class
 com\unisphere\service\impl\TicketServiceImpl.class
+com\unisphere\config\WebConfig.class
 com\unisphere\enums\TicketStatus.class
 com\unisphere\exception\GlobalExceptionHandler.class
 com\unisphere\dto\CreateTicketRequest$CreateTicketRequestBuilder.class
@@ -40,9 +43,11 @@ com\unisphere\entity\Comment.class
 com\unisphere\dto\CreateTicketRequest.class
 com\unisphere\enums\TicketPriority.class
 com\unisphere\service\TicketService.class
+com\unisphere\UniCampusApplication.class
 com\unisphere\dto\TicketResponse$TicketResponseBuilder.class
 com\unisphere\exception\ErrorResponse.class
 com\unisphere\dto\NotificationResponse.class
+com\unisphere\config\SecurityHeaderInterceptor.class
 com\unisphere\entity\User$UserBuilder.class
 com\unisphere\dto\CommentResponse$CommentResponseBuilder.class
 com\unisphere\dto\NotificationResponse$NotificationResponseBuilder.class

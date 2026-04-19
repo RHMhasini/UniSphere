@@ -1,6 +1,8 @@
 D:\UniSphere\backend\src\main\java\com\unisphere\config\MongoConfig.java
 D:\UniSphere\backend\src\main\java\com\unisphere\config\SecurityConfig.java
+D:\UniSphere\backend\src\main\java\com\unisphere\config\SecurityHeaderInterceptor.java
 D:\UniSphere\backend\src\main\java\com\unisphere\config\SeedDataRunner.java
+D:\UniSphere\backend\src\main\java\com\unisphere\config\WebConfig.java
 D:\UniSphere\backend\src\main\java\com\unisphere\controller\CommentController.java
 D:\UniSphere\backend\src\main\java\com\unisphere\controller\NotificationController.java
 D:\UniSphere\backend\src\main\java\com\unisphere\controller\TicketController.java
@@ -26,6 +28,7 @@ D:\UniSphere\backend\src\main\java\com\unisphere\enums\UserRole.java
 D:\UniSphere\backend\src\main\java\com\unisphere\exception\ErrorResponse.java
 D:\UniSphere\backend\src\main\java\com\unisphere\exception\GlobalExceptionHandler.java
 D:\UniSphere\backend\src\main\java\com\unisphere\exception\ResourceNotFoundException.java
+D:\UniSphere\backend\src\main\java\com\unisphere\exception\UnauthorizedAccessException.java
 D:\UniSphere\backend\src\main\java\com\unisphere\repository\CommentRepository.java
 D:\UniSphere\backend\src\main\java\com\unisphere\repository\NotificationRepository.java
 D:\UniSphere\backend\src\main\java\com\unisphere\repository\TicketHistoryRepository.java

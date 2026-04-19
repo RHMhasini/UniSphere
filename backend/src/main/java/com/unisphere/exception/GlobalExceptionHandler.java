@@ -27,6 +27,14 @@ public class GlobalExceptionHandler {
                 build(ex.getMessage(), "Not Found", HttpStatus.NOT_FOUND.value()));
     }
 
+    // ── 403 Forbidden ──────────────────────────────────────────────────────────
+
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorized(UnauthorizedAccessException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+                build(ex.getMessage(), "Forbidden", HttpStatus.FORBIDDEN.value()));
+    }
+
     // ── 400 Validation Errors ─────────────────────────────────────────────────
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

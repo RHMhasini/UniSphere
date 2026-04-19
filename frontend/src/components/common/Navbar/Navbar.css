@@ -204,55 +204,64 @@
   .navbar__actions .btn { display: none; }
   .navbar__hamburger { display: flex; }
 }
-/* Adding Auth Switcher Styles safely */
-.auth-switcher {
+/* Authenticated User Styles */
+.navbar__user {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background-color: var(--bg-card);
+  gap: 16px;
+  background: var(--bg-card);
+  padding: 4px 6px 4px 16px;
+  border-radius: 40px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 4px 12px;
   box-shadow: var(--shadow-sm);
 }
 
-.auth-switcher-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-}
-
-.auth-switcher-select {
-  background: transparent;
-  border: none;
-  font-family: inherit;
-  font-size: 0.9rem;
-  color: var(--accent);
-  font-weight: 600;
-  cursor: pointer;
-  outline: none;
-}
-
-[data-theme="dark"] .auth-switcher-select option {
-  background-color: var(--bg-primary);
-}
-
-.mobile-auth-switcher {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
+.user-profile {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  color: var(--text-secondary);
+  align-items: center;
+  gap: 10px;
 }
 
-.mobile-auth-switcher select {
-  padding: 8px;
-  border-radius: var(--radius-sm);
-  background-color: var(--bg-card);
+.user-name {
+  font-size: 0.875rem;
+  font-weight: 600;
   color: var(--text-primary);
-  border: 1px solid var(--border);
+  white-space: nowrap;
 }
+
+.role-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-light);
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: #fef2f2;
+  color: #ef4444;
+  transform: scale(1.05);
+}
+
+[data-theme="dark"] .logout-btn:hover {
+  background: #450a0a;
+}
+
 

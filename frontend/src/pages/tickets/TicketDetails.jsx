@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/common/Button/Button';
 import Badge from '../../components/common/Badge/Badge';
-import { ArrowLeft, Clock, MessageSquare, AlertCircle, User, ShieldAlert, Trash2, Edit2, Check, X } from 'lucide-react';
+import { ArrowLeft, Clock, MessageSquare, AlertCircle, User, ShieldAlert, Trash2, Edit2, Check, X, FileText } from 'lucide-react';
+import { api } from '../../services/api';
 import './TicketDetails.css';
 
 // Utility for Time Gap calculations (SLA requirement)
@@ -56,22 +57,24 @@ function TicketDetails() {
     try {
       setLoading(true);
       // Fetch Ticket
-      const tRes = await fetch(`http://localhost:8080/api/tickets/${id}`);
-      if (!tRes.ok) throw new Error('Ticket not found');
-      const tData = await tRes.json();
+      const tData = await api.get(`/tickets/${id}`);
       setTicket(tData);
 
       // Fetch History
-      const hRes = await fetch(`http://localhost:8080/api/tickets/${id}/history`);
-      if (hRes.ok) setHistory(await hRes.json());
+      try {
+        const hData = await api.get(`/tickets/${id}/history`);
+        setHistory(hData);
+      } catch (e) { console.error("History fetch failed", e); }
 
       // Fetch Comments
-      const cRes = await fetch(`http://localhost:8080/api/tickets/${id}/comments`);
-      if (cRes.ok) setComments(await cRes.json());
+      try {
+        const cData = await api.get(`/tickets/${id}/comments`);
+        setComments(cData);
+      } catch (e) { console.error("Comments fetch failed", e); }
       
       setError(null);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Ticket not found');
     } finally {
       setLoading(false);
     }
@@ -81,7 +84,7 @@ function TicketDetails() {
   const handleStatusChange = async (newStatus) => {
     setActionLoading(true);
     try {
-      const payload = { newStatus, changedBy: currentUser.id };
+      const payload = { newStatus };
       
       if (newStatus === 'RESOLVED') {
         payload.resolutionNote = resolutionNote;
@@ -92,12 +95,10 @@ function TicketDetails() {
         setRejectPrompt(false);
       }
       
-      const res = await fetch(`http://localhost:8080/api/tickets/${id}/status`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) fetchTicketData(); // refresh
+      await api.put(`/tickets/${id}/status`, payload);
+      fetchTicketData(); // refresh
+    } catch (err) {
+      alert(err.message || "Failed to update status. Check workflow rules.");
     } finally {
       setActionLoading(false);
     }
@@ -106,25 +107,17 @@ function TicketDetails() {
   const deleteComment = async (commentId) => {
     if (!window.confirm("Delete this comment permanently?")) return;
     try {
-      const res = await fetch(`http://localhost:8080/api/tickets/${id}/comments/${commentId}`, {
-        method: 'DELETE'
-      });
-      if (res.ok) fetchTicketData();
-    } catch (err) { }
+      await api.delete(`/tickets/${id}/comments/${commentId}`);
+      fetchTicketData();
+    } catch (err) { alert(err.message || "Failed to delete comment"); }
   };
 
   const submitCommentEdit = async (commentId) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/tickets/${id}/comments/${commentId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: currentUser.id, message: editingCommentText })
-      });
-      if (res.ok) {
-        setEditingCommentId(null);
-        fetchTicketData();
-      }
-    } catch (err) { }
+      await api.put(`/tickets/${id}/comments/${commentId}`, { message: editingCommentText });
+      setEditingCommentId(null);
+      fetchTicketData();
+    } catch (err) { alert(err.message || "Failed to edit comment"); }
   };
 
   // Post Comment Action
@@ -132,30 +125,22 @@ function TicketDetails() {
     if (!newComment.trim()) return;
     setActionLoading(true);
     try {
-      const res = await fetch(`http://localhost:8080/api/tickets/${id}/comments`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: currentUser.id, message: newComment })
-      });
-      if (res.ok) {
-        setNewComment('');
-        fetchTicketData();
-      }
+      await api.post(`/tickets/${id}/comments`, { message: newComment });
+      setNewComment('');
+      fetchTicketData();
+    } catch (err) {
+      alert(err.message || "Failed to post comment");
     } finally {
       setActionLoading(false);
     }
   };
 
   // Assigment Action (Admin Only)
-  const handleAssignTech = async (techId) => {
+  const handleAssignTech = async (techEmail) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/tickets/${id}/assign`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ assignedTo: techId, assignedBy: currentUser.id })
-      });
-      if (res.ok) fetchTicketData();
-    } catch (err) { }
+      await api.put(`/tickets/${id}/assign`, { assignedTo: techEmail });
+      fetchTicketData();
+    } catch (err) { alert(err.message || "Failed to assign technician"); }
   };
 
   if (loading) return <div className="loading-state"><div className="spinner"></div></div>;
@@ -170,7 +155,7 @@ function TicketDetails() {
   // Admins & Techs can view everything. 
   // Students/Lecturers can view ONLY if it's General, OR if they created it.
   const isStaff = currentUser.role === 'ADMIN' || currentUser.role === 'TECHNICIAN';
-  const isCreator = ticket.createdBy === currentUser.id;
+  const isCreator = ticket.createdBy === currentUser.email;
   
   if (!isStaff && !isGeneral && !isCreator) {
     return (
@@ -184,7 +169,7 @@ function TicketDetails() {
   }
 
   // Find User Names for displays
-  const getCreatorName = (uid) => MOCK_USERS.find(u => u.id === uid)?.name || uid;
+  const getCreatorName = (email) => MOCK_USERS.find(u => u.email === email)?.name || email;
 
   return (
     <div className="ticket-detail-container">
@@ -243,12 +228,25 @@ function TicketDetails() {
             <p className="core-desc">{ticket.description}</p>
             
             {ticket.attachments && ticket.attachments.length > 0 && (
-              <div className="attachments-gallery">
-                <h4>Attached Evidence</h4>
-                <div className="gallery-grid">
-                  {ticket.attachments.map((att, idx) => (
-                    <img key={idx} src={att} alt={`Attachment ${idx+1}`} />
-                  ))}
+              <div className="attachments-list">
+                <h4>Verified Documents ({ticket.attachments.length})</h4>
+                <div className="file-grid">
+                  {ticket.attachments.map((att, idx) => {
+                    const isImg = att.match(/\.(jpg|jpeg|png|gif)$/i);
+                    return (
+                      <div key={idx} className="file-item">
+                        {isImg ? (
+                           <img src={`http://localhost:8080/uploads/${att}`} alt={`Attachment ${idx+1}`} />
+                        ) : (
+                          <div className="doc-icon">
+                            <FileText size={48} />
+                            <span>{att}</span>
+                          </div>
+                        )}
+                        <a href={`http://localhost:8080/uploads/${att}`} target="_blank" rel="noreferrer" className="view-link">View Full</a>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -271,9 +269,9 @@ function TicketDetails() {
             <h3 className="section-title"><MessageSquare size={18} /> Discussion</h3>
             <div className="comment-list">
               {comments.map(c => (
-                <div key={c.id} className={`comment-bubble ${c.userId === currentUser.id ? 'mine' : ''}`}>
+                <div key={c.id} className={`comment-bubble ${c.createdBy === currentUser.email ? 'mine' : ''}`}>
                   <div className="comment-meta">
-                    <strong>{getCreatorName(c.userId)}</strong>
+                    <strong>{getCreatorName(c.createdBy)}</strong>
                     <span>{new Date(c.createdAt).toLocaleString()}</span>
                   </div>
                   
@@ -288,7 +286,7 @@ function TicketDetails() {
                   ) : (
                      <div className="comment-body">
                        <p>{c.message}</p>
-                       {c.userId === currentUser.id && (
+                       {c.createdBy === currentUser.email && (
                          <div className="comment-tools">
                            <button onClick={() => { setEditingCommentText(c.message); setEditingCommentId(c.id); }}><Edit2 size={12}/></button>
                            <button onClick={() => deleteComment(c.id)}><Trash2 size={12}/></button>
@@ -345,7 +343,7 @@ function TicketDetails() {
                 >
                   <option value="" disabled>Select Technician</option>
                   {MOCK_USERS.filter(u => u.role === 'TECHNICIAN').map(tech => (
-                    <option key={tech.id} value={tech.id}>{tech.name}</option>
+                    <option key={tech.id} value={tech.email}>{tech.name}</option>
                   ))}
                 </select>
               ) : (

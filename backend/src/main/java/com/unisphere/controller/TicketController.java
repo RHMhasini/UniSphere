@@ -58,13 +58,27 @@ public class TicketController {
      */
     @GetMapping
     public ResponseEntity<List<TicketResponse>> getTickets(
+            org.springframework.security.core.Authentication auth,
             @RequestParam(required = false) TicketStatus status,
             @RequestParam(required = false) Category category,
-            @RequestParam(required = false) TicketPriority priority,
-            @RequestParam(required = false) String createdBy,
-            @RequestParam(required = false) String assignedTo) {
+            @RequestParam(required = false) TicketPriority priority) {
+        
+        String email = auth.getName();
+        String role = auth.getAuthorities().iterator().next().getAuthority();
+
+        // If specific structural filters (status/category/priority) are provided, 
+        // we use the filterTickets method but we must still respect role boundaries.
+        // For simplicity in this PAF demo, if status/category/priority are null, we use role-based getTicketsForUser.
+        if (status == null && category == null && priority == null) {
+            return ResponseEntity.ok(ticketService.getTicketsForUser(email, role));
+        }
+
+        // Otherwise, use filterTickets but ensure non-admins only see their own/assigned
+        String filterCreatedBy = "ADMIN".equals(role) ? null : ("TECHNICIAN".equals(role) ? null : email);
+        String filterAssignedTo = "TECHNICIAN".equals(role) ? email : null;
+
         return ResponseEntity.ok(
-                ticketService.filterTickets(status, category, priority, createdBy, assignedTo));
+                ticketService.filterTickets(status, category, priority, filterCreatedBy, filterAssignedTo));
     }
 
     // ── GET /api/tickets/{id} ─────────────────────────────────────────────────

@@ -30,6 +30,9 @@ public interface TicketService {
     List<TicketResponse> filterTickets(TicketStatus status, Category category,
                                        TicketPriority priority, String createdBy, String assignedTo);
 
+    /** Filter tickets based on the authenticated user's role and identity */
+    List<TicketResponse> getTicketsForUser(String email, String role);
+
     // ── History ───────────────────────────────────────────────────────────────
     List<TicketHistoryResponse> getTicketHistory(String ticketId);
 
