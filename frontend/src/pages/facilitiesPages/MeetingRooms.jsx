@@ -58,7 +58,6 @@ export default function MeetingRooms() {
           ← Back
         </button>
         <div className="cat-header__inner">
-          <span className="cat-emoji">🤝</span>
           <div>
             <h1 className="cat-title">Meeting Rooms</h1>
             <p className="cat-subtitle">Browse available meeting rooms and find a booking that fits your needs.</p>
@@ -68,7 +67,6 @@ export default function MeetingRooms() {
 
       <div className="cat-toolbar">
         <div className="cat-search-wrap">
-          <span className="cat-search-icon">🔍</span>
           <input
             id="search-meeting-rooms"
             type="text"
