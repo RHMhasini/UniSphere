@@ -3,9 +3,9 @@ import { lectureHallImages, labImages, meetingRoomImages, equipmentImages } from
 import '../../styles/facilitiesPagesCSS/ResourceCategoryHub.css';
 
 const lectureBg = lectureHallImages.Lecture_Halls_main;
-const labsBg = labImages.default;
-const meetingBg = meetingRoomImages.default;
-const equipmentBg = equipmentImages.default;
+const labsBg = labImages.Labs_Main;
+const meetingBg = meetingRoomImages.Meeting_rooms_main;
+const equipmentBg = equipmentImages.equipment_Main;
 
 const categories = [
   {
