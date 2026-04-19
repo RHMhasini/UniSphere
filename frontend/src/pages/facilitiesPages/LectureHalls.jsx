@@ -128,10 +128,6 @@ export default function LectureHalls() {
                       {resource.availabilityWindows?.[0] || 'No time window assigned'}
                     </span>
                   </div>
-                  <div className="lh-card__footer">
-                    <span className="lh-card__type">Lecture Hall</span>
-                    <span className="lh-card__badge">{resource.type?.replace('_', ' ')}</span>
-                  </div>
                 </div>
               </article>
             ))}
