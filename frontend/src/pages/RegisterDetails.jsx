@@ -256,7 +256,12 @@ const RegisterDetails = () => {
 
       await authAPI.submitAdditionalDetails(payload);
       await fetchCurrentUser();
-      navigate('/register/pending');
+      
+      if (formData.role === 'STUDENT') {
+        navigate('/dashboard');
+      } else {
+        navigate('/register/pending');
+      }
     } catch (err) {
       setError(err?.response?.data?.message || err.message || 'Failed to submit additional details');
       setLoading(false);
