@@ -7,8 +7,8 @@ const SettingsPage = () => {
   const { user } = useAuth();
   const [preferences, setPreferences] = useState({
     SYSTEM: true,
-    BOOKING_APPROVED: true,
-    TICKET_COMMENT: true,
+    ACCOUNT_STATUS: true,
+    ADMIN_ALERTS: true,
   });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -18,8 +18,8 @@ const SettingsPage = () => {
     if (user?.notificationPreferences) {
       setPreferences({
         SYSTEM: user.notificationPreferences.SYSTEM ?? true,
-        BOOKING_APPROVED: user.notificationPreferences.BOOKING_APPROVED ?? true,
-        TICKET_COMMENT: user.notificationPreferences.TICKET_COMMENT ?? true,
+        ACCOUNT_STATUS: user.notificationPreferences.ACCOUNT_STATUS ?? true,
+        ADMIN_ALERTS: user.notificationPreferences.ADMIN_ALERTS ?? true,
       });
     }
   }, [user]);
@@ -57,17 +57,18 @@ const SettingsPage = () => {
       icon: <Shield className="w-5 h-5 text-indigo-500" />
     },
     {
-      id: 'BOOKING_APPROVED',
-      title: 'Booking Approvals',
-      description: 'Receive notifications when your facilities or hall bookings are approved.',
-      icon: <Calendar className="w-5 h-5 text-emerald-500" />
+      id: 'ACCOUNT_STATUS',
+      title: 'Account Status Updates',
+      description: 'Receive alerts when your account is approved, suspended, or reactivated.',
+      icon: <Bell className="w-5 h-5 text-emerald-500" />
     },
-    {
-      id: 'TICKET_COMMENT',
-      title: 'Service Ticket Updates',
-      description: 'Receive notifications when a technician responds to your service requests.',
-      icon: <Wrench className="w-5 h-5 text-blue-500" />
-    }
+    // We only show ADMIN_ALERTS to admins
+    ...(user?.role === 'ADMIN' ? [{
+      id: 'ADMIN_ALERTS',
+      title: 'Admin Alerts',
+      description: 'Receive notifications when new users register and require approval.',
+      icon: <Settings className="w-5 h-5 text-blue-500" />
+    }] : [])
   ];
 
   return (

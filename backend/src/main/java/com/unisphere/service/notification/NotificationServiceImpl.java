@@ -46,14 +46,14 @@ public class NotificationServiceImpl implements NotificationService {
                 applicant.getRole());
         for (User admin : admins) {
             Map<String, Boolean> prefs = admin.getNotificationPreferences();
-            if (prefs != null && prefs.containsKey("REGISTRATION_PENDING") && !prefs.get("REGISTRATION_PENDING")) {
+            if (prefs != null && prefs.containsKey("ADMIN_ALERTS") && !prefs.get("ADMIN_ALERTS")) {
                 continue; // Admin opted out of registration alerts
             }
             
             Notification n = new Notification();
             n.setUserId(admin.getId());
             n.setMessage(message);
-            n.setType("REGISTRATION_PENDING");
+            n.setType("ADMIN_ALERTS");
             n.setRelatedUserId(applicant.getId());
             n.setIsRead(false);
             notificationRepository.save(n);
@@ -63,10 +63,14 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void notifyUserAccountApproved(User user) {
+        Map<String, Boolean> prefs = user.getNotificationPreferences();
+        if (prefs != null && prefs.containsKey("ACCOUNT_STATUS") && !prefs.get("ACCOUNT_STATUS")) {
+            return;
+        }
         Notification n = new Notification();
         n.setUserId(user.getId());
         n.setMessage("Welcome! Your registration has been approved by the IT Admin.");
-        n.setType("SYSTEM_ALERT");
+        n.setType("ACCOUNT_STATUS");
         n.setIsRead(false);
         notificationRepository.save(n);
         log.info("Approval notification created for {}", user.getEmail());
@@ -74,10 +78,14 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void notifyUserAccountRejected(User user) {
+        Map<String, Boolean> prefs = user.getNotificationPreferences();
+        if (prefs != null && prefs.containsKey("ACCOUNT_STATUS") && !prefs.get("ACCOUNT_STATUS")) {
+            return;
+        }
         Notification n = new Notification();
         n.setUserId(user.getId());
         n.setMessage("Your registration was not approved. Please contact support for more details.");
-        n.setType("SYSTEM_ALERT");
+        n.setType("ACCOUNT_STATUS");
         n.setIsRead(false);
         notificationRepository.save(n);
         log.info("Rejection notification created for {}", user.getEmail());
