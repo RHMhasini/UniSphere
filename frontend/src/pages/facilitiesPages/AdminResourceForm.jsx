@@ -5,7 +5,7 @@ import {
   updateResource,
   deleteResource,
 } from '../../services/resourceService';
-import './AdminResourceForm.css';
+import '../../styles/facilitiesPagesCSS/AdminResourceForm.css';
 
 const RESOURCE_TYPES = ['LECTURE_HALL', 'LAB', 'MEETING_ROOM', 'EQUIPMENT'];
 const STATUS_OPTIONS = ['ACTIVE', 'OUT_OF_SERVICE'];

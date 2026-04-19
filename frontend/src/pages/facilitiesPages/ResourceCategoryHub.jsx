@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import lectureBg from '../assets/backgrounds/landingbg1.png';
-import labsBg from '../assets/backgrounds/landingbg2.png';
-import meetingBg from '../assets/backgrounds/landingbg3.png';
-import equipmentBg from '../assets/backgrounds/landingbg1.png';
-import './ResourceCategoryHub.css';
+import lectureBg from '../../assets/backgrounds/landingbg1.png';
+import labsBg from '../../assets/backgrounds/landingbg2.png';
+import meetingBg from '../../assets/backgrounds/landingbg3.png';
+import equipmentBg from '../../assets/backgrounds/landingbg1.png';
+import '../../styles/facilitiesPagesCSS/ResourceCategoryHub.css';
 
 const categories = [
   {

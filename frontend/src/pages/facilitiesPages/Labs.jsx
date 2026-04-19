@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getResourcesByType } from '../services/resourceService';
-import './CategoryPage.css';
-import './Labs.css';
+import { getResourcesByType } from '../../services/resourceService';
+import '../../styles/facilitiesPagesCSS/CategoryPage.css';
+import '../../styles/facilitiesPagesCSS/Labs.css';
 
 const getRoomImage = (name) => {
   const seed = encodeURIComponent(name?.replace(/\s+/g, '-').toLowerCase() || 'lab-room');
