@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getResourcesByType } from '../../services/resourceService';
+import { labImages } from '../../assets/facilityImages';
 import '../../styles/facilitiesPagesCSS/CategoryPage.css';
 import '../../styles/facilitiesPagesCSS/Labs.css';
 
-const getRoomImage = (name) => {
-  const seed = encodeURIComponent(name?.replace(/\s+/g, '-').toLowerCase() || 'lab-room');
-  return `https://images.unsplash.com/seed/${seed}/900x600?auto=format&fit=crop&q=80`;
+const getRoomImage = (resource) => {
+  const key = (resource.name || resource.id || '').replace(/\s+/g, '').toUpperCase();
+  return labImages[key] || labImages.default;
 };
 
 export default function Labs() {

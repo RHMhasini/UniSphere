@@ -1,12 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getResourcesByType } from '../../services/resourceService';
+import { lectureHallImages } from '../../assets/facilityImages';
 import '../../styles/facilitiesPagesCSS/CategoryPage.css';
 import '../../styles/facilitiesPagesCSS/LectureHalls.css';
 
-const getRoomImage = (name) => {
-  const seed = encodeURIComponent(name.replace(/\s+/g, '-').toLowerCase());
-  return `https://images.unsplash.com/seed/${seed}/900x600?auto=format&fit=crop&q=80`;
+const getRoomImage = (resource) => {
+  const key = (resource.name || resource.id || '').replace(/\s+/g, '').toUpperCase();
+  return lectureHallImages[key] || lectureHallImages.default;
 };
 
 export default function LectureHalls() {
@@ -111,7 +112,7 @@ export default function LectureHalls() {
               <article key={resource.id} className="lh-card">
                 <div
                   className="lh-card__image"
-                  style={{ backgroundImage: `url(${getRoomImage(resource.name)})` }}
+                  style={{ backgroundImage: `url(${getRoomImage(resource)})` }}
                 >
                   <div className="lh-card__overlay" />
                   <span className={`lh-status-badge ${resource.status === 'ACTIVE' ? 'active' : 'oos'}`}>

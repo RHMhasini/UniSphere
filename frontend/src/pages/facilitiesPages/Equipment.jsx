@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getResourcesByType } from '../../services/resourceService';
+import { equipmentImages } from '../../assets/facilityImages';
 import '../../styles/facilitiesPagesCSS/CategoryPage.css';
 import '../../styles/facilitiesPagesCSS/Equipment.css';
 
-const getResourceImage = (name) => {
-  const seed = encodeURIComponent(name?.replace(/\s+/g, '-').toLowerCase() || 'equipment');
-  return `https://images.unsplash.com/seed/${seed}/900x600?auto=format&fit=crop&q=80`;
+const getResourceImage = (resource) => {
+  const key = (resource.name || resource.id || '').replace(/\s+/g, '').toUpperCase();
+  return equipmentImages[key] || equipmentImages.default;
 };
 
 export default function Equipment() {

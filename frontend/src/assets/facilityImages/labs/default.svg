@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
+  <rect width="900" height="600" fill="#052331"/>
+  <rect x="40" y="40" width="820" height="520" rx="28" fill="#0f172a"/>
+  <text x="50%" y="50%" text-anchor="middle" font-family="Inter, sans-serif" font-size="56" fill="#5eead4">SLIIT Lab</text>
+</svg>

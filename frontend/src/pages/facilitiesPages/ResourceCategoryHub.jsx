@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router-dom';
+import { lectureHallImages, labImages, meetingRoomImages, equipmentImages } from '../../assets/facilityImages';
 import '../../styles/facilitiesPagesCSS/ResourceCategoryHub.css';
 
-const lectureBg = 'https://www.sliit.lk/wp-content/uploads/2017/12/sliit-career-guidance-and-counseling-img-6.jpg';
-const labsBg = 'https://www.sliit.lk/wp-content/uploads/2018/03/sliit-engineering-department-of-Computer-engineering-1.jpg';
-const meetingBg = 'https://static.sliit.lk/wp-content/uploads/2019/04/03084037/A-discussions-on-academic-collaboration-between-SLIIT-Business-School-and-QUT-1.jpg';
-const equipmentBg = 'https://static.sliit.lk/wp-content/uploads/2017/11/Controls-and-Automation-Lab-1.jpg';
+const lectureBg = lectureHallImages.Lecture_Halls_main;
+const labsBg = labImages.default;
+const meetingBg = meetingRoomImages.default;
+const equipmentBg = equipmentImages.default;
 
 const categories = [
   {
