@@ -12,9 +12,17 @@ import './index.css';
 
 function NavBar({ theme, toggleTheme }) {
   const navigate = useNavigate();
+
   return (
     <nav className="top-nav">
-      <button className="top-nav__logo" onClick={() => navigate('/')}>🏛️ UniSphere</button>
+      <button className="top-nav__logo" onClick={() => navigate('/')}>
+        <span className="top-nav__logo-icon">◈</span>
+        <span className="top-nav__logo-copy">
+          <span className="top-nav__logo-text">UniSphere</span>
+          <span className="top-nav__logo-subtext">Smart Campus</span>
+        </span>
+      </button>
+
       <div className="top-nav__links">
         <button onClick={() => navigate('/categories')}>Resources</button>
         <button onClick={() => navigate('/admin/resources')}>Admin</button>
@@ -43,15 +51,13 @@ function App() {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const toggleTheme = () => setTheme((p) => (p === 'light' ? 'dark' : 'light'));
+  const toggleTheme = () => setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
 
   return (
     <BrowserRouter>
       <Routes>
-        {/* Landing page – full screen, no nav bar */}
         <Route path="/" element={<LandingPage theme={theme} toggleTheme={toggleTheme} />} />
 
-        {/* Admin */}
         <Route
           path="/admin/resources"
           element={
@@ -61,7 +67,6 @@ function App() {
           }
         />
 
-        {/* Resource Hub */}
         <Route
           path="/categories"
           element={
@@ -71,7 +76,6 @@ function App() {
           }
         />
 
-        {/* Category Detail Pages */}
         <Route
           path="/categories/lecture-halls"
           element={
@@ -105,7 +109,6 @@ function App() {
           }
         />
 
-        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
