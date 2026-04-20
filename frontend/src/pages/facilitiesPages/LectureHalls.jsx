@@ -81,6 +81,9 @@ export default function LectureHalls() {
             </button>
           )}
         </div>
+        <button type="button" className="lh-page__book-btn">
+          Book Resource
+        </button>
       </div>
 
       <div className="lh-content">
