@@ -81,6 +81,9 @@ export default function Equipment() {
             </button>
           )}
         </div>
+        <button type="button" className="eq-page__book-btn">
+          Book Resource
+        </button>
       </div>
 
       <div className="eq-content">
