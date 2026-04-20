@@ -81,6 +81,9 @@ export default function Labs() {
             </button>
           )}
         </div>
+        <button type="button" className="lab-page__book-btn">
+          Book Resource
+        </button>
       </div>
 
       <div className="lab-content">
