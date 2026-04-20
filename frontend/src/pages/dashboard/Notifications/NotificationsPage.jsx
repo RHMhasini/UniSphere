@@ -9,6 +9,7 @@ import {
   Trash2,
   Check,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const PAGE_SIZE = 15;
 
@@ -83,12 +84,13 @@ const NotificationsPage = () => {
       if (res?.success) {
         emitNotificationsChanged();
         await load(0);
+        toast.success("Notifications cleared!");
       } else {
-        alert(res?.message || 'Could not clear notifications.');
+        toast.error(res?.message || 'Could not clear notifications.');
       }
     } catch (e) {
       console.error(e);
-      alert('Could not clear notifications.');
+      toast.error('Could not clear notifications.');
     } finally {
       setClearing(false);
     }
@@ -127,11 +129,11 @@ const NotificationsPage = () => {
         const nextPage = items.length === 1 && page > 0 ? page - 1 : page;
         await load(nextPage);
       } else {
-        alert(res?.message || 'Could not remove notification.');
+        toast.error(res?.message || 'Could not remove notification.');
       }
     } catch (e) {
       console.error(e);
-      alert('Could not remove notification.');
+      toast.error('Could not remove notification.');
     } finally {
       setBusyId(null);
     }

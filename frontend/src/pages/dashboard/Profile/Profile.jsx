@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../../../services/api';
 import { Mail, Loader2, Pencil, User, Phone, Building, BookOpen, Calendar, Briefcase, Wrench, Camera, Save, X, GraduationCap } from 'lucide-react';
 import { STUDENT_FACULTIES, LECTURER_FACULTIES, TECHNICIAN_DEPARTMENTS } from '../../../utils/dropdownData';
+import toast from 'react-hot-toast';
 
 const roleBadgeClass = (role) => {
   const r = (role || '').toLowerCase();
@@ -147,9 +148,9 @@ const Profile = () => {
           uploadedUrl = res.data.data;
         }
         setFormData((prev) => ({ ...prev, profilePictureUrl: uploadedUrl }));
-        alert('Image uploaded! Click Save Changes to apply.');
+        toast.success('Image uploaded! Click Save Changes to apply.');
       } catch (err) {
-        alert('Failed to upload image. Please try again.');
+        toast.error('Failed to upload image. Please try again.');
       } finally {
         setUploadingImg(false);
       }
@@ -169,7 +170,7 @@ const Profile = () => {
          (role === 'TECHNICIAN' && formData.staffId && !/^Tec-\d{4}$/.test(formData.staffId));
 
     if (hasErrors) {
-      alert('Please fix the errors in the form before submitting.');
+      toast.error('Please fix the errors in the form before submitting.');
       
       // Trigger all validations to show errors
       validateField('firstName', formData.firstName, role);
@@ -184,9 +185,9 @@ const Profile = () => {
     try {
       await updateProfile(formData);
       setIsEditing(false);
-      alert('Profile updated successfully!');
+      toast.success('Profile updated successfully!');
     } catch (error) {
-      alert('Failed to update profile: ' + (error.response?.data?.message || error.message));
+      toast.error('Failed to update profile: ' + (error.response?.data?.message || error.message));
     }
   };
 
@@ -200,7 +201,7 @@ const Profile = () => {
         await deleteAccount();
         navigate('/login');
       } catch (error) {
-        alert('Failed to delete account.');
+        toast.error('Failed to delete account.');
       }
     }
   };

@@ -22,6 +22,7 @@ import {
   MapPin,
 } from 'lucide-react';
 import { authAPI } from '../../../services/api';
+import toast from 'react-hot-toast';
 
 /* ─── helpers ─────────────────────────────────────────────────── */
 const roleBadge = (role) => {
@@ -77,9 +78,12 @@ const UserDetailPage = () => {
     setLoading(true);
     try {
       const res = await authAPI.adminApproveUser(user.id);
-      if (res.success) setUser((u) => ({ ...u, registrationStatus: 'APPROVED', isActive: true }));
-      else alert(res.message || 'Failed to approve');
-    } catch { alert('Failed to approve user.'); }
+      if (res.success) {
+        setUser((u) => ({ ...u, registrationStatus: 'APPROVED', isActive: true }));
+        toast.success('User approved successfully!');
+      }
+      else toast.error(res.message || 'Failed to approve');
+    } catch { toast.error('Failed to approve user.'); }
     finally { setLoading(false); }
   };
 
@@ -88,9 +92,12 @@ const UserDetailPage = () => {
     setLoading(true);
     try {
       const res = await authAPI.adminRejectUser(user.id);
-      if (res.success) setUser((u) => ({ ...u, registrationStatus: 'REJECTED', isActive: false }));
-      else alert(res.message || 'Failed to reject');
-    } catch { alert('Failed to reject user.'); }
+      if (res.success) {
+        setUser((u) => ({ ...u, registrationStatus: 'REJECTED', isActive: false }));
+        toast.success('User rejected successfully!');
+      }
+      else toast.error(res.message || 'Failed to reject');
+    } catch { toast.error('Failed to reject user.'); }
     finally { setLoading(false); }
   };
 
@@ -100,9 +107,12 @@ const UserDetailPage = () => {
     setLoading(true);
     try {
       const res = await authAPI.adminUpdateStatus(user.id, !user.isActive);
-      if (res.success) setUser((u) => ({ ...u, isActive: !u.isActive }));
-      else alert(res.message || 'Failed to update');
-    } catch { alert('Failed to update status.'); }
+      if (res.success) {
+        setUser((u) => ({ ...u, isActive: !u.isActive }));
+        toast.success(`User ${!user.isActive ? 'activated' : 'deactivated'} successfully!`);
+      }
+      else toast.error(res.message || 'Failed to update');
+    } catch { toast.error('Failed to update status.'); }
     finally { setLoading(false); }
   };
 
