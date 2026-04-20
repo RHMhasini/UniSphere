@@ -81,6 +81,9 @@ export default function MeetingRooms() {
             </button>
           )}
         </div>
+        <button type="button" className="mr-page__book-btn">
+          Book Resource
+        </button>
       </div>
 
       <div className="mr-content">
