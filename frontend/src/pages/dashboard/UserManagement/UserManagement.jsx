@@ -3,6 +3,7 @@ import { authAPI } from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
 import { Loader2, AlertTriangle, Users, CheckCircle, XCircle, ShieldOff, ShieldCheck, Download, Search, Filter, BarChart4 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -71,12 +72,13 @@ const UserManagement = () => {
         const response = await authAPI.adminUpdateStatus(userId, newStatus);
         if (response.success) {
           setUsers(users.map((u) => (u.id === userId ? { ...u, isActive: newStatus } : u)));
+          toast.success(`User ${label}d successfully!`);
         } else {
-          alert('Failed to update status: ' + response.message);
+          toast.error('Failed to update status: ' + response.message);
         }
       } catch (err) {
         console.error('Error toggling status:', err);
-        alert('Failed to update status.');
+        toast.error('Failed to update status.');
       }
     }
   };
@@ -87,13 +89,13 @@ const UserManagement = () => {
         const response = await authAPI.adminApproveUser(userId);
         if (response.success) {
           setUsers(users.map((u) => (u.id === userId ? { ...u, registrationStatus: 'APPROVED' } : u)));
-          alert('User approved successfully!');
+          toast.success('User approved successfully!');
         } else {
-          alert('Failed to approve user: ' + response.message);
+          toast.error('Failed to approve user: ' + response.message);
         }
       } catch (err) {
         console.error('Error approving user:', err);
-        alert('Failed to approve user.');
+        toast.error('Failed to approve user.');
       }
     }
   };
@@ -104,13 +106,13 @@ const UserManagement = () => {
         const response = await authAPI.adminRejectUser(userId);
         if (response.success) {
           setUsers(users.map((u) => (u.id === userId ? { ...u, registrationStatus: 'REJECTED' } : u)));
-          alert('User rejected successfully!');
+          toast.success('User rejected successfully!');
         } else {
-          alert('Failed to reject user: ' + response.message);
+          toast.error('Failed to reject user: ' + response.message);
         }
       } catch (err) {
         console.error('Error rejecting user:', err);
-        alert('Failed to reject user.');
+        toast.error('Failed to reject user.');
       }
     }
   };
@@ -121,13 +123,13 @@ const UserManagement = () => {
         const response = await authAPI.adminDeleteUser(userId);
         if (response.success) {
           setUsers(users.filter((u) => u.id !== userId));
-          alert('User deleted successfully!');
+          toast.success('User deleted successfully!');
         } else {
-          alert('Failed to delete user: ' + response.message);
+          toast.error('Failed to delete user: ' + response.message);
         }
       } catch (err) {
         console.error('Error deleting user:', err);
-        alert('Failed to delete user.');
+        toast.error('Failed to delete user.');
       }
     }
   };
@@ -164,6 +166,8 @@ const UserManagement = () => {
 
   const filteredAndSortedUsers = [...users]
     .filter((u) => {
+      if (u.id === adminUser?.id) return false; // Hide the currently logged-in Admin
+      
       const q = searchQuery.toLowerCase();
       const matchesSearch = (u.fullName || '').toLowerCase().includes(q) ||
                             (u.email || '').toLowerCase().includes(q) ||
