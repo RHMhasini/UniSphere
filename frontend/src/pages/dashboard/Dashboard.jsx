@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from '../../components/dashboard/Sidebar/Sidebar';
 import DashboardNavbar from '../../components/dashboard/Navbar/DashboardNavbar';
 
-const Dashboard = () => {
+const Dashboard = ({ theme, toggleTheme }) => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
@@ -23,7 +23,7 @@ const Dashboard = () => {
       />
 
       <div className="flex min-w-0 flex-1 flex-col lg:pl-0">
-        <DashboardNavbar onOpenMobileNav={() => setMobileNavOpen(true)} />
+        <DashboardNavbar onOpenMobileNav={() => setMobileNavOpen(true)} theme={theme} toggleTheme={toggleTheme} />
         <main className="flex-1 overflow-auto p-6 lg:p-8">
           <Outlet />
         </main>

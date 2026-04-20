@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Menu, ChevronDown, User, LogOut, Settings, Bell } from 'lucide-react';
+import { Menu, ChevronDown, User, LogOut, Settings, Bell, Sun, Moon } from 'lucide-react';
 import { notificationAPI } from '../../../services/api';
 
 /**
  * @param {{ onOpenMobileNav?: () => void }} props
  */
-const DashboardNavbar = ({ onOpenMobileNav }) => {
+const DashboardNavbar = ({ onOpenMobileNav, theme, toggleTheme }) => {
   const { user, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [bellOpen, setBellOpen] = useState(false);
@@ -146,6 +146,17 @@ const DashboardNavbar = ({ onOpenMobileNav }) => {
       </div>
 
       <div className="relative flex items-center gap-2">
+          {toggleTheme && (
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="inline-flex items-center justify-center rounded-lg p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            </button>
+          )}
+
           <div className="relative" ref={bellRef}>
             <button
               type="button"

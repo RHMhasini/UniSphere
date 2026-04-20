@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "./context/AuthContext";
 import LandingPage from "./pages/landingPage/LandingPage";
@@ -41,6 +42,7 @@ function App() {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <AuthProvider>
+        <Toaster position="top-right" reverseOrder={false} />
         <Router>
           <Routes>
             <Route path="/" element={<LandingPage theme={theme} toggleTheme={toggleTheme} />} />
@@ -68,7 +70,7 @@ function App() {
             {/* Protected Dashboard Routes */}
             <Route path="/dashboard" element={
               <ProtectedRoute>
-                <Dashboard />
+                <Dashboard theme={theme} toggleTheme={toggleTheme} />
               </ProtectedRoute>
             }>
               <Route index element={<DashboardHome />} />
