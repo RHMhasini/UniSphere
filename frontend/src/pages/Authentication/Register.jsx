@@ -9,7 +9,7 @@ import {
   CheckCircle2,
   MailWarning
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 const ROLES = [
   { id: 'STUDENT', label: 'Student', icon: <GraduationCap className="h-5 w-5" />, desc: 'Book labs & rooms, report faults, track your requests' },

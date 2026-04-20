@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { notificationAPI } from '../services/api';
+import { notificationAPI } from '../../services/api';
 import './Notifications.css';
 
 const Notifications = () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { Clock, ShieldCheck, Bell, LogOut } from 'lucide-react';
 
 const RegisterPending = () => {

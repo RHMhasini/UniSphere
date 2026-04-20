@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../context/AuthContext';
-import { authAPI } from '../services/api';
+import { useAuth } from '../../context/AuthContext';
+import { authAPI } from '../../services/api';
 import {
   STUDENT_FACULTIES,
   LECTURER_FACULTIES,
   TECHNICIAN_DEPARTMENTS,
-} from '../utils/dropdownData';
+} from '../../utils/dropdownData';
 import {
   Building2,
   ShieldCheck,
