@@ -81,14 +81,19 @@ const Analytics = () => {
   const metrics = useMemo(() => {
     if (!users.length) return null;
 
-    const total = users.length;
-    const active = users.filter(u => u.isActive).length;
+    // Filter out ADMINs so they are not counted in the analytics
+    const nonAdminUsers = users.filter(u => u.role !== 'ADMIN');
+
+    if (!nonAdminUsers.length) return null;
+
+    const total = nonAdminUsers.length;
+    const active = nonAdminUsers.filter(u => u.isActive).length;
     const inactive = total - active;
-    const pending = users.filter(u => u.registrationStatus === 'PENDING_APPROVAL').length;
+    const pending = nonAdminUsers.filter(u => u.registrationStatus === 'PENDING_APPROVAL').length;
     
     // Role Distribution (Exclude Admin for cleaner visualization of users)
     const roleStats = { STUDENT: 0, LECTURER: 0, TECHNICIAN: 0 };
-    users.forEach(u => {
+    nonAdminUsers.forEach(u => {
       if (roleStats[u.role] !== undefined) {
         roleStats[u.role]++;
       }
@@ -102,7 +107,7 @@ const Analytics = () => {
 
     // Status Distribution
     const statusStats = { APPROVED: 0, PENDING_APPROVAL: 0, PENDING_DETAILS: 0, REJECTED: 0 };
-    users.forEach(u => {
+    nonAdminUsers.forEach(u => {
       if (statusStats[u.registrationStatus] !== undefined) {
         statusStats[u.registrationStatus]++;
       }
@@ -125,7 +130,7 @@ const Analytics = () => {
       dailyRegistrations[format(d, 'MMM dd')] = 0;
     }
 
-    users.forEach(u => {
+    nonAdminUsers.forEach(u => {
       if (u.createdAt) {
         const date = parseISO(u.createdAt);
         if (isAfter(date, thirtyDaysAgo)) {
