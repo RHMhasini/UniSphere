@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Building2, ShieldCheck, Mail, Lock, Loader2 } from 'lucide-react';
+import { Building2, ShieldCheck, Mail, Lock, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { toast } from 'react-hot-toast';
 
 const Login = () => {
   const { login, googleLogin } = useAuth();
@@ -10,11 +11,11 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
-    rememberMe: false
+    password: ''
   });
 
   // Show error if redirected back from backend OAuth2 block
@@ -182,35 +183,35 @@ const Login = () => {
                     </div>
                     <input
                       name="password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       required
                       autoComplete="new-password"
                       value={formData.password}
                       onChange={handleChange}
-                      className="block w-full pl-10 pr-3 py-2.5 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400"
+                      className="block w-full pl-10 pr-10 py-2.5 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400"
                       placeholder="••••••••"
                     />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <input
-                    id="rememberMe"
-                    name="rememberMe"
-                    type="checkbox"
-                    checked={formData.rememberMe}
-                    onChange={handleChange}
-                    className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600 dark:border-slate-600 dark:bg-slate-800"
-                  />
-                  <label htmlFor="rememberMe" className="ml-2 block text-sm text-slate-700 dark:text-slate-300">
-                    Remember me
-                  </label>
-                </div>
-
+              <div className="flex items-center justify-end">
                 <div className="text-sm">
-                  <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
+                  <a 
+                    href="#" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toast("Please contact your System Administrator to reset your password.", { icon: '🔒' });
+                    }}
+                    className="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+                  >
                     Forgot password?
                   </a>
                 </div>

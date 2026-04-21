@@ -21,7 +21,9 @@ import {
   BookOpen,
   Calendar,
   BadgeCheck,
-  Mail
+  Mail,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 const ROLES = [
@@ -36,6 +38,8 @@ const RegisterDetails = () => {
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -655,7 +659,14 @@ const RegisterDetails = () => {
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
                     <div className="relative">
                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><ShieldCheck className="h-4 w-4 text-slate-400" /></span>
-                       <input type="password" name="password" autoComplete="new-password" required value={formData.password} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.password ? 'border-red-500' : ''}`} placeholder="••••••••" />
+                       <input type={showPassword ? "text" : "password"} name="password" autoComplete="new-password" required value={formData.password} onChange={handleChange} className={`w-full pl-10 pr-10 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.password ? 'border-red-500' : ''}`} placeholder="••••••••" />
+                       <button
+                         type="button"
+                         className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                         onClick={() => setShowPassword(!showPassword)}
+                       >
+                         {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                       </button>
                     </div>
                     {formErrors.password && <p className="text-xs text-red-500 mt-1">{formErrors.password}</p>}
                    </div>
@@ -663,7 +674,14 @@ const RegisterDetails = () => {
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Confirm Password</label>
                     <div className="relative">
                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><ShieldCheck className="h-4 w-4 text-slate-400" /></span>
-                       <input type="password" name="confirmPassword" autoComplete="new-password" required value={formData.confirmPassword} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.confirmPassword ? 'border-red-500' : ''}`} placeholder="••••••••" />
+                       <input type={showConfirmPassword ? "text" : "password"} name="confirmPassword" autoComplete="new-password" required value={formData.confirmPassword} onChange={handleChange} className={`w-full pl-10 pr-10 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.confirmPassword ? 'border-red-500' : ''}`} placeholder="••••••••" />
+                       <button
+                         type="button"
+                         className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                       >
+                         {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                       </button>
                     </div>
                     {formErrors.confirmPassword && <p className="text-xs text-red-500 mt-1">{formErrors.confirmPassword}</p>}
                    </div>
