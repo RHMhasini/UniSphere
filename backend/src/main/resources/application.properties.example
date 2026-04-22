@@ -5,20 +5,20 @@ server.port=8081
 server.servlet.context-path=/api
 
 # Database Configuration (MongoDB Atlas)
-spring.data.mongodb.uri=${MONGODB_URI}
+# Copy this file to application.properties and fill in your actual values
+spring.data.mongodb.uri=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/SmartCampusDB?retryWrites=true&w=majority
 spring.data.mongodb.database=SmartCampusDB
 
 # OAuth2 Configuration (Google)
-spring.security.oauth2.client.registration.google.client-id=625444495391-kea4ugn1uhhn8m78c3o6ptjujk42bi8e.apps.googleusercontent.com
-spring.security.oauth2.client.registration.google.client-secret=${GOOGLE_CLIENT_SECRET}
+spring.security.oauth2.client.registration.google.client-id=YOUR_GOOGLE_CLIENT_ID
+spring.security.oauth2.client.registration.google.client-secret=YOUR_GOOGLE_CLIENT_SECRET
 spring.security.oauth2.client.registration.google.scope=profile,email
-# Redirect URI: http://localhost:8081/api/login/oauth2/code/google
 spring.security.oauth2.client.registration.google.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}
 
 # JWT Configuration
-app.jwt.secret=${JWT_SECRET:mySuperSecretKeyForJWTTokenGenerationAndValidationInDevelopmentOnlyChangeInProduction}
-app.jwt.expiration=${JWT_EXPIRATION:86400000}
-app.jwt.refresh-token-expiration=${JWT_REFRESH_EXPIRATION:604800000}
+app.jwt.secret=YOUR_JWT_SECRET_KEY_MIN_32_CHARS
+app.jwt.expiration=86400000
+app.jwt.refresh-token-expiration=604800000
 
 # File Upload Configuration
 app.file.upload-dir=uploads/

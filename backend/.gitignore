@@ -38,6 +38,7 @@ uploads/
 .env.local
 .env.*.local
 application-local.properties
+application.properties
 
 # Database
 *.sql
