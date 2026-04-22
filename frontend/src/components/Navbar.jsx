@@ -1,9 +1,16 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
   const { user, toggleRole } = useAuth();
   const navigate = useNavigate();
+
+  const getLinkClass = ({ isActive }) => 
+    `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+      isActive 
+        ? "bg-indigo-700 text-white shadow-inner" 
+        : "hover:bg-indigo-500 text-indigo-100"
+    }`;
 
   return (
     <nav className="bg-indigo-600 shadow-lg text-white">
@@ -14,10 +21,10 @@ const Navbar = () => {
               UniSphere Bookings
             </Link>
             <div className="hidden md:flex space-x-4">
-              <Link to="/booking/create?resourceId=res_123" className="hover:bg-indigo-500 px-3 py-2 rounded-md text-sm font-medium">Create Booking</Link>
-              <Link to="/my-bookings" className="hover:bg-indigo-500 px-3 py-2 rounded-md text-sm font-medium">My Bookings</Link>
+              <NavLink to="/booking/create?resourceId=res_123" className={getLinkClass}>Create Booking</NavLink>
+              <NavLink to="/my-bookings" className={getLinkClass}>My Bookings</NavLink>
               {user.role === 'ADMIN' && (
-                <Link to="/admin/bookings" className="hover:bg-indigo-500 px-3 py-2 rounded-md text-sm font-medium bg-indigo-700">All Bookings (Admin)</Link>
+                <NavLink to="/admin/bookings" className={getLinkClass}>All Bookings (Admin)</NavLink>
               )}
             </div>
           </div>

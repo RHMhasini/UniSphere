@@ -84,8 +84,55 @@ const AdminBookingsPage = () => {
     }
   };
 
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleExportData = () => {
+    if (bookings.length === 0) {
+      alert("No data available to export.");
+      return;
+    }
+
+    const headers = ["ID", "User", "Resource", "Start Time", "End Time", "Status", "Purpose"];
+    const csvRows = [
+      headers.join(","),
+      ...bookings.map(b => [
+        b.id,
+        b.userName || b.userId || "Unknown",
+        b.resourceName,
+        b.startTime,
+        b.endTime,
+        b.status,
+        `"${(b.purpose || "").replace(/"/g, '""')}"`
+      ].join(","))
+    ];
+
+    const blob = new Blob([csvRows.join("\n")], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.setAttribute("hidden", "");
+    a.setAttribute("href", url);
+    a.setAttribute("download", `bookings_export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const handleAdvancedFilters = () => {
+    setShowFilters(!showFilters);
+  };
+
   const tabs = ["ALL BOOKINGS", "PENDING", "APPROVED", "REJECTED", "CANCELLED"];
-  const filteredBookings = filter === "ALL BOOKINGS" ? bookings : bookings.filter(b => b.status === filter);
+  
+  // Apply both Status Tab filter and Search Term filter
+  const filteredBookings = bookings.filter(b => {
+    const matchesStatus = filter === "ALL BOOKINGS" || b.status === filter;
+    const matchesSearch = 
+      (b.userName?.toLowerCase() || "").includes(searchTerm.toLowerCase()) || 
+      (b.resourceName?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (b.purpose?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
 
   if (loading) return <div className="p-12 text-center text-[#64748b]">Loading admin data...</div>;
 
@@ -104,16 +151,45 @@ const AdminBookingsPage = () => {
             </p>
           </div>
           <div className="ab-header-actions">
-            <button className="ab-btn-ghost">
+            <button onClick={handleExportData} className="ab-btn-ghost">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Export Data
+              Export CSV
             </button>
-            <button className="ab-btn-ghost">
+            <button onClick={handleAdvancedFilters} className={`ab-btn-ghost ${showFilters ? 'bg-gray-100' : ''}`}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-              Advanced Filters
+              {showFilters ? 'Hide Filters' : 'Advanced Filters'}
             </button>
           </div>
         </div>
+
+        {/* Advanced Filter Panel (Search) */}
+        {showFilters && (
+          <div className="mb-6 p-4 bg-white border border-gray-100 rounded-xl shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Search Bookings</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                  </span>
+                  <input 
+                    type="text" 
+                    placeholder="Search by student name, resource, or purpose..." 
+                    className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2ac88c] focus:border-transparent transition-all"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </div>
+              <button 
+                onClick={() => {setSearchTerm(""); setShowFilters(false);}}
+                className="mt-5 text-sm text-gray-400 hover:text-gray-600 font-medium"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Metric Cards Row */}
         <div className="ab-metric-row">
@@ -193,7 +269,7 @@ const AdminBookingsPage = () => {
                     <div className="ab-col-requester">
                       <div className="ab-avatar">{initials}</div>
                       <div>
-                        <div className="ab-requester-name">{booking.userName || 'Unknown User'}</div>
+                        <div className="ab-requester-name">{booking.userName || booking.userId || 'Guest User'}</div>
                         <div className="ab-requester-desc">{booking.purpose || 'General Use'}</div>
                       </div>
                     </div>

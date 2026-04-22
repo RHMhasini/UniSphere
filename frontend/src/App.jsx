@@ -13,6 +13,7 @@ import AdminBookingsPage from './pages/bookingPages/AdminBookingsPage';
 import BookingPoliciesPage from './pages/bookingPages/BookingPoliciesPage';
 import SupportCenterPage from './pages/bookingPages/SupportCenterPage';
 import UsageInsightsPage from './pages/bookingPages/UsageInsightsPage';
+import Footer from "./components/common/Footer/Footer";
 
 import "./index.css";
 
@@ -86,6 +87,7 @@ function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
+          <Footer />
         </div>
       </Router>
     </AuthProvider>
