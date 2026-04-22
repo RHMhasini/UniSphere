@@ -20,6 +20,8 @@ const StatusBadge = ({ status }) => {
 const MyBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [cancelBookingId, setCancelBookingId] = useState(null);
+  const [cancelReason, setCancelReason] = useState("");
 
   useEffect(() => {
     fetchBookings();
@@ -36,16 +38,32 @@ const MyBookingsPage = () => {
     }
   };
 
-  const handleCancel = async (id) => {
-    if (window.confirm('Are you sure you want to cancel this booking?')) {
-      try {
-        await cancelBooking(id);
-        fetchBookings();
-      } catch (error) {
-        alert(error.response?.data?.message || 'Failed to cancel booking');
-      }
+  const handleCancelClick = (id) => {
+    setCancelBookingId(id);
+  };
+
+  const confirmCancel = async () => {
+    if (!cancelReason) {
+      alert("Please select a reason for cancellation.");
+      return;
+    }
+    try {
+      await cancelBooking(cancelBookingId);
+      setCancelBookingId(null);
+      setCancelReason("");
+      fetchBookings();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to cancel booking');
     }
   };
+
+  const isToday = (dateString) => {
+    const today = new Date();
+    const d = new Date(dateString);
+    return today.toDateString() === d.toDateString();
+  };
+
+  const todayBooking = bookings.find(b => isToday(b.startTime) && b.status === "APPROVED");
 
   if (loading) return <div className="p-12 text-center text-[#64748b]">Loading bookings...</div>;
 
@@ -53,6 +71,26 @@ const MyBookingsPage = () => {
     <div className="mb-container">
       <main className="mb-main">
         
+        {/* Today's Reminder Alert */}
+        {todayBooking && (
+          <div className="mb-8 p-4 bg-[#f8fafc] border border-indigo-100 rounded-2xl flex items-center justify-between shadow-sm animate-pulse border-l-4 border-l-[#2563eb]">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white text-xl">
+                ⏰
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-[#1e293b]">You have a booking TODAY!</h4>
+                <p className="text-[11px] text-[#64748b] font-medium">
+                  {todayBooking.resourceName} — {new Date(todayBooking.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(todayBooking.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </p>
+              </div>
+            </div>
+            <Link to={`/bookings/${todayBooking.id}`} className="text-[10px] font-bold text-[#2563eb] uppercase tracking-wider hover:underline">
+              View Details →
+            </Link>
+          </div>
+        )}
+
         {/* Header Section */}
         <div className="mb-header-wrapper">
           <div>
@@ -161,7 +199,7 @@ const MyBookingsPage = () => {
                 {/* Actions */}
                 <div className="col-span-1 w-full flex justify-end">
                   {booking.status === "APPROVED" ? (
-                    <button onClick={() => handleCancel(booking.id)} className="mb-action-cancel">
+                    <button onClick={() => handleCancelClick(booking.id)} className="mb-action-cancel">
                       Cancel
                     </button>
                   ) : booking.status === "REJECTED" ? (
@@ -221,6 +259,47 @@ const MyBookingsPage = () => {
              <span className="text-xl leading-none mt-[-2px]">+</span> Create New Booking
            </Link>
         </div>
+
+        {/* Cancellation Reason Modal */}
+        {cancelBookingId && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+            <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in duration-300">
+              <h3 className="text-xl font-bold text-[#1e293b] mb-2">Why are you cancelling?</h3>
+              <p className="text-sm text-[#64748b] mb-6">Your feedback helps us optimize campus resource allocation.</p>
+              
+              <div className="space-y-3 mb-8">
+                {["Change of plans", "Wrong time selected", "Resource not needed", "Other"].map(reason => (
+                  <button 
+                    key={reason}
+                    onClick={() => setCancelReason(reason)}
+                    className={`w-full p-4 rounded-xl border text-left text-sm font-medium transition-all ${
+                      cancelReason === reason 
+                        ? "border-[#2563eb] bg-[#eff6ff] text-[#2563eb]" 
+                        : "border-gray-100 hover:bg-gray-50 text-[#64748b]"
+                    }`}
+                  >
+                    {reason}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => {setCancelBookingId(null); setCancelReason("");}}
+                  className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-[#4a5568] text-sm font-bold rounded-xl transition-colors"
+                >
+                  Keep Booking
+                </button>
+                <button 
+                  onClick={confirmCancel}
+                  className="flex-1 py-3 bg-[#dc2626] hover:bg-[#b91c1c] text-white text-sm font-bold rounded-xl shadow-lg transition-colors"
+                >
+                  Confirm Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       </main>
     </div>

@@ -290,6 +290,48 @@
   @apply text-[10px] font-medium text-[#64748b];
 }
 
-.ab-logs-link {
-  @apply mt-8 text-[11px] font-bold text-[#64748b] tracking-wider uppercase hover:text-[#0d1117] flex items-center gap-1;
+.ab-analytics-grid {
+  @apply grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8;
+}
+
+.ab-chart-card {
+  @apply bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col;
+}
+
+.ab-chart-title {
+  @apply text-sm font-bold text-[#1e293b] mb-1;
+}
+
+.ab-chart-subtitle {
+  @apply text-[11px] text-[#64748b] mb-4;
+}
+
+.ab-chart-container {
+  @apply mt-auto pt-4 flex flex-col items-center;
+}
+
+.ab-chart-labels {
+  @apply flex justify-between w-full mt-2 px-1;
+}
+
+.ab-chart-bars {
+  @apply space-y-5 mt-2;
+}
+
+.ab-bar-row {
+  @apply w-full;
+}
+
+.ab-chart-card svg {
+  @apply block;
+}
+
+/* Animation for donut chart and bars */
+@keyframes dash {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
 }

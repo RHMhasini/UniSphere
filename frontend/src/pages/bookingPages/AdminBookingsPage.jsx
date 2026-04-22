@@ -86,6 +86,8 @@ const AdminBookingsPage = () => {
 
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
   const handleExportData = () => {
     if (bookings.length === 0) {
@@ -124,14 +126,19 @@ const AdminBookingsPage = () => {
 
   const tabs = ["ALL BOOKINGS", "PENDING", "APPROVED", "REJECTED", "CANCELLED"];
   
-  // Apply both Status Tab filter and Search Term filter
+  // Apply Status Tab, Search Term, and Date Range filters
   const filteredBookings = bookings.filter(b => {
     const matchesStatus = filter === "ALL BOOKINGS" || b.status === filter;
     const matchesSearch = 
       (b.userName?.toLowerCase() || "").includes(searchTerm.toLowerCase()) || 
       (b.resourceName?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
       (b.purpose?.toLowerCase() || "").includes(searchTerm.toLowerCase());
-    return matchesStatus && matchesSearch;
+    
+    const bookingDate = new Date(b.startTime).toISOString().split('T')[0];
+    const matchesFrom = !fromDate || bookingDate >= fromDate;
+    const matchesTo = !toDate || bookingDate <= toDate;
+
+    return matchesStatus && matchesSearch && matchesFrom && matchesTo;
   });
 
   if (loading) return <div className="p-12 text-center text-[#64748b]">Loading admin data...</div>;
@@ -181,11 +188,32 @@ const AdminBookingsPage = () => {
                   />
                 </div>
               </div>
+
+              <div className="w-1/4">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">From Date</label>
+                <input 
+                  type="date" 
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2ac88c] transition-all"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                />
+              </div>
+
+              <div className="w-1/4">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">To Date</label>
+                <input 
+                  type="date" 
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2ac88c] transition-all"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                />
+              </div>
+
               <button 
-                onClick={() => {setSearchTerm(""); setShowFilters(false);}}
-                className="mt-5 text-sm text-gray-400 hover:text-gray-600 font-medium"
+                onClick={() => {setSearchTerm(""); setFromDate(""); setToDate(""); setShowFilters(false);}}
+                className="mt-5 text-sm text-gray-400 hover:text-gray-600 font-medium whitespace-nowrap"
               >
-                Clear
+                Clear All
               </button>
             </div>
           </div>
@@ -340,55 +368,72 @@ const AdminBookingsPage = () => {
 
         </div>
 
-        {/* Bottom Intel Cards */}
-        <div className="ab-bottom-grid">
+        {/* Analytics Dashboard */}
+        <div className="ab-analytics-grid">
           
-          <div className="ab-insight-card" style={{ background: "linear-gradient(135deg, #2b3245 0%, #3e475f 100%)" }}>
-             <h3 className="ab-insight-title">Operational Efficiency Insight</h3>
-             <p className="ab-insight-desc">
-               Your facility utilization is up 14% this month. Bio-Core Lab B2 is reaching peak capacity on Tuesday mornings.
-             </p>
-             
-             <div className="ab-insight-metrics-grid">
-               <div className="ab-insight-metric-box">
-                 <p className="ab-insight-metric-label">Most Popular Space</p>
-                 <h4 className="ab-insight-metric-value">Innovation Center</h4>
-               </div>
-               <div className="ab-insight-metric-box">
-                 <p className="ab-insight-metric-label">Avg. Response Time</p>
-                 <h4 className="ab-insight-metric-value">4.2 Hours</h4>
-               </div>
-             </div>
+          {/* Chart 1: Daily Demand (Line Chart) */}
+          <div className="ab-chart-card">
+            <h3 className="ab-chart-title">Demand Velocity</h3>
+            <p className="ab-chart-subtitle">Daily reservation volume (Last 7 Days)</p>
+            <div className="ab-chart-container">
+              <svg width="100%" height="80" viewBox="0 0 400 80" className="overflow-visible">
+                <defs>
+                  <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#2ac88c" stopOpacity="0.3" />
+                    <stop offset="100%" stopColor="#2ac88c" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                <path d="M0,70 Q50,40 100,55 T200,30 T300,45 T400,10 L400,80 L0,80 Z" fill="url(#lineGrad)" />
+                <path d="M0,70 Q50,40 100,55 T200,30 T300,45 T400,10" fill="none" stroke="#2ac88c" strokeWidth="2.5" strokeLinecap="round" />
+                {[0, 100, 200, 300, 400].map(x => (
+                  <circle key={x} cx={x} cy={x === 200 ? 30 : x === 400 ? 10 : 60} r="3" fill="#2ac88c" stroke="white" strokeWidth="1.5" />
+                ))}
+              </svg>
+              <div className="ab-chart-labels">
+                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map(day => (
+                  <span key={day} className="text-[9px] text-gray-400 font-bold uppercase">{day}</span>
+                ))}
+              </div>
+            </div>
           </div>
 
-          <div className="ab-logs-card">
-            <h3 className="ab-logs-title">Recent System Logs</h3>
-            <ul className="ab-logs-list">
-              <li className="ab-log-item">
-                <span className="ab-log-dot-green"></span>
-                <div>
-                  <p className="ab-log-title">Auto-approved 5 recurring lab bookings</p>
-                  <p className="ab-log-desc">System • 12 mins ago</p>
+          {/* Chart 2: Resource Mix (Bar Chart) */}
+          <div className="ab-chart-card">
+            <h3 className="ab-chart-title">Resource Utilization</h3>
+            <p className="ab-chart-subtitle">Most active facilities this month</p>
+            <div className="ab-chart-bars">
+              {[
+                { n: 'Main Hall', p: 88, c: '#1e293b' },
+                { n: 'Innovation Lab', p: 65, c: '#2ac88c' },
+                { n: 'Physics Lab', p: 40, c: '#48536f' }
+              ].map(res => (
+                <div key={res.n} className="ab-bar-row">
+                  <div className="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-tight">
+                    <span className="text-gray-600">{res.n}</span>
+                    <span className="text-gray-400">{res.p}%</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-gray-50 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${res.p}%`, backgroundColor: res.c }}></div>
+                  </div>
                 </div>
-              </li>
-              <li className="ab-log-item">
-                <span className="ab-log-dot-red"></span>
-                <div>
-                  <p className="ab-log-title">Smart Lock offline: Wing C Corridor</p>
-                  <p className="ab-log-desc">Hardware • 45 mins ago</p>
-                </div>
-              </li>
-              <li className="ab-log-item">
-                <span className="ab-log-dot-blue"></span>
-                <div>
-                  <p className="ab-log-title">New booking request: Auditorium</p>
-                  <p className="ab-log-desc">Staff Portal • 1 hour ago</p>
-                </div>
-              </li>
-            </ul>
-            <button className="ab-logs-link">
-              View All System Audits <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Chart 3: Approval Confidence (Gauge) */}
+          <div className="ab-chart-card flex flex-col items-center">
+            <h3 className="ab-chart-title w-full">System Trust Score</h3>
+            <p className="ab-chart-subtitle w-full">Request Approval Performance</p>
+            <div className="relative w-32 h-32 mt-2">
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                <circle cx="18" cy="18" r="16" fill="none" stroke="#f1f5f9" strokeWidth="3.5" />
+                <circle cx="18" cy="18" r="16" fill="none" stroke="#2ac88c" strokeWidth="3.5" strokeDasharray="85, 100" strokeLinecap="round" />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-xl font-bold text-[#1e293b]">92%</span>
+                <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Efficiency</span>
+              </div>
+            </div>
           </div>
 
         </div>

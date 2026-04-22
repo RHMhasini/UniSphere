@@ -1,6 +1,4 @@
-import { useState, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { createBooking, getResourceById } from "../../services/bookingService";
+import { createBooking, getResourceById, getAllBookings } from "../../services/bookingService";
 import "../../styles/bookingPagesCSS/CreateBookingPage.css";
 
 const CreateBookingPage = () => {
@@ -22,6 +20,7 @@ const CreateBookingPage = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState(null);
+  const [conflict, setConflict] = useState(null);
 
   useEffect(() => {
     const fetchResource = async () => {
@@ -39,6 +38,46 @@ const CreateBookingPage = () => {
 
     fetchResource();
   }, [resourceId]);
+
+  // Conflict Checking Logic
+  useEffect(() => {
+    const checkConflicts = async () => {
+      if (!formData.date || !formData.startTime || !formData.endTime) {
+        setConflict(null);
+        return;
+      }
+
+      try {
+        const all = await getAllBookings();
+        const start = new Date(`${formData.date}T${formData.startTime}:00`);
+        const end = new Date(`${formData.date}T${formData.endTime}:00`);
+
+        const overlapping = all.find(b => {
+          if (b.resourceId !== formData.resourceId) return false;
+          if (b.status === 'REJECTED' || b.status === 'CANCELLED') return false;
+          
+          const bStart = new Date(b.startTime);
+          const bEnd = new Date(b.endTime);
+          
+          return (start < bEnd && end > bStart);
+        });
+
+        if (overlapping) {
+          setConflict({
+            start: new Date(overlapping.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            end: new Date(overlapping.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          });
+        } else {
+          setConflict(null);
+        }
+      } catch (err) {
+        console.error("Conflict check failed:", err);
+      }
+    };
+
+    const timer = setTimeout(checkConflicts, 500); // Debounce
+    return () => clearTimeout(timer);
+  }, [formData.date, formData.startTime, formData.endTime, formData.resourceId]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -104,6 +143,16 @@ const CreateBookingPage = () => {
         {error && (
           <div className="cb-alert-error">
              {error}
+          </div>
+        )}
+
+        {conflict && (
+          <div className="cb-alert-warning mb-6 p-4 bg-[#fff7ed] border border-[#ffedd5] rounded-xl flex items-center gap-4 text-[#9a3412] animate-in fade-in slide-in-from-top-1 duration-300">
+            <div className="flex-shrink-0 w-8 h-8 bg-[#fb923c] text-white rounded-full flex items-center justify-center font-bold">!</div>
+            <div className="flex-1">
+              <h4 className="text-sm font-bold">Booking Conflict Detected</h4>
+              <p className="text-[11px] font-medium opacity-80">This resource is already reserved from {conflict.start} to {conflict.end} on this date. Please select a different time slot.</p>
+            </div>
           </div>
         )}
 
