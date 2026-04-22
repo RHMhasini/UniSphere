@@ -169,12 +169,12 @@ const Sidebar = ({ mobileOpen = false, onCloseMobile }) => {
                 </li>
                 <li>
                   <NavLink
-                    to="/dashboard/tickets"
+                    to="/dashboard/mytickets"
                     className={navCls}
                     onClick={closeIfMobile}
                   >
                     <Wrench className="h-5 w-5 shrink-0 opacity-80" />
-                    Maintenance & Tickets
+                    My Tickets
                   </NavLink>
                 </li>
                 <li>
@@ -214,12 +214,12 @@ const Sidebar = ({ mobileOpen = false, onCloseMobile }) => {
                 </li>
                 <li>
                   <NavLink
-                    to="/dashboard/tickets"
+                    to="/dashboard/mytickets"
                     className={navCls}
                     onClick={closeIfMobile}
                   >
                     <Wrench className="h-5 w-5 shrink-0 opacity-80" />
-                    Maintenance & Tickets
+                    My Tickets
                   </NavLink>
                 </li>
                 <li>
