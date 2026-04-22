@@ -1,0 +1,41 @@
+spring.application.name=smart-campus-api
+
+# Server Configuration
+server.port=8081
+server.servlet.context-path=/api
+
+# Database Configuration (MongoDB Atlas)
+# Copy this file to application.properties and fill in your actual values
+spring.data.mongodb.uri=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/SmartCampusDB?retryWrites=true&w=majority
+spring.data.mongodb.database=SmartCampusDB
+
+# OAuth2 Configuration (Google)
+spring.security.oauth2.client.registration.google.client-id=YOUR_GOOGLE_CLIENT_ID
+spring.security.oauth2.client.registration.google.client-secret=YOUR_GOOGLE_CLIENT_SECRET
+spring.security.oauth2.client.registration.google.scope=profile,email
+spring.security.oauth2.client.registration.google.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}
+
+# JWT Configuration
+app.jwt.secret=YOUR_JWT_SECRET_KEY_MIN_32_CHARS
+app.jwt.expiration=86400000
+app.jwt.refresh-token-expiration=604800000
+
+# File Upload Configuration
+app.file.upload-dir=uploads/
+app.file.max-size=5242880
+app.file.allowed-types=image/jpeg,image/png,image/gif,image/webp
+
+# Logging
+logging.level.root=INFO
+logging.level.com.unisphere=DEBUG
+logging.level.org.springframework.security=DEBUG
+logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} - %msg%n
+
+# Jackson Configuration
+spring.jackson.serialization.write-dates-as-timestamps=false
+spring.jackson.time-zone=UTC
+spring.jackson.default-property-inclusion=non_null
+
+# Actuator Configuration
+management.endpoints.web.exposure.include=health,info,metrics
+management.endpoint.health.show-details=when-authorized
