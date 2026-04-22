@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { authAPI } from '../../services/api';
+import toast from 'react-hot-toast';
 import {
   STUDENT_FACULTIES,
   LECTURER_FACULTIES,
@@ -262,6 +263,7 @@ const RegisterDetails = () => {
       await fetchCurrentUser();
       
       if (formData.role === 'STUDENT') {
+        toast.success('Registration successful! Welcome to UniSphere 🎉');
         navigate('/dashboard');
       } else {
         navigate('/register/pending');
