@@ -121,6 +121,15 @@ public class AuthServiceImpl implements AuthService {
             log.error("Failed to notify admins about new registration: {}", e.getMessage());
         }
 
+        // Notify the student of successful registration
+        if (savedUser.getRole() == UserRole.STUDENT) {
+            try {
+                notificationService.notifyUserRegistrationSuccess(savedUser);
+            } catch (Exception e) {
+                log.error("Failed to send registration success notification to student: {}", e.getMessage());
+            }
+        }
+
         String accessToken = jwtTokenProvider.generateAccessToken(savedUser.getEmail(), savedUser.getId(), savedUser.getRole().name());
         String refreshToken = jwtTokenProvider.generateRefreshToken(savedUser.getEmail(), savedUser.getId(), savedUser.getRole().name());
 
@@ -247,10 +256,20 @@ public class AuthServiceImpl implements AuthService {
         user = userRepository.save(user);
         log.info("Additional details submitted for user: {}", email);
 
+        // Notify admins regarding new registration
         try {
             notificationService.notifyAdminsNewRegistration(user);
         } catch (Exception e) {
             log.error("Failed to notify admins about new registration: {}", e.getMessage());
+        }
+
+        // Notify the student of successful registration
+        if (user.getRole() == UserRole.STUDENT) {
+            try {
+                notificationService.notifyUserRegistrationSuccess(user);
+            } catch (Exception e) {
+                log.error("Failed to send registration success notification to student: {}", e.getMessage());
+            }
         }
 
         return mapToUserProfileResponse(user);

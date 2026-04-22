@@ -39,11 +39,19 @@ public class NotificationServiceImpl implements NotificationService {
             log.warn("No ADMIN users found; skipping registration notifications for {}", applicant.getEmail());
             return;
         }
-        String message = String.format(
-                "New registration pending: %s (%s) — role %s",
-                applicant.getFullName(),
-                applicant.getEmail(),
-                applicant.getRole());
+        String message;
+        if (applicant.getRole() == UserRole.STUDENT) {
+            message = String.format(
+                    "New student registered: %s (%s). Open user management →",
+                    applicant.getFullName(),
+                    applicant.getEmail());
+        } else {
+            message = String.format(
+                    "New registration pending: %s (%s) — role %s. Open user management →",
+                    applicant.getFullName(),
+                    applicant.getEmail(),
+                    applicant.getRole());
+        }
         for (User admin : admins) {
             Map<String, Boolean> prefs = admin.getNotificationPreferences();
             if (prefs != null && prefs.containsKey("ADMIN_ALERTS") && !prefs.get("ADMIN_ALERTS")) {
@@ -89,6 +97,18 @@ public class NotificationServiceImpl implements NotificationService {
         n.setIsRead(false);
         notificationRepository.save(n);
         log.info("Rejection notification created for {}", user.getEmail());
+    }
+
+    @Override
+    public void notifyUserRegistrationSuccess(User user) {
+        // Send a welcome notification to the student upon successful registration
+        Notification n = new Notification();
+        n.setUserId(user.getId());
+        n.setMessage(String.format("Welcome to UniSphere, %s! Your registration is complete. You can now book labs and report faults.", user.getFirstName()));
+        n.setType("ACCOUNT_STATUS");
+        n.setIsRead(false);
+        notificationRepository.save(n);
+        log.info("Registration success notification created for student: {}", user.getEmail());
     }
 
     @Override

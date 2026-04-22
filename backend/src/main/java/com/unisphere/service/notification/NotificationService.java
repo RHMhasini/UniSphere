@@ -15,6 +15,8 @@ public interface NotificationService {
 
     void notifyUserAccountRejected(User user);
 
+    void notifyUserRegistrationSuccess(User user);
+
     NotificationPageResponse getNotifications(String userEmail, int page, int size);
 
     List<NotificationResponse> getUnreadNotifications(String userEmail);
