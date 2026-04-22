@@ -514,9 +514,20 @@ const RegisterDetails = () => {
     <div className="dashboard-wrapper min-h-screen mesh-background py-10">
       <div className="flex justify-center px-4 sm:px-6 lg:px-8">
         
+        {/* === MAIN CARD CONTAINER === */}
+        {/* CSS Explanation: 
+            - max-w-4xl: Limits maximum width of the card 
+            - bg-white/40 (and dark:bg-slate-900/40): Transparent background color
+            - backdrop-blur-3xl: Creates the modern frosted Glassmorphism effect 
+            - rounded-2xl shadow-xl: Curves extreme corners and adds a large elegant shadow 
+        */}
         <div className="w-full max-w-4xl bg-white/40 dark:bg-slate-900/40 backdrop-blur-3xl rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row">
-           {/* Left Panel */}
+           
+           {/* === LEFT PANEL: Registration Info === */}
+           {/* CSS Explanation: bg-slate-900 (Dark background), hidden md:flex (Hides on mobile, shows on tablets/desktops) */}
           <div className="hidden md:flex md:w-[40%] bg-slate-900 px-8 py-12 flex-col justify-between text-white relative overflow-hidden">
+             
+             {/* Circular spotlight gradient effect behind text */}
              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_20%_0%,rgba(99,102,241,0.35),transparent)]" />
              <div className="relative z-10">
                 <div className="flex items-center gap-2">
@@ -569,14 +580,20 @@ const RegisterDetails = () => {
                 <span className="mt-1 text-xs text-slate-400 dark:text-slate-500">(Synced from your Google Account)</span>
               </div>
 
-               {/* Role Selection - FIRST so validation knows the role */}
+               {/* === SECTION 1: ROLE SELECTION === */}
               <div className="space-y-4">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-2">Select Your Role</h3>
+                
+                {/* CSS Explanation: grid-cols-1 md:grid-cols-3 (Shows roles in 1 column on mobile, 3 columns side-by-side on desktop) */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {ROLES.map((role) => {
                     const isLocked = enforcedRole && enforcedRole !== role.id;
                     const isSelected = formData.role === role.id;
                     
+                    // CSS for Role Boxes:
+                    // - isSelected ? 'border-indigo-600 bg-indigo-50/50' : Highlights the selected role box in purple
+                    // - hover:bg-slate-50: Light gray background when hovering over unselected roles 
+                    // - isLocked ? 'opacity-50 cursor-not-allowed': Fades out locked roles and changes mouse cursor 
                     return (
                     <div
                       key={role.id}
@@ -614,14 +631,23 @@ const RegisterDetails = () => {
                 </div>
               </div>
 
-              {/* Profile Basics */}
+              {/* === SECTION 2: BASIC INFO INPUTS === */}
               <div className="space-y-4">
                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-2">Basic Info</h3>
+                 
+                 {/* grid-cols-2 puts the inputs in two side-by-side columns on desktop */}
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   
                    <div className="space-y-1.5">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">First Name</label>
                     <div className="relative">
                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><User className="h-4 w-4 text-slate-400" /></span>
+                       
+                       {/* CSS for standard text inputs: 
+                           - pl-10: Left padding to make room for the icon
+                           - border rounded-lg: Standard border with specifically curved edges
+                           - focus:ring-indigo-500: Turns border thick purple on click 
+                       */}
                        <input type="text" name="firstName" required value={formData.firstName} onChange={handleChange} className={`w-full pl-10 pr-4 py-2 border rounded-lg hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${formErrors.firstName ? 'border-red-500' : ''}`} placeholder="John" />
                     </div>
                     {formErrors.firstName && <p className="text-xs text-red-500 mt-1">{formErrors.firstName}</p>}

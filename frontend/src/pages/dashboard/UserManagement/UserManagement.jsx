@@ -207,6 +207,9 @@ const UserManagement = () => {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
+      {/* === PAGE CONTAINER & HEADER === */}
+      {/* CSS For Page: mx-auto centers container, max-w-7xl limits size, space-y-6 spaces out sections vertically */}
+      {/* CSS For Header: flex-col stacks items on mobile, sm:flex-row puts them side by side on desktop */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
@@ -238,9 +241,11 @@ const UserManagement = () => {
         </div>
       </div>
 
+      {/* === SEARCH AND FILTERS SECTION === */}
       <div className="flex flex-col sm:flex-row gap-4 mb-4 items-start sm:items-center justify-between">
         <div className="relative flex-1 max-w-sm w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          {/* CSS Explanation: pl-9 (padding left for icon space), focus:ring-indigo-500 (purple focus ring) */}
           <input
             type="text"
             placeholder="Search by name, email, or role..."
@@ -266,8 +271,11 @@ const UserManagement = () => {
         </div>
       </div>
 
+      {/* === DATA TABLE SECTION === */}
+      {/* card-premium: Custom CSS class for glass/card effect. overflow-x-auto ensures mobile responsiveness (scrolling table) */}
       <div className="card-premium overflow-hidden">
         <div className="overflow-x-auto">
+          {/* min-w-[720px] ensures table doesn't get squashed too small on mobile screens */}
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50/80 dark:border-slate-800 dark:bg-slate-800/50">

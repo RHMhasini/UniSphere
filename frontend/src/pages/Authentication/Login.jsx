@@ -88,9 +88,18 @@ const Login = () => {
   return (
     <div className="dashboard-wrapper min-h-screen mesh-background">
       <div className="flex min-h-screen">
-        {/* Left panel — enterprise accent (hidden on small screens) */}
+        {/* === LEFT PANEL: Enterprise Accent Design === */}
+        {/* CSS Explanation: 
+            - bg-slate-900: Dark blue background color
+            - hidden lg:flex: Hides this panel on mobile screens, displays only on laptops/desktops
+            - lg:w-[42%]: Makes this panel take up 42% of the screen width 
+            - text-white: Font color is white 
+        */}
         <div className="relative hidden w-0 flex-1 flex-col justify-between bg-slate-900 px-10 py-12 text-white lg:flex lg:w-[42%] lg:max-w-xl">
+          
+          {/* Circular spotlight gradient effect behind the text */}
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_20%_0%,rgba(99,102,241,0.35),transparent)]" />
+          
           <div className="relative">
             <div className="flex items-center gap-2">
               <span className="flex items-center justify-center text-[28px] leading-none font-bold text-indigo-400 mb-0.5">
@@ -103,6 +112,8 @@ const Login = () => {
                 <p className="text-xs text-slate-400">Smart Campus</p>
               </div>
             </div>
+            
+            {/* CSS Explanation: text-3xl (Large text), font-semibold (Bold text), mt-16 (Margin top spacing) */}
             <h1 className="mt-16 text-3xl font-semibold leading-tight tracking-tight lg:text-4xl">
               Good to see you again.
             </h1>
@@ -118,7 +129,11 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Right panel — sign in */}
+        {/* === RIGHT PANEL: Sign In Form Area === */}
+        {/* CSS Explanation: 
+            - bg-white/40 (and dark:bg-slate-900/40): Transparent white background color
+            - backdrop-blur-3xl: Creates the modern frosted Glassmorphism effect you see around the login form
+        */}
         <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-8 lg:px-16 bg-white/40 dark:bg-slate-900/40 backdrop-blur-3xl">
           <div className="mx-auto w-full max-w-md space-y-8">
             <div className="lg:hidden">
@@ -152,6 +167,8 @@ const Login = () => {
 
             <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
               <div className="space-y-4">
+                
+                {/* --- EMAIL INPUT FIELD --- */}
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                     Email Address
@@ -160,6 +177,12 @@ const Login = () => {
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <Mail className="h-5 w-5 text-slate-400" />
                     </div>
+                    {/* CSS Explanation: 
+                        - border-slate-300: Gray border line around input
+                        - rounded-lg: Curves the corners of the box perfectly
+                        - focus:ring-indigo-600: Turns the border purple when you click inside to type
+                        - w-full: Makes input stretch the entire width
+                    */}
                     <input
                       name="email"
                       type="email"
@@ -173,6 +196,7 @@ const Login = () => {
                   </div>
                 </div>
 
+                {/* --- PASSWORD INPUT FIELD --- */}
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                     Password
@@ -217,6 +241,13 @@ const Login = () => {
                 </div>
               </div>
 
+              {/* --- LOGIN SUBMIT BUTTON --- */}
+              {/* CSS Explanation: 
+                  - bg-indigo-600: Button is purple colored
+                  - hover:bg-indigo-700: Button gets a slightly darker purple when hovered by mouse
+                  - text-white: Font color is white
+                  - rounded-lg: Curved button edges 
+              */}
               <button
                 type="submit"
                 disabled={loading}
@@ -226,6 +257,7 @@ const Login = () => {
               </button>
             </form>
 
+            {/* --- GOOGLE OAUTH LOGIN BUTTON AREA --- */}
             <div className="mt-6">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
