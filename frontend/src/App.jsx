@@ -104,16 +104,8 @@ function App() {
               <Route
                 path="resources"
                 element={
-                  <ProtectedRoute roles={['STUDENT', 'ADMIN']}>
-                    <div>Facilities (Coming Soon)</div>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="classes"
-                element={
-                  <ProtectedRoute roles={['LECTURER', 'ADMIN']}>
-                    <div>Classes (Coming Soon)</div>
+                  <ProtectedRoute roles={['STUDENT', 'LECTURER', 'ADMIN']}>
+                    <div>Resources (Coming Soon)</div>
                   </ProtectedRoute>
                 }
               />
@@ -126,10 +118,10 @@ function App() {
                 }
               />
               <Route
-                path="inventory"
+                path="mytickets"
                 element={
-                  <ProtectedRoute roles={['TECHNICIAN', 'ADMIN']}>
-                    <div>Asset Inventory (Coming Soon)</div>
+                  <ProtectedRoute roles={['STUDENT', 'LECTURER']}>
+                    <div>My Tickets (Coming Soon)</div>
                   </ProtectedRoute>
                 }
               />
