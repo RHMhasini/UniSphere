@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { notificationAPI } from '../../services/api';
 import './Notifications.css';
 
@@ -50,6 +51,28 @@ const Notifications = () => {
     }
   };
 
+  const renderMessageWithLink = (msg) => {
+    if (!msg) return null;
+    const linkText = "Open user management →";
+    if (msg.includes(linkText)) {
+      const parts = msg.split(linkText);
+      return (
+        <p className="notification-message">
+          {parts[0]}
+          <Link 
+            to="/dashboard/users" 
+            className="text-indigo-600 hover:text-indigo-800 font-medium hover:underline inline-flex items-center" 
+            onClick={(e) => e.stopPropagation()}
+          >
+            {linkText}
+          </Link>
+          {parts[1]}
+        </p>
+      );
+    }
+    return <p className="notification-message">{msg}</p>;
+  };
+
   return (
     <div className="notifications-container">
       <div className="notifications-header">
@@ -79,7 +102,7 @@ const Notifications = () => {
             >
               <div className="notification-content">
                 <h4 className="notification-title">{notification.title}</h4>
-                <p className="notification-message">{notification.message}</p>
+                {renderMessageWithLink(notification.message)}
                 <div className="notification-meta">
                   <span className="notification-type">{notification.type}</span>
                   <span className="notification-time">
