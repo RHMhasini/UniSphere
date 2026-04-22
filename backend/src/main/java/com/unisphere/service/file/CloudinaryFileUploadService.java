@@ -18,15 +18,10 @@ public class CloudinaryFileUploadService implements FileUploadService {
 
     @Override
     public String uploadFile(MultipartFile multipartFile) throws IOException {
-        String originalFilename = multipartFile.getOriginalFilename();
-        String extension = "";
-        if (originalFilename != null && originalFilename.contains(".")) {
-            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        }
-        
         String publicId = "unisphere_profile_" + UUID.randomUUID().toString();
         
-        Map uploadResult = cloudinary.uploader().upload(multipartFile.getBytes(),
+        @SuppressWarnings("unchecked")
+        Map<String, Object> uploadResult = cloudinary.uploader().upload(multipartFile.getBytes(),
                 ObjectUtils.asMap(
                         "public_id", publicId,
                         "folder", "unisphere/profiles"

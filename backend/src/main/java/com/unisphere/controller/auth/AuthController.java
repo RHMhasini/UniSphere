@@ -7,7 +7,6 @@ import com.unisphere.dto.request.UpdateProfileRequest;
 import com.unisphere.dto.response.ApiResponse;
 import com.unisphere.dto.response.AuthResponse;
 import com.unisphere.dto.response.UserProfileResponse;
-import com.unisphere.entity.enums.UserRole;
 import com.unisphere.service.auth.AuthService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
