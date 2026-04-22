@@ -121,22 +121,12 @@ const Sidebar = ({ mobileOpen = false, onCloseMobile }) => {
               <>
                 <li>
                   <NavLink
-                    to="/dashboard/bookings"
+                    to="/dashboard/notifications"
                     className={navCls}
                     onClick={closeIfMobile}
                   >
-                    <Calendar className="h-5 w-5 shrink-0 opacity-80" />
-                    My bookings
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to="/dashboard/resources"
-                    className={navCls}
-                    onClick={closeIfMobile}
-                  >
-                    <Building2 className="h-5 w-5 shrink-0 opacity-80" />
-                    Facilities
+                    <Bell className="h-5 w-5 shrink-0 opacity-80" />
+                    Notifications
                   </NavLink>
                 </li>
               </>
@@ -146,22 +136,12 @@ const Sidebar = ({ mobileOpen = false, onCloseMobile }) => {
               <>
                 <li>
                   <NavLink
-                    to="/dashboard/classes"
+                    to="/dashboard/notifications"
                     className={navCls}
                     onClick={closeIfMobile}
                   >
-                    <GraduationCap className="h-5 w-5 shrink-0 opacity-80" />
-                    My classes
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to="/dashboard/bookings"
-                    className={navCls}
-                    onClick={closeIfMobile}
-                  >
-                    <Calendar className="h-5 w-5 shrink-0 opacity-80" />
-                    Hall bookings
+                    <Bell className="h-5 w-5 shrink-0 opacity-80" />
+                    Notifications
                   </NavLink>
                 </li>
               </>
@@ -171,22 +151,12 @@ const Sidebar = ({ mobileOpen = false, onCloseMobile }) => {
               <>
                 <li>
                   <NavLink
-                    to="/dashboard/tickets"
+                    to="/dashboard/notifications"
                     className={navCls}
                     onClick={closeIfMobile}
                   >
-                    <Wrench className="h-5 w-5 shrink-0 opacity-80" />
-                    Service tickets
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to="/dashboard/inventory"
-                    className={navCls}
-                    onClick={closeIfMobile}
-                  >
-                    <Package className="h-5 w-5 shrink-0 opacity-80" />
-                    Asset inventory
+                    <Bell className="h-5 w-5 shrink-0 opacity-80" />
+                    Notifications
                   </NavLink>
                 </li>
               </>
