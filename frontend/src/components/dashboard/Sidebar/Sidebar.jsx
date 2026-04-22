@@ -94,6 +94,36 @@ const Sidebar = ({ mobileOpen = false, onCloseMobile }) => {
               <>
                 <li>
                   <NavLink
+                    to="/dashboard/resources"
+                    className={navCls}
+                    onClick={closeIfMobile}
+                  >
+                    <Building2 className="h-5 w-5 shrink-0 opacity-80" />
+                    Resources
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to="/dashboard/bookings"
+                    className={navCls}
+                    onClick={closeIfMobile}
+                  >
+                    <Calendar className="h-5 w-5 shrink-0 opacity-80" />
+                    Bookings
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to="/dashboard/tickets"
+                    className={navCls}
+                    onClick={closeIfMobile}
+                  >
+                    <Wrench className="h-5 w-5 shrink-0 opacity-80" />
+                    Maintenance & Tickets
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
                     to="/dashboard/notifications"
                     className={navCls}
                     onClick={closeIfMobile}
@@ -112,13 +142,41 @@ const Sidebar = ({ mobileOpen = false, onCloseMobile }) => {
                     User management
                   </NavLink>
                 </li>
-
-
               </>
             )}
 
             {role === 'STUDENT' && (
               <>
+                <li>
+                  <NavLink
+                    to="/dashboard/resources"
+                    className={navCls}
+                    onClick={closeIfMobile}
+                  >
+                    <Building2 className="h-5 w-5 shrink-0 opacity-80" />
+                    Resources
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to="/dashboard/bookings"
+                    className={navCls}
+                    onClick={closeIfMobile}
+                  >
+                    <Calendar className="h-5 w-5 shrink-0 opacity-80" />
+                    Bookings
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to="/dashboard/tickets"
+                    className={navCls}
+                    onClick={closeIfMobile}
+                  >
+                    <Wrench className="h-5 w-5 shrink-0 opacity-80" />
+                    Maintenance & Tickets
+                  </NavLink>
+                </li>
                 <li>
                   <NavLink
                     to="/dashboard/notifications"
@@ -136,6 +194,36 @@ const Sidebar = ({ mobileOpen = false, onCloseMobile }) => {
               <>
                 <li>
                   <NavLink
+                    to="/dashboard/resources"
+                    className={navCls}
+                    onClick={closeIfMobile}
+                  >
+                    <Building2 className="h-5 w-5 shrink-0 opacity-80" />
+                    Resources
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to="/dashboard/bookings"
+                    className={navCls}
+                    onClick={closeIfMobile}
+                  >
+                    <Calendar className="h-5 w-5 shrink-0 opacity-80" />
+                    Bookings
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to="/dashboard/tickets"
+                    className={navCls}
+                    onClick={closeIfMobile}
+                  >
+                    <Wrench className="h-5 w-5 shrink-0 opacity-80" />
+                    Maintenance & Tickets
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
                     to="/dashboard/notifications"
                     className={navCls}
                     onClick={closeIfMobile}
@@ -149,6 +237,16 @@ const Sidebar = ({ mobileOpen = false, onCloseMobile }) => {
 
             {role === 'TECHNICIAN' && (
               <>
+                <li>
+                  <NavLink
+                    to="/dashboard/tickets"
+                    className={navCls}
+                    onClick={closeIfMobile}
+                  >
+                    <Wrench className="h-5 w-5 shrink-0 opacity-80" />
+                    Maintenance & Tickets
+                  </NavLink>
+                </li>
                 <li>
                   <NavLink
                     to="/dashboard/notifications"
