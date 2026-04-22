@@ -51,7 +51,7 @@
 }
 
 .ab-metric-value {
-  @apply text-3xl font-light mb-2;
+  @apply text-3xl font-bold mb-2 text-[#1e293b];
 }
 
 .ab-metric-desc {

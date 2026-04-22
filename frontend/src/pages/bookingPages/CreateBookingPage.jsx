@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { createBooking, getResourceById, getAllBookings } from "../../services/bookingService";
 import "../../styles/bookingPagesCSS/CreateBookingPage.css";
 
@@ -83,8 +85,12 @@ const CreateBookingPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+      const handleSubmit = async (e) => {
     e.preventDefault();
+    if (conflict) {
+      setError("Please resolve the scheduling conflict before proceeding.");
+      return;
+    }
     setLoading(true);
     setError(null);
     setSuccess(null);
@@ -272,8 +278,8 @@ const CreateBookingPage = () => {
               <div className="cb-btn-wrapper">
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="cb-btn-submit"
+                  disabled={loading || !!conflict}
+                  className={`cb-btn-submit ${(loading || !!conflict) ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   {loading ? "Confirming..." : "Confirm Booking"}
                 </button>
