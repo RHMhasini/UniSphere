@@ -153,11 +153,11 @@ const CreateBookingPage = () => {
         )}
 
         {conflict && (
-          <div className="cb-alert-warning mb-6 p-4 bg-[#fff7ed] border border-[#ffedd5] rounded-xl flex items-center gap-4 text-[#9a3412] animate-in fade-in slide-in-from-top-1 duration-300">
-            <div className="flex-shrink-0 w-8 h-8 bg-[#fb923c] text-white rounded-full flex items-center justify-center font-bold">!</div>
+          <div className="cb-alert-warning mb-6 p-4 bg-[#fef2f2] border-2 border-[#fecaca] rounded-2xl flex items-center gap-4 text-[#991b1b] animate-in fade-in slide-in-from-top-1 duration-300">
+            <div className="flex-shrink-0 w-10 h-10 bg-[#dc2626] text-white rounded-xl flex items-center justify-center font-black text-lg shadow-sm">!</div>
             <div className="flex-1">
-              <h4 className="text-sm font-bold">Booking Conflict Detected</h4>
-              <p className="text-[11px] font-medium opacity-80">This resource is already reserved from {conflict.start} to {conflict.end} on this date. Please select a different time slot.</p>
+              <h4 className="text-[15px] font-black uppercase tracking-tight">Booking Conflict Detected</h4>
+              <p className="text-[12px] font-bold opacity-90 leading-tight">This resource is already reserved from <span className="underline">{conflict.start} to {conflict.end}</span> on this date. Please select a different time slot.</p>
             </div>
           </div>
         )}

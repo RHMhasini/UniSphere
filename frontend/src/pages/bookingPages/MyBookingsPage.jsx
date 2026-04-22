@@ -73,20 +73,20 @@ const MyBookingsPage = () => {
         
         {/* Today's Reminder Alert */}
         {todayBooking && (
-          <div className="mb-8 p-4 bg-[#f8fafc] border border-indigo-100 rounded-2xl flex items-center justify-between shadow-sm animate-pulse border-l-4 border-l-[#2563eb]">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white text-xl">
+          <div className="mb-8 p-5 bg-[#fef2f2] border-2 border-[#fecaca] rounded-2xl flex items-center justify-between shadow-md animate-pulse">
+            <div className="flex items-center gap-5">
+              <div className="w-12 h-12 bg-[#dc2626] rounded-xl flex items-center justify-center text-white text-2xl shadow-sm">
                 ⏰
               </div>
               <div>
-                <h4 className="text-sm font-bold text-[#1e293b]">You have a booking TODAY!</h4>
-                <p className="text-[11px] text-[#64748b] font-medium">
+                <h4 className="text-[16px] font-black text-[#991b1b] uppercase tracking-tight">You have a booking TODAY!</h4>
+                <p className="text-[13px] font-bold text-[#b91c1c] opacity-90">
                   {todayBooking.resourceName} — {new Date(todayBooking.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(todayBooking.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
             </div>
-            <Link to={`/bookings/${todayBooking.id}`} className="text-[10px] font-bold text-[#2563eb] uppercase tracking-wider hover:underline">
-              View Details →
+            <Link to={`/bookings/${todayBooking.id}`} className="px-4 py-2 bg-[#dc2626] text-white text-[11px] font-black rounded-lg uppercase tracking-widest hover:bg-red-700 transition-colors shadow-sm">
+              View Details
             </Link>
           </div>
         )}
