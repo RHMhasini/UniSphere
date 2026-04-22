@@ -221,7 +221,7 @@ const NotificationsPage = () => {
                     </span>
                   ) : null}
                 </div>
-                {n.type === 'REGISTRATION_PENDING' ? (
+                {n.type === 'ADMIN_ALERTS' ? (
                   <button
                     type="button"
                     onClick={goUsers}
