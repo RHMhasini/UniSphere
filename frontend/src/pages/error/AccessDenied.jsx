@@ -11,7 +11,7 @@ const AccessDenied = () => {
         <div className="access-denied__icon">🚫</div>
         <h1 className="access-denied__title">Access Denied</h1>
         <p className="access-denied__message">
-          You do not have permission to view this page. If you believe this is an error, 
+          You do not have permission to view this page. If you believe this is an error,
           please contact your system administrator.
         </p>
         <button className="access-denied__btn" onClick={() => navigate('/dashboard')}>
