@@ -42,12 +42,12 @@ public class NotificationServiceImpl implements NotificationService {
         String message;
         if (applicant.getRole() == UserRole.STUDENT) {
             message = String.format(
-                    "New student registered: %s (%s). Open user management →",
+                    "New student registered: %s (%s).",
                     applicant.getFullName(),
                     applicant.getEmail());
         } else {
             message = String.format(
-                    "New registration pending: %s (%s) — role %s. Open user management →",
+                    "New registration pending approval: %s (%s) — role %s.",
                     applicant.getFullName(),
                     applicant.getEmail(),
                     applicant.getRole());
