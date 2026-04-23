@@ -104,6 +104,13 @@ function TicketDetails() {
     }
   };
 
+  const handlePriorityChange = async (newPriority) => {
+    try {
+      await api.patch(`/tickets/${id}`, { priority: newPriority });
+      fetchTicketData();
+    } catch (err) { alert(err.message || "Failed to update priority"); }
+  };
+
   const deleteComment = async (commentId) => {
     if (!window.confirm("Delete this comment permanently?")) return;
     try {
@@ -341,10 +348,25 @@ function TicketDetails() {
               <span>Category</span>
               <strong>{ticket.category}</strong>
             </div>
-            <div className="detail-row">
-              <span>Priority</span>
-              <strong>{ticket.priority}</strong>
-            </div>
+            {(currentUser.role === 'ADMIN' || currentUser.role === 'TECHNICIAN') && (
+              <div className="detail-row" style={currentUser.role === 'ADMIN' ? { flexDirection: 'column', alignItems: 'flex-start', gap: '8px' } : {}}>
+                <span>Priority</span>
+                {currentUser.role === 'ADMIN' ? (
+                  <select
+                    value={ticket.priority}
+                    onChange={(e) => handlePriorityChange(e.target.value)}
+                    style={{ width: '100%', padding: '6px', borderRadius: '4px', background: 'var(--bg-secondary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
+                  >
+                    <option value="LOW">Low</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HIGH">High</option>
+                    <option value="URGENT">Urgent</option>
+                  </select>
+                ) : (
+                  <strong>{ticket.priority}</strong>
+                )}
+              </div>
+            )}
             <div className="detail-row">
               <span>Location</span>
               <strong>{ticket.location}</strong>

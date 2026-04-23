@@ -185,7 +185,7 @@ function CreateTicket() {
         </div>
 
         <div className="form-row">
-          <div className="form-group half-width">
+          <div className={`form-group ${currentUser?.role === 'ADMIN' ? 'half-width' : 'full-width'}`}>
             <label htmlFor="category">Category <span className="req">*</span></label>
             <select id="category" name="category" required value={formData.category} onChange={handleChange}>
               <option value="HARDWARE">Hardware (Specific)</option>
@@ -195,20 +195,20 @@ function CreateTicket() {
             <small className="field-hint">Facility tickets are visible and open to comments by everyone.</small>
           </div>
 
-          <div className="form-group half-width">
-            <label htmlFor="priority">Priority <span className="req">*</span></label>
-            <select 
-              id="priority" name="priority" required 
-              value={formData.priority} onChange={handleChange}
-              disabled={currentUser?.role !== 'ADMIN'}
-            >
-              <option value="LOW">Low (Default)</option>
-              <option value="MEDIUM">Medium</option>
-              <option value="HIGH">High</option>
-              <option value="URGENT">Urgent</option>
-            </select>
-            {currentUser?.role !== 'ADMIN' && <small className="field-hint">Initial priority is LOW. An Admin will review and adjust if necessary.</small>}
-          </div>
+          {currentUser?.role === 'ADMIN' && (
+            <div className="form-group half-width">
+              <label htmlFor="priority">Priority <span className="req">*</span></label>
+              <select 
+                id="priority" name="priority" required 
+                value={formData.priority} onChange={handleChange}
+              >
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+                <option value="URGENT">Urgent</option>
+              </select>
+            </div>
+          )}
         </div>
 
         <div className="form-row">

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
 import Badge from '../../common/Badge/Badge';
 import { Calendar, MapPin, AlertCircle } from 'lucide-react';
 import './TicketCard.css';
@@ -17,6 +18,7 @@ const getStatusVariant = (status) => {
 
 function TicketCard({ ticket }) {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
 
   const dateFormatted = new Date(ticket.createdAt).toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric'
@@ -33,12 +35,14 @@ function TicketCard({ ticket }) {
       <p className="ticket-description">{ticket.description}</p>
       
       <div className="ticket-meta">
-        <div className="meta-item">
-          <AlertCircle size={16} />
-          <span className={`priority-${ticket.priority.toLowerCase()}`}>
-            {ticket.priority} Priority
-          </span>
-        </div>
+        {(currentUser?.role === 'ADMIN' || currentUser?.role === 'TECHNICIAN') && (
+          <div className="meta-item">
+            <AlertCircle size={16} />
+            <span className={`priority-${ticket.priority.toLowerCase()}`}>
+              {ticket.priority} Priority
+            </span>
+          </div>
+        )}
         <div className="meta-item">
           <MapPin size={16} />
           <span>{ticket.location}</span>

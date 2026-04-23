@@ -1,9 +1,11 @@
+D:\UniSphere\backend\src\main\java\com\unisphere\config\CloudinaryConfig.java
 D:\UniSphere\backend\src\main\java\com\unisphere\config\MongoConfig.java
 D:\UniSphere\backend\src\main\java\com\unisphere\config\SecurityConfig.java
 D:\UniSphere\backend\src\main\java\com\unisphere\config\SecurityHeaderInterceptor.java
 D:\UniSphere\backend\src\main\java\com\unisphere\config\SeedDataRunner.java
 D:\UniSphere\backend\src\main\java\com\unisphere\config\WebConfig.java
 D:\UniSphere\backend\src\main\java\com\unisphere\controller\CommentController.java
+D:\UniSphere\backend\src\main\java\com\unisphere\controller\ImageController.java
 D:\UniSphere\backend\src\main\java\com\unisphere\controller\NotificationController.java
 D:\UniSphere\backend\src\main\java\com\unisphere\controller\TicketController.java
 D:\UniSphere\backend\src\main\java\com\unisphere\dto\AssignTicketRequest.java
@@ -35,6 +37,7 @@ D:\UniSphere\backend\src\main\java\com\unisphere\repository\TicketHistoryReposit
 D:\UniSphere\backend\src\main\java\com\unisphere\repository\TicketRepository.java
 D:\UniSphere\backend\src\main\java\com\unisphere\repository\UserRepository.java
 D:\UniSphere\backend\src\main\java\com\unisphere\service\CommentService.java
+D:\UniSphere\backend\src\main\java\com\unisphere\service\ImageService.java
 D:\UniSphere\backend\src\main\java\com\unisphere\service\impl\CommentServiceImpl.java
 D:\UniSphere\backend\src\main\java\com\unisphere\service\impl\NotificationServiceImpl.java
 D:\UniSphere\backend\src\main\java\com\unisphere\service\impl\TicketServiceImpl.java

@@ -180,11 +180,17 @@
   color: var(--accent);
 }
 
-/* Tickets Grid */
+/* Tickets Grid & List */
 .tickets-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 24px;
+}
+
+.tickets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 /* States */

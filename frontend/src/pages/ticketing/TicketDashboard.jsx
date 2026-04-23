@@ -19,6 +19,7 @@ function TicketDashboard() {
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [viewMode, setViewMode] = useState('grid');
   
   useEffect(() => {
     fetchTickets();
@@ -132,8 +133,8 @@ function TicketDashboard() {
           </div>
           
           <div className="view-toggles">
-            <button className="toggle-btn active"><LayoutGrid size={20} /></button>
-            <button className="toggle-btn"><ListIcon size={20} /></button>
+            <button className={`toggle-btn ${viewMode === 'grid' ? 'active' : ''}`} onClick={() => setViewMode('grid')}><LayoutGrid size={20} /></button>
+            <button className={`toggle-btn ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')}><ListIcon size={20} /></button>
           </div>
         </div>
 
@@ -158,7 +159,7 @@ function TicketDashboard() {
             <Button variant="primary" onClick={() => setFilter('ALL')}>View All Tickets</Button>
           </div>
         ) : (
-          <div className="tickets-grid">
+          <div className={viewMode === 'grid' ? "tickets-grid" : "tickets-list"}>
             {filteredTickets.map(ticket => (
               <TicketCard key={ticket.id} ticket={ticket} />
             ))}
