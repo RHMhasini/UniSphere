@@ -1,30 +1,22 @@
-import axios from 'axios';
-
-const BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api/resources';
-
-const api = axios.create({
-  baseURL: BASE_URL,
-  headers: { 'Content-Type': 'application/json' },
-});
+import api from './api';
 
 // POST /api/resources
-export const createResource = (data) => api.post('', data);
+export const createResource = (data) => api.post('/resources', data);
 
 // GET /api/resources
-export const getAllResources = () => api.get('');
+export const getAllResources = () => api.get('/resources');
 
 // GET /api/resources/{id}
-export const getResourceById = (id) => api.get(`/${id}`);
+export const getResourceById = (id) => api.get(`/resources/${id}`);
 
 // GET /api/resources/type/{type}?search=keyword
 export const getResourcesByType = (type, search = '') =>
-  api.get(`/type/${type}`, { params: search ? { search } : {} });
+  api.get(`/resources/type/${type}`, { params: search ? { search } : {} });
 
 // PUT /api/resources/{id}
-export const updateResource = (id, data) => api.put(`/${id}`, data);
+export const updateResource = (id, data) => api.put(`/resources/${id}`, data);
 
 // DELETE /api/resources/{id}
-export const deleteResource = (id) => api.delete(`/${id}`);
+export const deleteResource = (id) => api.delete(`/resources/${id}`);
 
 export default api;
