@@ -140,6 +140,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <mainClass>com.unisphere.UniSphereApplication</mainClass>
                     <!-- Use the same JVM as Maven (avoids "Unsupported class file major version 67"
                          when `java` on PATH is older than the JDK that compiled release 23 classes). -->
                     <executable>${java.home}/bin/java</executable>

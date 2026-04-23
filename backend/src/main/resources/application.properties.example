@@ -1,3 +1,10 @@
+# =======================================================
+# application.properties.example
+# Copy this file to application.properties and fill in
+# the real values via the .env file or your IDE run config.
+# NEVER commit the real application.properties to Git!
+# =======================================================
+
 spring.application.name=smart-campus-api
 
 # Server Configuration
@@ -5,20 +12,21 @@ server.port=8081
 server.servlet.context-path=/api
 
 # Database Configuration (MongoDB Atlas)
-# Copy this file to application.properties and fill in your actual values
-spring.data.mongodb.uri=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/SmartCampusDB?retryWrites=true&w=majority
+# Set MONGODB_URI in your .env file
+spring.data.mongodb.uri=${MONGODB_URI}
 spring.data.mongodb.database=SmartCampusDB
 
 # OAuth2 Configuration (Google)
-spring.security.oauth2.client.registration.google.client-id=YOUR_GOOGLE_CLIENT_ID
-spring.security.oauth2.client.registration.google.client-secret=YOUR_GOOGLE_CLIENT_SECRET
+# Set your Client ID below (not secret) and GOOGLE_CLIENT_SECRET in .env
+spring.security.oauth2.client.registration.google.client-id=YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com
+spring.security.oauth2.client.registration.google.client-secret=${GOOGLE_CLIENT_SECRET}
 spring.security.oauth2.client.registration.google.scope=profile,email
 spring.security.oauth2.client.registration.google.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}
 
 # JWT Configuration
-app.jwt.secret=YOUR_JWT_SECRET_KEY_MIN_32_CHARS
-app.jwt.expiration=86400000
-app.jwt.refresh-token-expiration=604800000
+app.jwt.secret=${JWT_SECRET:changeMeInProduction}
+app.jwt.expiration=${JWT_EXPIRATION:86400000}
+app.jwt.refresh-token-expiration=${JWT_REFRESH_EXPIRATION:604800000}
 
 # File Upload Configuration
 app.file.upload-dir=uploads/

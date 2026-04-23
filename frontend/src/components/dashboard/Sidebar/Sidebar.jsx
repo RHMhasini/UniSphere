@@ -94,7 +94,7 @@ const Sidebar = ({ mobileOpen = false, onCloseMobile }) => {
               <>
                 <li>
                   <NavLink
-                    to="/dashboard/resources"
+                    to="/dashboard/resources/manage"
                     className={navCls}
                     onClick={closeIfMobile}
                   >
