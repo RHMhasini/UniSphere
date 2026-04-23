@@ -26,3 +26,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local database and build artifacts
+.mongo-data/
+.logs/
+.m2/
