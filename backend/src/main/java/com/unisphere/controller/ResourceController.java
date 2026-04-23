@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/resources")
+@RequestMapping("/resources")
 public class ResourceController {
 
     private final ResourceService resourceService;
