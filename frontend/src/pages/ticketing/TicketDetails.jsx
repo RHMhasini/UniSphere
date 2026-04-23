@@ -378,7 +378,7 @@ function TicketDetails() {
             <div className="detail-row" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
               <span>Assigned To</span>
               
-              {currentUser.role === 'ADMIN' ? (
+              {(currentUser.role === 'ADMIN' && (ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS')) ? (
                 <select 
                    value={ticket.assignedTo || ''} 
                    onChange={(e) => handleAssignTech(e.target.value)}

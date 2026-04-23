@@ -238,6 +238,12 @@ public class TicketServiceImpl implements TicketService {
             );
         }
 
+        if (ticket.getStatus() != TicketStatus.OPEN && ticket.getStatus() != TicketStatus.IN_PROGRESS) {
+            throw new IllegalArgumentException(
+                    "Technicians can only be assigned to OPEN or IN_PROGRESS tickets."
+            );
+        }
+
         ticket.setAssignedTo(req.getAssignedTo());
         Ticket updated = ticketRepository.save(ticket);
 
