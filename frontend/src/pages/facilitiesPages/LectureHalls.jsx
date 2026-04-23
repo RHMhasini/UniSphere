@@ -54,7 +54,7 @@ export default function LectureHalls() {
   return (
     <div className="lh-page">
       <div className="cat-header" style={{ '--cat-accent': '#667eea' }}>
-        <button className="cat-back-btn" onClick={() => navigate('/categories')}>
+        <button className="cat-back-btn" onClick={() => navigate('/dashboard/resources')}>
           ← Back
         </button>
         <div className="cat-header__inner">

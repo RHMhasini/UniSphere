@@ -54,7 +54,7 @@ export default function Equipment() {
   return (
     <div className="eq-page">
       <div className="cat-header" style={{ '--cat-accent': '#43e97b' }}>
-        <button className="cat-back-btn" onClick={() => navigate('/categories')}>
+        <button className="cat-back-btn" onClick={() => navigate('/dashboard/resources')}>
           ← Back
         </button>
         <div className="cat-header__inner">

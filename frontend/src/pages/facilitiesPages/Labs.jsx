@@ -54,7 +54,7 @@ export default function Labs() {
   return (
     <div className="lab-page">
       <div className="cat-header" style={{ '--cat-accent': '#f093fb' }}>
-        <button className="cat-back-btn" onClick={() => navigate('/categories')}>
+        <button className="cat-back-btn" onClick={() => navigate('/dashboard/resources')}>
           ← Back
         </button>
         <div className="cat-header__inner">

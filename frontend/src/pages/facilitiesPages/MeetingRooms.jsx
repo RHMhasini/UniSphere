@@ -54,7 +54,7 @@ export default function MeetingRooms() {
   return (
     <div className="mr-page">
       <div className="cat-header" style={{ '--cat-accent': '#4facfe' }}>
-        <button className="cat-back-btn" onClick={() => navigate('/categories')}>
+        <button className="cat-back-btn" onClick={() => navigate('/dashboard/resources')}>
           ← Back
         </button>
         <div className="cat-header__inner">
