@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import { LogOut, User as UserIcon, ChevronDown } from "lucide-react";
 import "./Navbar.css";
@@ -18,15 +19,15 @@ function Navbar({ theme, toggleTheme }) {
     <nav className={`navbar ${scrolled ? "navbar--scrolled" : ""}`}>
       <div className="container navbar__inner">
         {/* Logo */}
-        <a href="/" className="navbar__logo">
+        <Link to="/" className="navbar__logo">
           <span className="navbar__logo-icon">◈</span>
           <span className="navbar__logo-text">UniSphere</span>
-        </a>
+        </Link>
 
         {/* Desktop nav links */}
         <ul className="navbar__links">
-          <li><a href="/">Home</a></li>
-          <li><a href="/tickets">Tickets</a></li>
+          <li><Link to="/">Home</Link></li>
+          <li><Link to="/tickets">Tickets</Link></li>
           <li><a href="#how-it-works">Support</a></li>
         </ul>
 
@@ -63,8 +64,8 @@ function Navbar({ theme, toggleTheme }) {
             </div>
           ) : (
             <>
-              <a href="/login" className="btn btn--outline">Log In</a>
-              <a href="/register" className="btn btn--primary">Get Started</a>
+              <Link to="/login" className="btn btn--outline">Log In</Link>
+              <Link to="/register" className="btn btn--primary">Get Started</Link>
             </>
           )}
 
@@ -82,11 +83,11 @@ function Navbar({ theme, toggleTheme }) {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="navbar__mobile-menu">
-          <a href="#features" onClick={() => setMenuOpen(false)}>Features</a>
+          <Link to="/" onClick={() => setMenuOpen(false)}>Features</Link>
           <a href="#how-it-works" onClick={() => setMenuOpen(false)}>How It Works</a>
           <a href="#contact" onClick={() => setMenuOpen(false)}>Contact</a>
-          <a href="/login" className="btn btn--outline" onClick={() => setMenuOpen(false)}>Log In</a>
-          <a href="/register" className="btn btn--primary" onClick={() => setMenuOpen(false)}>Get Started</a>
+          <Link to="/login" className="btn btn--outline" onClick={() => setMenuOpen(false)}>Log In</Link>
+          <Link to="/register" className="btn btn--primary" onClick={() => setMenuOpen(false)}>Get Started</Link>
         </div>
       )}
     </nav>

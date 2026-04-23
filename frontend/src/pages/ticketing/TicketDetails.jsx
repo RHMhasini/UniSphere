@@ -286,9 +286,9 @@ function TicketDetails() {
             <h3 className="section-title"><MessageSquare size={18} /> Discussion</h3>
             <div className="comment-list">
               {comments.map(c => (
-                <div key={c.id} className={`comment-bubble ${c.createdBy === currentUser.email ? 'mine' : ''}`}>
+                <div key={c.id} className={`comment-bubble ${c.userId === currentUser.email ? 'mine' : ''}`}>
                   <div className="comment-meta">
-                    <strong>{getCreatorName(c.createdBy)}</strong>
+                    <strong>{getCreatorName(c.userId)}</strong>
                     <span>{new Date(c.createdAt).toLocaleString()}</span>
                   </div>
                   
@@ -303,7 +303,7 @@ function TicketDetails() {
                   ) : (
                      <div className="comment-body">
                        <p>{c.message}</p>
-                       {c.createdBy === currentUser.email && (
+                       {c.userId === currentUser.email && (
                          <div className="comment-tools">
                            <button onClick={() => { setEditingCommentText(c.message); setEditingCommentId(c.id); }}><Edit2 size={12}/></button>
                            <button onClick={() => deleteComment(c.id)}><Trash2 size={12}/></button>

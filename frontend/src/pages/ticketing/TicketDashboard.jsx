@@ -13,7 +13,12 @@ function TicketDashboard() {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Filtering & Search states
   const [filter, setFilter] = useState('ALL'); 
+  const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   
   useEffect(() => {
     fetchTickets();
@@ -33,9 +38,15 @@ function TicketDashboard() {
     }
   };
 
-  const filteredTickets = filter === 'ALL' 
-    ? tickets 
-    : tickets.filter(t => t.status === filter);
+  const filteredTickets = tickets.filter(t => {
+    const matchesStatus = filter === 'ALL' || t.status === filter;
+    const matchesCategory = categoryFilter === 'ALL' || t.category === categoryFilter;
+    const matchesSearch = searchQuery.trim() === '' || 
+      t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (t.id && t.id.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    return matchesStatus && matchesCategory && matchesSearch;
+  });
 
   // Group stats
   const stats = {
@@ -57,8 +68,8 @@ function TicketDashboard() {
           <p className="dashboard-subtitle">Manage campus facility, software, and hardware requests.</p>
         </div>
         <div className="dashboard-actions">
-          <Button variant="outline">
-            <Filter size={18} /> Filter
+          <Button variant={showAdvancedFilters ? "primary" : "outline"} onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}>
+            <Filter size={18} /> {showAdvancedFilters ? 'Hide Filters' : 'Filter'}
           </Button>
           {(isStudent || isAdmin) && (
             <Button variant="primary" onClick={() => navigate('/tickets/create')}>
@@ -67,6 +78,24 @@ function TicketDashboard() {
           )}
         </div>
       </div>
+
+      {/* Advanced Filters Bar */}
+      {showAdvancedFilters && (
+        <div className="advanced-filters-bar">
+          <div className="filter-group">
+            <label>Category:</label>
+            <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+              <option value="ALL">All Categories</option>
+              <option value="HARDWARE">Hardware</option>
+              <option value="SOFTWARE">Software</option>
+              <option value="FACILITY">Facility</option>
+            </select>
+          </div>
+          <Button variant="ghost" size="sm" onClick={() => {setCategoryFilter('ALL'); setFilter('ALL'); setSearchQuery('');}}>
+            Reset All
+          </Button>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="stats-grid">
@@ -97,6 +126,8 @@ function TicketDashboard() {
               type="text" 
               placeholder="Search tickets by title or ID..." 
               className="search-input"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           
@@ -123,7 +154,7 @@ function TicketDashboard() {
           <div className="empty-state">
             <img src="https://illustrations.popsy.co/amber/student-going-to-school.svg" alt="No tickets" />
             <h3>No tickets found</h3>
-            <p>You don't have any tickets matching this status.</p>
+            <p>You don't have any tickets matching your criteria.</p>
             <Button variant="primary" onClick={() => setFilter('ALL')}>View All Tickets</Button>
           </div>
         ) : (
