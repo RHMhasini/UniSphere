@@ -172,7 +172,16 @@ public class TicketServiceImpl implements TicketService {
         validateStatusTransition(role, ticket.getStatus(), req.getNewStatus());
 
         TicketStatus oldStatus = ticket.getStatus();
-        ticket.setStatus(req.getNewStatus());
+        TicketStatus newStatus = req.getNewStatus();
+
+        if (newStatus == TicketStatus.RESOLVED && (req.getResolutionNote() == null || req.getResolutionNote().isBlank())) {
+            throw new IllegalArgumentException("A resolution note is required to mark a ticket as RESOLVED.");
+        }
+        if (newStatus == TicketStatus.REJECTED && (req.getRejectionReason() == null || req.getRejectionReason().isBlank())) {
+            throw new IllegalArgumentException("A rejection reason is required to mark a ticket as REJECTED.");
+        }
+
+        ticket.setStatus(newStatus);
 
         if (req.getResolutionNote() != null) {
             ticket.setResolutionNote(req.getResolutionNote());
