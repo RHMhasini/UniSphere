@@ -30,5 +30,9 @@ dist-ssr
 backend/.env
 backend/src/main/resources/application.properties
 
+# Config files containing secrets
+GEMINI.md
+gemini.md
+
 # Maven build output
 backend/target/
