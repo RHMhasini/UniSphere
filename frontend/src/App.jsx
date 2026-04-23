@@ -17,6 +17,12 @@ import UserDetailPage from "./pages/dashboard/UserManagement/UserDetailPage";
 import NotificationsPage from "./pages/dashboard/Notifications/NotificationsPage";
 import Profile from "./pages/dashboard/Profile/Profile";
 import Analytics from "./pages/dashboard/Analytics/Analytics";
+import ResourcesPage from "./pages/dashboard/Resources/ResourcesPage";
+import LectureHalls from "./pages/facilitiesPages/LectureHalls";
+import Labs from "./pages/facilitiesPages/Labs";
+import MeetingRooms from "./pages/facilitiesPages/MeetingRooms";
+import Equipment from "./pages/facilitiesPages/Equipment";
+import AdminResourceForm from "./pages/facilitiesPages/AdminResourceForm";
 
 import SettingsPage from "./pages/dashboard/Settings/SettingsPage";
 import AccessDenied from "./pages/error/AccessDenied";
@@ -105,7 +111,47 @@ function App() {
                 path="resources"
                 element={
                   <ProtectedRoute roles={['STUDENT', 'LECTURER', 'ADMIN']}>
-                    <div>Resources (Coming Soon)</div>
+                    <ResourcesPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="resources/lecture-halls"
+                element={
+                  <ProtectedRoute roles={['STUDENT', 'LECTURER', 'ADMIN']}>
+                    <LectureHalls />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="resources/labs"
+                element={
+                  <ProtectedRoute roles={['STUDENT', 'LECTURER', 'ADMIN']}>
+                    <Labs />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="resources/meeting-rooms"
+                element={
+                  <ProtectedRoute roles={['STUDENT', 'LECTURER', 'ADMIN']}>
+                    <MeetingRooms />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="resources/equipment"
+                element={
+                  <ProtectedRoute roles={['STUDENT', 'LECTURER', 'ADMIN']}>
+                    <Equipment />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="resources/manage"
+                element={
+                  <ProtectedRoute roles={['ADMIN']}>
+                    <AdminResourceForm />
                   </ProtectedRoute>
                 }
               />
