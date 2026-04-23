@@ -197,12 +197,17 @@ function CreateTicket() {
 
           <div className="form-group half-width">
             <label htmlFor="priority">Priority <span className="req">*</span></label>
-            <select id="priority" name="priority" required value={formData.priority} onChange={handleChange}>
-              <option value="LOW">Low</option>
+            <select 
+              id="priority" name="priority" required 
+              value={formData.priority} onChange={handleChange}
+              disabled={currentUser?.role !== 'ADMIN'}
+            >
+              <option value="LOW">Low (Default)</option>
               <option value="MEDIUM">Medium</option>
               <option value="HIGH">High</option>
               <option value="URGENT">Urgent</option>
             </select>
+            {currentUser?.role !== 'ADMIN' && <small className="field-hint">Initial priority is LOW. An Admin will review and adjust if necessary.</small>}
           </div>
         </div>
 

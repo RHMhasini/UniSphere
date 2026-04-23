@@ -45,11 +45,23 @@ public class TicketServiceImpl implements TicketService {
             throw new IllegalArgumentException("createdBy is required (or provide X-User-Email header)");
         }
 
+        // Priority restricted to ADMIN only. Non-admins default to LOW.
+        TicketPriority finalPriority = req.getPriority();
+        
+        // Extract role from auth or headers (consistent with status update logic)
+        String role = (auth != null && !auth.getAuthorities().isEmpty()) 
+                ? auth.getAuthorities().iterator().next().getAuthority() 
+                : "STUDENT";
+        
+        if (!"ADMIN".equals(role)) {
+            finalPriority = TicketPriority.LOW;
+        }
+
         Ticket ticket = Ticket.builder()
                 .title(req.getTitle())
                 .description(req.getDescription())
                 .category(req.getCategory())
-                .priority(req.getPriority())
+                .priority(finalPriority)
                 .status(TicketStatus.OPEN)
                 .createdBy(createdBy)
                 .assignedTo(req.getAssignedTo())
