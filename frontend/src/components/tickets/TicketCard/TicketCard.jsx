@@ -15,16 +15,6 @@ const getStatusVariant = (status) => {
   }
 };
 
-const getPriorityVariant = (priority) => {
-  switch (priority) {
-    case 'LOW': return 'neutral';
-    case 'MEDIUM': return 'primary';
-    case 'HIGH': return 'warning';
-    case 'URGENT': return 'danger';
-    default: return 'neutral';
-  }
-};
-
 function TicketCard({ ticket }) {
   const navigate = useNavigate();
 

@@ -7,6 +7,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,10 +18,11 @@ import java.util.List;
  *
  * Base path: /api/tickets/{ticketId}/comments
  *
- *   POST   /api/tickets/{ticketId}/comments                    — add comment
- *   GET    /api/tickets/{ticketId}/comments                    — list comments for ticket
- *   PATCH  /api/tickets/{ticketId}/comments/{commentId}        — edit own comment
- *   DELETE /api/tickets/{ticketId}/comments/{commentId}?userId= — delete own comment
+ *   POST   /api/tickets/{ticketId}/comments                     — add comment
+ *   GET    /api/tickets/{ticketId}/comments                     — list comments for ticket
+ *   PATCH  /api/tickets/{ticketId}/comments/{commentId}         — edit own comment
+ *   PUT    /api/tickets/{ticketId}/comments/{commentId}         — edit own comment (frontend-friendly)
+ *   DELETE /api/tickets/{ticketId}/comments/{commentId}         — delete own comment
  */
 @RestController
 @RequestMapping("/api/tickets/{ticketId}/comments")
@@ -29,12 +32,21 @@ public class CommentController {
 
     private final CommentService commentService;
 
+    private String actorEmailOrNull() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getName() == null || auth.getName().isBlank()) return null;
+        return auth.getName();
+    }
+
     @PostMapping
     public ResponseEntity<CommentResponse> addComment(
             @PathVariable String ticketId,
             @Valid @RequestBody CreateCommentRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(commentService.addComment(ticketId, request));
+        String actor = actorEmailOrNull();
+        if (actor != null) {
+            request.setUserId(actor);
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(commentService.addComment(ticketId, request));
     }
 
     @GetMapping
@@ -42,29 +54,37 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getCommentsByTicketId(ticketId));
     }
 
-    /**
-     * Edit a comment — only the comment's author (userId) may edit.
-     * Body: { "userId": "u1001", "message": "Updated comment text" }
-     */
     @PatchMapping("/{commentId}")
-    public ResponseEntity<CommentResponse> editComment(
+    public ResponseEntity<CommentResponse> editCommentPatch(
             @PathVariable String ticketId,
             @PathVariable String commentId,
-            @RequestBody CreateCommentRequest request) {
-        return ResponseEntity.ok(
-                commentService.updateComment(commentId, request.getUserId(), request.getMessage()));
+            @Valid @RequestBody CreateCommentRequest request) {
+        String actor = actorEmailOrNull();
+        if (actor != null) {
+            request.setUserId(actor);
+        }
+        return ResponseEntity.ok(commentService.updateComment(commentId, request.getUserId(), request.getMessage()));
     }
 
-    /**
-     * Delete a comment — only the comment's author may delete.
-     * ?userId=u1001  (passed as query param so no body needed for DELETE)
-     */
+    @PutMapping("/{commentId}")
+    public ResponseEntity<CommentResponse> editCommentPut(
+            @PathVariable String ticketId,
+            @PathVariable String commentId,
+            @Valid @RequestBody CreateCommentRequest request) {
+        return editCommentPatch(ticketId, commentId, request);
+    }
+
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(
             @PathVariable String ticketId,
             @PathVariable String commentId,
-            @RequestParam String userId) {
-        commentService.deleteComment(commentId, userId);
+            @RequestParam(required = false) String userId) {
+        String actor = actorEmailOrNull();
+        String effectiveUserId = (actor != null) ? actor : userId;
+        if (effectiveUserId == null || effectiveUserId.isBlank()) {
+            throw new IllegalArgumentException("userId is required (or provide X-User-Email header)");
+        }
+        commentService.deleteComment(commentId, effectiveUserId);
         return ResponseEntity.noContent().build();
     }
 }

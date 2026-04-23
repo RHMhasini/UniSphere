@@ -3,7 +3,35 @@
  * Automatically attaches mock authentication headers from the active session.
  */
 
-const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+
+const buildError = async (response) => {
+  const contentType = response.headers.get('content-type') || '';
+
+  let payload = null;
+  try {
+    if (contentType.includes('application/json')) {
+      payload = await response.json();
+    } else {
+      const text = await response.text();
+      payload = text ? { message: text } : null;
+    }
+  } catch {
+    payload = null;
+  }
+
+  const message =
+    payload?.message ||
+    payload?.error ||
+    (payload?.fieldErrors ? 'Validation failed' : null) ||
+    response.statusText ||
+    `Request failed (${response.status})`;
+
+  const err = new Error(message);
+  err.status = response.status;
+  err.details = payload;
+  return err;
+};
 
 const getHeaders = () => {
   const headers = {
@@ -16,7 +44,7 @@ const getHeaders = () => {
       const user = JSON.parse(saved);
       // Bridge headers for mock authentication
       // Backend expects X-User-Email and X-User-Role
-      headers['X-User-Email'] = user.email || (user.name.toLowerCase().replace(' ', '.') + '@sliit.lk');
+      headers['X-User-Email'] = user.email || (user.name.toLowerCase().replace(' ', '.') + '@university.edu');
       headers['X-User-Role'] = user.role;
     } catch (e) {
       console.error('Failed to parse auth header', e);
@@ -31,7 +59,7 @@ export const api = {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       headers: getHeaders(),
     });
-    if (!response.ok) throw await response.json();
+    if (!response.ok) throw await buildError(response);
     return response.json();
   },
 
@@ -41,7 +69,7 @@ export const api = {
       headers: getHeaders(),
       body: JSON.stringify(body),
     });
-    if (!response.ok) throw await response.json();
+    if (!response.ok) throw await buildError(response);
     return response.json();
   },
 
@@ -51,7 +79,7 @@ export const api = {
       headers: getHeaders(),
       body: JSON.stringify(body),
     });
-    if (!response.ok) throw await response.json();
+    if (!response.ok) throw await buildError(response);
     return response.json();
   },
 
@@ -61,7 +89,7 @@ export const api = {
       headers: getHeaders(),
       body: JSON.stringify(body),
     });
-    if (!response.ok) throw await response.json();
+    if (!response.ok) throw await buildError(response);
     return response.json();
   },
 
@@ -70,7 +98,7 @@ export const api = {
       method: 'DELETE',
       headers: getHeaders(),
     });
-    if (!response.ok) throw await response.json();
+    if (!response.ok) throw await buildError(response);
     return true;
   },
 };

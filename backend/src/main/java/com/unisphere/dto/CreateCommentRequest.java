@@ -13,7 +13,11 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CreateCommentRequest {
 
-    @NotBlank(message = "userId is required")
+    /**
+     * Comment author.
+     * During the "no-login-yet" phase this is inferred from the authenticated principal
+     * set by {@link com.unisphere.config.SecurityHeaderInterceptor}.
+     */
     private String userId;
 
     @NotBlank(message = "message is required")

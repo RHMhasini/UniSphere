@@ -34,7 +34,11 @@ public class CreateTicketRequest {
     @NotNull(message = "Priority is required")
     private TicketPriority priority;
 
-    @NotBlank(message = "Created-by user ID is required")
+    /**
+     * The user who created the ticket.
+     * In the current "mock auth header" phase, the backend will prefer the authenticated
+     * principal from headers (X-User-Email). This field is therefore optional.
+     */
     private String createdBy;
 
     /** Optional — can be assigned later via PUT /assign */

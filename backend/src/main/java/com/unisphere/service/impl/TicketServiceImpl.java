@@ -10,6 +10,7 @@ import com.unisphere.enums.TicketStatus;
 import com.unisphere.exception.ResourceNotFoundException;
 import com.unisphere.repository.TicketHistoryRepository;
 import com.unisphere.repository.TicketRepository;
+import com.unisphere.repository.UserRepository;
 import com.unisphere.service.NotificationService;
 import com.unisphere.service.TicketService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class TicketServiceImpl implements TicketService {
     private final TicketRepository ticketRepository;
     private final TicketHistoryRepository ticketHistoryRepository;
     private final NotificationService notificationService;
+    private final UserRepository userRepository;
 
     // ── Create ─────────────────────────────────────────────────────────────────
 
@@ -33,13 +35,23 @@ public class TicketServiceImpl implements TicketService {
     public TicketResponse createTicket(CreateTicketRequest req) {
         validateAttachments(req.getAttachments());
 
+        org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        String actorEmail = (auth != null && auth.getName() != null && !auth.getName().isBlank()) ? auth.getName() : null;
+
+        // Prefer authenticated user (from X-User-Email) to avoid spoofing during the mock-auth phase.
+        String createdBy = (actorEmail != null) ? actorEmail : req.getCreatedBy();
+        if (createdBy == null || createdBy.isBlank()) {
+            throw new IllegalArgumentException("createdBy is required (or provide X-User-Email header)");
+        }
+
         Ticket ticket = Ticket.builder()
                 .title(req.getTitle())
                 .description(req.getDescription())
                 .category(req.getCategory())
                 .priority(req.getPriority())
                 .status(TicketStatus.OPEN)
-                .createdBy(req.getCreatedBy())
+                .createdBy(createdBy)
                 .assignedTo(req.getAssignedTo())
                 .location(req.getLocation())
                 .contactEmail(req.getContactEmail())
@@ -50,7 +62,7 @@ public class TicketServiceImpl implements TicketService {
         Ticket saved = ticketRepository.save(ticket);
 
         // Audit entry
-        saveHistory(saved.getId(), null, TicketStatus.OPEN, req.getCreatedBy());
+        saveHistory(saved.getId(), null, TicketStatus.OPEN, createdBy);
 
         // Notify the submitter
         notificationService.createNotification(
@@ -84,8 +96,17 @@ public class TicketServiceImpl implements TicketService {
             String role = auth.getAuthorities().iterator().next().getAuthority();
 
             boolean isStaff = "ADMIN".equals(role) || "TECHNICIAN".equals(role);
-            boolean isCreator = ticket.getCreatedBy().equals(email);
+            Set<String> actorIds = resolveActorIdentifiers(email);
+            boolean isCreator = actorIds.contains(ticket.getCreatedBy());
+            boolean isAssignee = ticket.getAssignedTo() != null && actorIds.contains(ticket.getAssignedTo());
             boolean isPublic = ticket.getCategory() == Category.FACILITY;
+
+            // Technicians should only access assigned tickets (unless it's public FACILITY)
+            if ("TECHNICIAN".equals(role) && !isAssignee && !isPublic) {
+                throw new com.unisphere.exception.UnauthorizedAccessException(
+                        "Access Denied: You do not have permission to view this ticket."
+                );
+            }
 
             if (!isStaff && !isCreator && !isPublic) {
                 throw new com.unisphere.exception.UnauthorizedAccessException(
@@ -184,6 +205,18 @@ public class TicketServiceImpl implements TicketService {
     public TicketResponse assignTicket(String id, AssignTicketRequest req) {
         Ticket ticket = findOrThrow(id);
 
+        org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        String role = (auth != null && !auth.getAuthorities().isEmpty())
+                ? auth.getAuthorities().iterator().next().getAuthority()
+                : "STUDENT";
+
+        if (!"ADMIN".equals(role)) {
+            throw new com.unisphere.exception.UnauthorizedAccessException(
+                    "Only ADMIN users can assign technicians to tickets."
+            );
+        }
+
         ticket.setAssignedTo(req.getAssignedTo());
         Ticket updated = ticketRepository.save(ticket);
 
@@ -237,45 +270,35 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public List<TicketResponse> filterTickets(TicketStatus status, Category category,
                                               TicketPriority priority, String createdBy, String assignedTo) {
-        // Core logic: if specific filters are provided, we use them.
-        // But the Controller will now call getTicketsForUser for the main dashboard view.
-        List<Ticket> result;
-        if (status != null && category != null) {
-            result = ticketRepository.findByStatusAndCategory(status, category);
-        } else if (status != null && priority != null) {
-            result = ticketRepository.findByStatusAndPriority(status, priority);
-        } else if (status != null && createdBy != null) {
-            result = ticketRepository.findByCreatedByAndStatus(createdBy, status);
-        } else if (status != null && assignedTo != null) {
-            result = ticketRepository.findByAssignedToAndStatus(assignedTo, status);
-        } else if (status != null) {
-            result = ticketRepository.findByStatus(status);
-        } else if (category != null) {
-            result = ticketRepository.findByCategory(category);
-        } else if (priority != null) {
-            result = ticketRepository.findByPriority(priority);
-        } else if (createdBy != null) {
-            result = ticketRepository.findByCreatedBy(createdBy);
-        } else if (assignedTo != null) {
-            result = ticketRepository.findByAssignedTo(assignedTo);
-        } else {
-            result = ticketRepository.findAll();
-        }
-        return result.stream().map(this::mapToResponse).collect(Collectors.toList());
+        // Keep implementation simple and correct: fetch + apply all provided criteria.
+        // (Small dataset in this module; avoids a complex repository query matrix.)
+        return ticketRepository.findAll().stream()
+                .filter(t -> status == null || t.getStatus() == status)
+                .filter(t -> category == null || t.getCategory() == category)
+                .filter(t -> priority == null || t.getPriority() == priority)
+                .filter(t -> createdBy == null || createdBy.isBlank() || createdBy.equals(t.getCreatedBy()))
+                .filter(t -> assignedTo == null || assignedTo.isBlank() || assignedTo.equals(t.getAssignedTo()))
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<TicketResponse> getTicketsForUser(String email, String role) {
-        List<Ticket> tickets;
         if ("ADMIN".equals(role)) {
-            tickets = ticketRepository.findAll();
-        } else if ("TECHNICIAN".equals(role)) {
-            tickets = ticketRepository.findByAssignedTo(email);
-        } else {
-            // STUDENT / LECTURER / OTHERS
-            tickets = ticketRepository.findByCreatedBy(email);
+            return ticketRepository.findAll().stream().map(this::mapToResponse).collect(Collectors.toList());
         }
-        return tickets.stream().map(this::mapToResponse).collect(Collectors.toList());
+
+        Set<String> actorIds = resolveActorIdentifiers(email);
+
+        return ticketRepository.findAll().stream()
+                .filter(t -> {
+                    if ("TECHNICIAN".equals(role)) {
+                        return t.getAssignedTo() != null && actorIds.contains(t.getAssignedTo());
+                    }
+                    return t.getCreatedBy() != null && actorIds.contains(t.getCreatedBy());
+                })
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     // ── History ────────────────────────────────────────────────────────────────
@@ -326,6 +349,21 @@ public class TicketServiceImpl implements TicketService {
         ticketHistoryRepository.save(history);
     }
 
+    /**
+     * During the "mock auth header" phase, identity may be stored as either email or seeded user id (u1001...).
+     * This helper makes the system compatible with both so existing DB data keeps working.
+     */
+    private Set<String> resolveActorIdentifiers(String email) {
+        Set<String> ids = new LinkedHashSet<>();
+        if (email != null && !email.isBlank()) {
+            ids.add(email);
+            userRepository.findByEmail(email).ifPresent(u -> {
+                if (u.getId() != null && !u.getId().isBlank()) ids.add(u.getId());
+            });
+        }
+        return ids;
+    }
+
     private TicketResponse mapToResponse(Ticket t) {
         return TicketResponse.builder()
                 .id(t.getId())
@@ -351,12 +389,19 @@ public class TicketServiceImpl implements TicketService {
         if (currentStatus == newStatus) return;
 
         // 1. Strict Workflow State Machine logic
-        boolean isValidTransition = switch (currentStatus) {
-            case OPEN -> newStatus == TicketStatus.IN_PROGRESS || newStatus == TicketStatus.REJECTED;
-            case IN_PROGRESS -> newStatus == TicketStatus.RESOLVED;
-            case RESOLVED -> newStatus == TicketStatus.CLOSED;
-            case REJECTED, CLOSED -> false; // Final states
-        };
+        boolean isValidTransition;
+
+        // Special case: REJECTED can happen from any non-final state (admin-only enforced below)
+        if (newStatus == TicketStatus.REJECTED) {
+            isValidTransition = currentStatus != TicketStatus.CLOSED && currentStatus != TicketStatus.REJECTED;
+        } else {
+            isValidTransition = switch (currentStatus) {
+                case OPEN -> newStatus == TicketStatus.IN_PROGRESS;
+                case IN_PROGRESS -> newStatus == TicketStatus.RESOLVED;
+                case RESOLVED -> newStatus == TicketStatus.CLOSED;
+                case REJECTED, CLOSED -> false; // Final states
+            };
+        }
 
         if (!isValidTransition) {
             throw new IllegalArgumentException(

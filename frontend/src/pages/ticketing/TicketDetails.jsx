@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/common/Button/Button';
@@ -49,11 +49,7 @@ function TicketDetails() {
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingCommentText, setEditingCommentText] = useState('');
 
-  useEffect(() => {
-    fetchTicketData();
-  }, [id]);
-
-  const fetchTicketData = async () => {
+  const fetchTicketData = useCallback(async () => {
     try {
       setLoading(true);
       // Fetch Ticket
@@ -78,7 +74,11 @@ function TicketDetails() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchTicketData();
+  }, [fetchTicketData]);
 
   // Status Upgrade Actions
   const handleStatusChange = async (newStatus) => {
@@ -171,7 +171,7 @@ function TicketDetails() {
   }
 
   // Find User Names for displays
-  const getCreatorName = (email) => MOCK_USERS.find(u => u.email === email)?.name || email;
+  const getCreatorName = (value) => MOCK_USERS.find(u => u.email === value || u.id === value)?.name || value;
 
   return (
     <div className="ticket-detail-container">
@@ -239,21 +239,28 @@ function TicketDetails() {
             
             {ticket.attachments && ticket.attachments.length > 0 && (
               <div className="attachments-list">
-                <h4>Verified Documents ({ticket.attachments.length})</h4>
+                <h4>Evidence Attachments ({ticket.attachments.length})</h4>
                 <div className="file-grid">
                   {ticket.attachments.map((att, idx) => {
-                    const isImg = att.match(/\.(jpg|jpeg|png|gif)$/i);
+                    const isBase64Img = typeof att === 'string' && att.startsWith('data:image/');
+                    const isUrl = typeof att === 'string' && /^https?:\/\//i.test(att);
+                    const canPreviewImg = isBase64Img || isUrl;
+                    const href = isBase64Img ? att : (isUrl ? att : null);
                     return (
                       <div key={idx} className="file-item">
-                        {isImg ? (
-                           <img src={`http://localhost:8080/uploads/${att}`} alt={`Attachment ${idx+1}`} />
+                        {canPreviewImg ? (
+                           <img src={att} alt={`Attachment ${idx+1}`} />
                         ) : (
                           <div className="doc-icon">
                             <FileText size={48} />
                             <span>{att}</span>
                           </div>
                         )}
-                        <a href={`http://localhost:8080/uploads/${att}`} target="_blank" rel="noreferrer" className="view-link">View Full</a>
+                        {href ? (
+                          <a href={href} target="_blank" rel="noreferrer" className="view-link">View Full</a>
+                        ) : (
+                          <span className="view-link" style={{ opacity: 0.7 }}>No preview</span>
+                        )}
                       </div>
                     );
                   })}

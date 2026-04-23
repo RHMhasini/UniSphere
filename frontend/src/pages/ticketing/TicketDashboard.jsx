@@ -45,7 +45,6 @@ function TicketDashboard() {
     resolved: tickets.filter(t => t.status === 'RESOLVED').length,
   };
 
-  const isTechnician = currentUser?.role === 'TECHNICIAN';
   const isAdmin = currentUser?.role === 'ADMIN';
   const isStudent = currentUser?.role === 'STUDENT' || currentUser?.role === 'LECTURER';
 

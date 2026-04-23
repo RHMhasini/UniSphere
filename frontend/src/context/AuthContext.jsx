@@ -1,12 +1,13 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState } from 'react';
 
 // MOCK USERS matching our MongoDB Seeder data
 export const MOCK_USERS = [
-  { id: 'u1001', name: 'Nimal Perera', role: 'STUDENT', email: 'nimal.p@sliit.lk' },
-  { id: 'u1002', name: 'Kasun Silva', role: 'LECTURER', email: 'kasun.s@sliit.lk' },
-  { id: 'u1003', name: 'Chathura Tech', role: 'TECHNICIAN', email: 'chathura.t@sliit.lk' },
-  { id: 'u1004', name: 'Amali Tech', role: 'TECHNICIAN', email: 'amali.t@sliit.lk' },
-  { id: 'u1005', name: 'Admin User', role: 'ADMIN', email: 'admin@sliit.lk' }
+  { id: 'u1001', name: 'Nimal Perera', role: 'STUDENT', email: 'nimal.perera@university.edu' },
+  { id: 'u1002', name: 'Kasun Silva', role: 'LECTURER', email: 'kasun.silva@university.edu' },
+  { id: 'u1003', name: 'Chathura Jayasinghe', role: 'TECHNICIAN', email: 'chathura.tech@university.edu' },
+  { id: 'u1004', name: 'Amali Fernando', role: 'TECHNICIAN', email: 'amali.tech@university.edu' },
+  { id: 'u1005', name: 'Admin User', role: 'ADMIN', email: 'admin@university.edu' }
 ];
 
 const AuthContext = createContext();
@@ -18,7 +19,7 @@ export function AuthProvider({ children }) {
     if (saved) {
       try {
         return JSON.parse(saved);
-      } catch (e) {
+      } catch {
         return MOCK_USERS[0];
       }
     }

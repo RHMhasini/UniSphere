@@ -4,6 +4,7 @@ import com.unisphere.entity.*;
 import com.unisphere.enums.*;
 import com.unisphere.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -27,15 +28,31 @@ public class SeedDataRunner implements ApplicationRunner {
     private final TicketHistoryRepository ticketHistoryRepository;
     private final NotificationRepository notificationRepository;
 
+    @Value("${app.seed.reset:false}")
+    private boolean reset;
+
     @Override
     public void run(ApplicationArguments args) {
-        System.out.println("[SeedDataRunner] Clearing old database collections...");
-        userRepository.deleteAll();
-        ticketRepository.deleteAll();
-        commentRepository.deleteAll();
-        ticketHistoryRepository.deleteAll();
-        notificationRepository.deleteAll();
-        
+        if (!reset) {
+            boolean hasData =
+                    userRepository.count() > 0 ||
+                    ticketRepository.count() > 0 ||
+                    commentRepository.count() > 0 ||
+                    ticketHistoryRepository.count() > 0 ||
+                    notificationRepository.count() > 0;
+            if (hasData) {
+                System.out.println("[SeedDataRunner] Existing data found; skipping seed. (Set app.seed.reset=true to force reseed)");
+                return;
+            }
+        } else {
+            System.out.println("[SeedDataRunner] app.seed.reset=true; clearing existing collections before seeding...");
+            userRepository.deleteAll();
+            ticketRepository.deleteAll();
+            commentRepository.deleteAll();
+            ticketHistoryRepository.deleteAll();
+            notificationRepository.deleteAll();
+        }
+
         System.out.println("[SeedDataRunner] Seeding database with mock campus data...");
 
         // ── 1. Users ─────────────────────────────────────────────────────────────
@@ -54,6 +71,14 @@ public class SeedDataRunner implements ApplicationRunner {
                         .email("admin@university.edu").role(UserRole.ADMIN).createdAt(now).build()
         ));
 
+        // Identity values used throughout the mock ticketing module.
+        // During the "mock auth header" phase we use email as the principal identifier.
+        String nimal = "nimal.perera@university.edu";
+        String kasun = "kasun.silva@university.edu";
+        String chathuraTech = "chathura.tech@university.edu";
+        String amaliTech = "amali.tech@university.edu";
+        String admin = "admin@university.edu";
+
         // ── 2. Tickets ────────────────────────────────────────────────────────────
 
         LocalDateTime yesterday = now.minusDays(1);
@@ -67,8 +92,8 @@ public class SeedDataRunner implements ApplicationRunner {
                 .category(Category.HARDWARE)
                 .priority(TicketPriority.HIGH)
                 .status(TicketStatus.OPEN)
-                .createdBy("u1001")
-                .assignedTo("u1003")
+                .createdBy(nimal)
+                .assignedTo(chathuraTech)
                 .location("Lecture Hall 3")
                 .contactEmail("nimal.perera@university.edu")
                 .contactPhone("0712345678")
@@ -84,8 +109,8 @@ public class SeedDataRunner implements ApplicationRunner {
                 .category(Category.SOFTWARE)
                 .priority(TicketPriority.MEDIUM)
                 .status(TicketStatus.IN_PROGRESS)
-                .createdBy("u1002")
-                .assignedTo("u1003")
+                .createdBy(kasun)
+                .assignedTo(chathuraTech)
                 .location("Computer Lab 1")
                 .contactEmail("kasun.silva@university.edu")
                 .contactPhone("0723456789")
@@ -101,8 +126,8 @@ public class SeedDataRunner implements ApplicationRunner {
                 .category(Category.FACILITY)
                 .priority(TicketPriority.LOW)
                 .status(TicketStatus.RESOLVED)
-                .createdBy("u1001")
-                .assignedTo("u1004")
+                .createdBy(nimal)
+                .assignedTo(amaliTech)
                 .location("Main Library - Reading Area")
                 .contactEmail("nimal.perera@university.edu")
                 .contactPhone("0712345678")
@@ -119,8 +144,8 @@ public class SeedDataRunner implements ApplicationRunner {
                 .category(Category.FACILITY)
                 .priority(TicketPriority.URGENT)
                 .status(TicketStatus.IN_PROGRESS)
-                .createdBy("u1002")
-                .assignedTo("u1004")
+                .createdBy(kasun)
+                .assignedTo(amaliTech)
                 .location("Computer Lab 2")
                 .contactEmail("kasun.silva@university.edu")
                 .contactPhone("0723456789")
@@ -136,8 +161,8 @@ public class SeedDataRunner implements ApplicationRunner {
                 .category(Category.SOFTWARE)
                 .priority(TicketPriority.HIGH)
                 .status(TicketStatus.CLOSED)
-                .createdBy("u1001")
-                .assignedTo("u1003")
+                .createdBy(nimal)
+                .assignedTo(chathuraTech)
                 .location("IT Help Desk (Remote)")
                 .contactEmail("nimal.perera@university.edu")
                 .contactPhone("0712345678")
@@ -154,7 +179,7 @@ public class SeedDataRunner implements ApplicationRunner {
                 .category(Category.FACILITY)
                 .priority(TicketPriority.LOW)
                 .status(TicketStatus.REJECTED)
-                .createdBy("u1001")
+                .createdBy(nimal)
                 .assignedTo(null)
                 .location("Room B204")
                 .contactEmail("nimal.perera@university.edu")
@@ -171,37 +196,37 @@ public class SeedDataRunner implements ApplicationRunner {
 
         commentRepository.saveAll(List.of(
                 Comment.builder()
-                        .id("c3001").ticketId("t2001").userId("u1001")
+                        .id("c3001").ticketId("t2001").userId(nimal)
                         .message("Issue started yesterday morning during the 8am lecture. Tried a different laptop — same blank screen result.")
                         .createdAt(yesterday).updatedAt(yesterday).build(),
 
                 Comment.builder()
-                        .id("c3002").ticketId("t2001").userId("u1003")
+                        .id("c3002").ticketId("t2001").userId(chathuraTech)
                         .message("Inspected the projector. The HDMI port appears damaged. Will order a replacement cable. Will update by end of day.")
                         .createdAt(yesterday.plusHours(2)).updatedAt(yesterday.plusHours(2)).build(),
 
                 Comment.builder()
-                        .id("c3003").ticketId("t2001").userId("u1001")
+                        .id("c3003").ticketId("t2001").userId(nimal)
                         .message("Thank you. The next lecture is at 2pm — please try to fix it before then if possible.")
                         .createdAt(yesterday.plusHours(3)).updatedAt(yesterday.plusHours(3)).build(),
 
                 Comment.builder()
-                        .id("c3004").ticketId("t2002").userId("u1002")
+                        .id("c3004").ticketId("t2002").userId(kasun)
                         .message("This is affecting 30+ students during their DBMS practical. Please prioritise this issue.")
                         .createdAt(twoDaysAgo).updatedAt(twoDaysAgo).build(),
 
                 Comment.builder()
-                        .id("c3005").ticketId("t2002").userId("u1003")
+                        .id("c3005").ticketId("t2002").userId(chathuraTech)
                         .message("Currently reviewing the access point logs. Appears to be a DHCP exhaustion issue. Working on a fix.")
                         .createdAt(yesterday).updatedAt(yesterday).build(),
 
                 Comment.builder()
-                        .id("c3006").ticketId("t2004").userId("u1002")
+                        .id("c3006").ticketId("t2004").userId(kasun)
                         .message("The temperature in the lab is above 35°C. Students are leaving early. This needs urgent attention.")
                         .createdAt(yesterday).updatedAt(yesterday).build(),
 
                 Comment.builder()
-                        .id("c3007").ticketId("t2004").userId("u1004")
+                        .id("c3007").ticketId("t2004").userId(amaliTech)
                         .message("Checked the AC unit. Compressor is faulty. Ordered replacement parts — ETA 2 business days.")
                         .createdAt(now.minusHours(3)).updatedAt(now.minusHours(3)).build()
         ));
@@ -212,98 +237,98 @@ public class SeedDataRunner implements ApplicationRunner {
                 // t2001 — OPEN
                 TicketHistory.builder().id("h4001").ticketId("t2001")
                         .oldStatus(null).newStatus(TicketStatus.OPEN)
-                        .changedBy("u1001").changedAt(yesterday).build(),
+                        .changedBy(nimal).changedAt(yesterday).build(),
 
                 // t2002 — OPEN → IN_PROGRESS
                 TicketHistory.builder().id("h4002").ticketId("t2002")
                         .oldStatus(null).newStatus(TicketStatus.OPEN)
-                        .changedBy("u1002").changedAt(twoDaysAgo).build(),
+                        .changedBy(kasun).changedAt(twoDaysAgo).build(),
                 TicketHistory.builder().id("h4003").ticketId("t2002")
                         .oldStatus(TicketStatus.OPEN).newStatus(TicketStatus.IN_PROGRESS)
-                        .changedBy("u1003").changedAt(yesterday).build(),
+                        .changedBy(chathuraTech).changedAt(yesterday).build(),
 
                 // t2003 — OPEN → IN_PROGRESS → RESOLVED
                 TicketHistory.builder().id("h4004").ticketId("t2003")
                         .oldStatus(null).newStatus(TicketStatus.OPEN)
-                        .changedBy("u1001").changedAt(threeDaysAgo).build(),
+                        .changedBy(nimal).changedAt(threeDaysAgo).build(),
                 TicketHistory.builder().id("h4005").ticketId("t2003")
                         .oldStatus(TicketStatus.OPEN).newStatus(TicketStatus.IN_PROGRESS)
-                        .changedBy("u1004").changedAt(twoDaysAgo).build(),
+                        .changedBy(amaliTech).changedAt(twoDaysAgo).build(),
                 TicketHistory.builder().id("h4006").ticketId("t2003")
                         .oldStatus(TicketStatus.IN_PROGRESS).newStatus(TicketStatus.RESOLVED)
-                        .changedBy("u1004").changedAt(now).build(),
+                        .changedBy(amaliTech).changedAt(now).build(),
 
                 // t2004 — OPEN → IN_PROGRESS
                 TicketHistory.builder().id("h4007").ticketId("t2004")
                         .oldStatus(null).newStatus(TicketStatus.OPEN)
-                        .changedBy("u1002").changedAt(yesterday).build(),
+                        .changedBy(kasun).changedAt(yesterday).build(),
                 TicketHistory.builder().id("h4008").ticketId("t2004")
                         .oldStatus(TicketStatus.OPEN).newStatus(TicketStatus.IN_PROGRESS)
-                        .changedBy("u1004").changedAt(now.minusHours(4)).build(),
+                        .changedBy(amaliTech).changedAt(now.minusHours(4)).build(),
 
                 // t2005 — full lifecycle OPEN → IN_PROGRESS → RESOLVED → CLOSED
                 TicketHistory.builder().id("h4009").ticketId("t2005")
                         .oldStatus(null).newStatus(TicketStatus.OPEN)
-                        .changedBy("u1001").changedAt(threeDaysAgo).build(),
+                        .changedBy(nimal).changedAt(threeDaysAgo).build(),
                 TicketHistory.builder().id("h4010").ticketId("t2005")
                         .oldStatus(TicketStatus.OPEN).newStatus(TicketStatus.IN_PROGRESS)
-                        .changedBy("u1003").changedAt(threeDaysAgo.plusHours(1)).build(),
+                        .changedBy(chathuraTech).changedAt(threeDaysAgo.plusHours(1)).build(),
                 TicketHistory.builder().id("h4011").ticketId("t2005")
                         .oldStatus(TicketStatus.IN_PROGRESS).newStatus(TicketStatus.RESOLVED)
-                        .changedBy("u1003").changedAt(twoDaysAgo).build(),
+                        .changedBy(chathuraTech).changedAt(twoDaysAgo).build(),
                 TicketHistory.builder().id("h4012").ticketId("t2005")
                         .oldStatus(TicketStatus.RESOLVED).newStatus(TicketStatus.CLOSED)
-                        .changedBy("u1005").changedAt(twoDaysAgo.plusHours(2)).build(),
+                        .changedBy(admin).changedAt(twoDaysAgo.plusHours(2)).build(),
 
                 // t2006 — OPEN → REJECTED
                 TicketHistory.builder().id("h4013").ticketId("t2006")
                         .oldStatus(null).newStatus(TicketStatus.OPEN)
-                        .changedBy("u1001").changedAt(twoDaysAgo).build(),
+                        .changedBy(nimal).changedAt(twoDaysAgo).build(),
                 TicketHistory.builder().id("h4014").ticketId("t2006")
                         .oldStatus(TicketStatus.OPEN).newStatus(TicketStatus.REJECTED)
-                        .changedBy("u1005").changedAt(yesterday).build()
+                        .changedBy(admin).changedAt(yesterday).build()
         ));
 
         // ── 5. Notifications ──────────────────────────────────────────────────────
 
         notificationRepository.saveAll(List.of(
                 // Student u1001 — ticket created
-                Notification.builder().id("n5001").userId("u1001")
+                Notification.builder().id("n5001").userId(nimal)
                         .message("Your ticket 'Projector not working in Lecture Hall 3' has been submitted.")
                         .type(NotificationType.STATUS_UPDATE).isRead(false).createdAt(yesterday).build(),
 
                 // Technician u1003 — assigned to t2001
-                Notification.builder().id("n5002").userId("u1003")
+                Notification.builder().id("n5002").userId(chathuraTech)
                         .message("You have been assigned to ticket: 'Projector not working in Lecture Hall 3'.")
                         .type(NotificationType.ASSIGNMENT).isRead(true).createdAt(yesterday).build(),
 
                 // u1001 — new comment by technician on t2001
-                Notification.builder().id("n5003").userId("u1001")
+                Notification.builder().id("n5003").userId(nimal)
                         .message("Technician commented on your ticket 'Projector not working in Lecture Hall 3'.")
                         .type(NotificationType.COMMENT).isRead(false).createdAt(yesterday.plusHours(2)).build(),
 
                 // u1002 — t2002 status moved to IN_PROGRESS
-                Notification.builder().id("n5004").userId("u1002")
+                Notification.builder().id("n5004").userId(kasun)
                         .message("Your ticket 'WiFi connectivity issue in Computer Lab 1' is now IN_PROGRESS.")
                         .type(NotificationType.STATUS_UPDATE).isRead(true).createdAt(yesterday).build(),
 
                 // u1001 — t2003 resolved
-                Notification.builder().id("n5005").userId("u1001")
+                Notification.builder().id("n5005").userId(nimal)
                         .message("Your ticket 'Broken chair in library reading area' has been RESOLVED.")
                         .type(NotificationType.STATUS_UPDATE).isRead(true).createdAt(now).build(),
 
                 // u1001 — t2006 rejected
-                Notification.builder().id("n5006").userId("u1001")
+                Notification.builder().id("n5006").userId(nimal)
                         .message("Your ticket 'Missing whiteboard markers in Room B204' has been REJECTED. Reason: Whiteboard marker procurement is handled by the department office.")
                         .type(NotificationType.REJECTED).isRead(false).createdAt(yesterday).build(),
 
                 // u1001 — t2005 closed
-                Notification.builder().id("n5007").userId("u1001")
+                Notification.builder().id("n5007").userId(nimal)
                         .message("Your ticket 'Student portal login error after password reset' has been CLOSED.")
                         .type(NotificationType.STATUS_UPDATE).isRead(true).createdAt(twoDaysAgo.plusHours(2)).build(),
 
                 // u1002 — comment on t2004
-                Notification.builder().id("n5008").userId("u1004")
+                Notification.builder().id("n5008").userId(amaliTech)
                         .message("New comment on ticket 'Air conditioning not working in Lab 2'.")
                         .type(NotificationType.COMMENT).isRead(false).createdAt(yesterday).build()
         ));

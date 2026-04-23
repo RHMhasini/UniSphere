@@ -62,7 +62,16 @@ public class TicketController {
             @RequestParam(required = false) TicketStatus status,
             @RequestParam(required = false) Category category,
             @RequestParam(required = false) TicketPriority priority) {
-        
+
+        // In the current "mock auth header" phase, auth may be null if headers are not provided.
+        // Avoid NPEs and keep the API usable for local testing tools.
+        if (auth == null || auth.getName() == null || auth.getName().isBlank() || auth.getAuthorities().isEmpty()) {
+            if (status == null && category == null && priority == null) {
+                return ResponseEntity.ok(ticketService.getAllTickets());
+            }
+            return ResponseEntity.ok(ticketService.filterTickets(status, category, priority, null, null));
+        }
+
         String email = auth.getName();
         String role = auth.getAuthorities().iterator().next().getAuthority();
 

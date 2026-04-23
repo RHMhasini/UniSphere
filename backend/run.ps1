@@ -49,11 +49,11 @@ javac -version
 java -version
 
 if (-not $env:MONGODB_URI) {
-  throw "MONGODB_URI is not set. Add it to backend\\.env or set it in your terminal environment."
+  Write-Host "MONGODB_URI is not set. Falling back to the default in application.properties (mongodb://localhost:27017/unisphere)."
+} else {
+  $maskedMongo = $env:MONGODB_URI
+  $maskedMongo = $maskedMongo -replace "://([^:]+):([^@]+)@", "://`$1:***@"
+  Write-Host "MONGODB_URI=$maskedMongo"
 }
-
-$maskedMongo = $env:MONGODB_URI
-$maskedMongo = $maskedMongo -replace "://([^:]+):([^@]+)@", "://`$1:***@"
-Write-Host "MONGODB_URI=$maskedMongo"
 
 & .\\mvnw spring-boot:run

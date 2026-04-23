@@ -8,6 +8,7 @@ import com.unisphere.enums.NotificationType;
 import com.unisphere.exception.ResourceNotFoundException;
 import com.unisphere.repository.CommentRepository;
 import com.unisphere.repository.TicketRepository;
+import com.unisphere.repository.UserRepository;
 import com.unisphere.service.CommentService;
 import com.unisphere.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final TicketRepository ticketRepository;
     private final NotificationService notificationService;
+    private final UserRepository userRepository;
 
     @Override
     public CommentResponse addComment(String ticketId, CreateCommentRequest req) {
@@ -76,7 +78,7 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found: " + commentId));
 
-        if (!comment.getUserId().equals(userId)) {
+        if (!resolveActorIdentifiers(userId).contains(comment.getUserId())) {
             throw new IllegalArgumentException("You can only edit your own comments.");
         }
 
@@ -90,7 +92,7 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found: " + commentId));
 
-        if (!comment.getUserId().equals(userId)) {
+        if (!resolveActorIdentifiers(userId).contains(comment.getUserId())) {
             throw new IllegalArgumentException("You can only delete your own comments.");
         }
 
@@ -106,5 +108,19 @@ public class CommentServiceImpl implements CommentService {
                 .createdAt(c.getCreatedAt())
                 .updatedAt(c.getUpdatedAt())
                 .build();
+    }
+
+    private java.util.Set<String> resolveActorIdentifiers(String emailOrId) {
+        java.util.Set<String> ids = new java.util.LinkedHashSet<>();
+        if (emailOrId == null || emailOrId.isBlank()) return ids;
+
+        ids.add(emailOrId);
+        // If caller provides an email, also accept its seeded user id.
+        if (emailOrId.contains("@")) {
+            userRepository.findByEmail(emailOrId).ifPresent(u -> {
+                if (u.getId() != null && !u.getId().isBlank()) ids.add(u.getId());
+            });
+        }
+        return ids;
     }
 }
