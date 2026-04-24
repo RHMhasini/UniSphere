@@ -4,7 +4,7 @@ import { Search, Plus, Filter, LayoutGrid, List as ListIcon, AlertCircle } from 
 import TicketCard from '../../components/tickets/TicketCard/TicketCard';
 import Button from '../../components/common/Button/Button';
 import '../../styles/ticketingPagesCSS/TicketDashboard.css';
-import { api } from '../../services/api';
+import { ticketingApi } from '../../services/ticketingApi';
 import { useAuth } from '../../context/AuthContext';
 
 function TicketDashboard() {
@@ -28,7 +28,7 @@ function TicketDashboard() {
   const fetchTickets = async () => {
     try {
       setLoading(true);
-      const data = await api.get('/tickets');
+      const data = await ticketingApi.get('/tickets');
       const ticketsArray = data.value || data;
       setTickets(Array.isArray(ticketsArray) ? ticketsArray : []);
       setError(null);

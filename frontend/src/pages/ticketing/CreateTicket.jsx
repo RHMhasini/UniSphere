@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../../context/AuthContext";
 import Button from '../../components/common/Button/Button';
 import { AlertCircle, ArrowLeft, Upload, X } from 'lucide-react';
-import { api } from '../../services/api';
+import { ticketingApi } from '../../services/ticketingApi';
 import '../../styles/ticketingPagesCSS/CreateTicket.css';
 
 // Validation rules — centralised for easy adjustment
@@ -141,7 +141,7 @@ function CreateTicket() {
         createdBy: currentUser.email // use email as identifier per plan
       };
 
-      await api.post('/tickets', payload);
+      await ticketingApi.post('/tickets', payload);
       navigate('/tickets');
     } catch (err) {
       setError(err.message || 'Failed to create ticket');

@@ -1,5 +1,5 @@
 /**
- * Central API Service for UniSphere.
+ * Ticketing HTTP client for UniSphere (tickets, comments, status, etc.).
  * Automatically attaches mock authentication headers from the active session.
  */
 
@@ -54,7 +54,7 @@ const getHeaders = () => {
   return headers;
 };
 
-export const api = {
+export const ticketingApi = {
   get: async (endpoint) => {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       headers: getHeaders(),

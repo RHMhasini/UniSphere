@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/common/Button/Button';
 import Badge from '../../components/common/Badge/Badge';
 import { ArrowLeft, Clock, MessageSquare, AlertCircle, User, ShieldAlert, Trash2, Edit2, Check, X, FileText } from 'lucide-react';
-import { api } from '../../services/api';
+import { ticketingApi } from '../../services/ticketingApi';
 import '../../styles/ticketingPagesCSS/TicketDetails.css';
 
 // Utility for Time Gap calculations (SLA requirement)
@@ -53,18 +53,18 @@ function TicketDetails() {
     try {
       setLoading(true);
       // Fetch Ticket
-      const tData = await api.get(`/tickets/${id}`);
+      const tData = await ticketingApi.get(`/tickets/${id}`);
       setTicket(tData);
 
       // Fetch History
       try {
-        const hData = await api.get(`/tickets/${id}/history`);
+        const hData = await ticketingApi.get(`/tickets/${id}/history`);
         setHistory(hData);
       } catch (e) { console.error("History fetch failed", e); }
 
       // Fetch Comments
       try {
-        const cData = await api.get(`/tickets/${id}/comments`);
+        const cData = await ticketingApi.get(`/tickets/${id}/comments`);
         setComments(cData);
       } catch (e) { console.error("Comments fetch failed", e); }
       
@@ -95,7 +95,7 @@ function TicketDetails() {
         setRejectPrompt(false);
       }
       
-      await api.put(`/tickets/${id}/status`, payload);
+      await ticketingApi.put(`/tickets/${id}/status`, payload);
       fetchTicketData(); // refresh
     } catch (err) {
       alert(err.message || "Failed to update status. Check workflow rules.");
@@ -106,7 +106,7 @@ function TicketDetails() {
 
   const handlePriorityChange = async (newPriority) => {
     try {
-      await api.patch(`/tickets/${id}`, { priority: newPriority });
+      await ticketingApi.patch(`/tickets/${id}`, { priority: newPriority });
       fetchTicketData();
     } catch (err) { alert(err.message || "Failed to update priority"); }
   };
@@ -114,14 +114,14 @@ function TicketDetails() {
   const deleteComment = async (commentId) => {
     if (!window.confirm("Delete this comment permanently?")) return;
     try {
-      await api.delete(`/tickets/${id}/comments/${commentId}`);
+      await ticketingApi.delete(`/tickets/${id}/comments/${commentId}`);
       fetchTicketData();
     } catch (err) { alert(err.message || "Failed to delete comment"); }
   };
 
   const submitCommentEdit = async (commentId) => {
     try {
-      await api.put(`/tickets/${id}/comments/${commentId}`, { message: editingCommentText });
+      await ticketingApi.put(`/tickets/${id}/comments/${commentId}`, { message: editingCommentText });
       setEditingCommentId(null);
       fetchTicketData();
     } catch (err) { alert(err.message || "Failed to edit comment"); }
@@ -134,7 +134,7 @@ function TicketDetails() {
     if (newComment.trim().length < COMMENT_MIN) return;
     setActionLoading(true);
     try {
-      await api.post(`/tickets/${id}/comments`, { message: newComment });
+      await ticketingApi.post(`/tickets/${id}/comments`, { message: newComment });
       setNewComment('');
       fetchTicketData();
     } catch (err) {
@@ -147,7 +147,7 @@ function TicketDetails() {
   // Assigment Action (Admin Only)
   const handleAssignTech = async (techEmail) => {
     try {
-      await api.put(`/tickets/${id}/assign`, { assignedTo: techEmail });
+      await ticketingApi.put(`/tickets/${id}/assign`, { assignedTo: techEmail });
       fetchTicketData();
     } catch (err) { alert(err.message || "Failed to assign technician"); }
   };
