@@ -112,6 +112,69 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public void notifyAdminsNewBooking(com.unisphere.booking.model.Booking booking) {
+        List<User> admins = userRepository.findByRole(UserRole.ADMIN);
+        if (admins.isEmpty()) {
+            return;
+        }
+        String message = String.format("New booking request from %s for resource %s.", booking.getUserName(), booking.getResourceName());
+        
+        for (User admin : admins) {
+            Map<String, Boolean> prefs = admin.getNotificationPreferences();
+            if (prefs != null && prefs.containsKey("ADMIN_ALERTS") && !prefs.get("ADMIN_ALERTS")) {
+                continue; 
+            }
+            
+            Notification n = new Notification();
+            n.setUserId(admin.getId());
+            n.setMessage(message);
+            n.setType("ADMIN_ALERTS");
+            n.setRelatedUserId(booking.getUserId());
+            n.setIsRead(false);
+            notificationRepository.save(n);
+        }
+        log.info("Notified admins about new booking {}", booking.getId());
+    }
+
+    @Override
+    public void notifyUserBookingApproved(com.unisphere.booking.model.Booking booking) {
+        User user = userRepository.findById(booking.getUserId()).orElse(null);
+        if (user == null) return;
+        
+        Map<String, Boolean> prefs = user.getNotificationPreferences();
+        if (prefs != null && prefs.containsKey("BOOKING_UPDATES") && !prefs.get("BOOKING_UPDATES")) {
+            return;
+        }
+        
+        Notification n = new Notification();
+        n.setUserId(user.getId());
+        n.setMessage(String.format("Your booking for %s has been APPROVED.", booking.getResourceName()));
+        n.setType("BOOKING_UPDATES");
+        n.setIsRead(false);
+        notificationRepository.save(n);
+        log.info("Booking approved notification created for {}", user.getEmail());
+    }
+
+    @Override
+    public void notifyUserBookingRejected(com.unisphere.booking.model.Booking booking) {
+        User user = userRepository.findById(booking.getUserId()).orElse(null);
+        if (user == null) return;
+        
+        Map<String, Boolean> prefs = user.getNotificationPreferences();
+        if (prefs != null && prefs.containsKey("BOOKING_UPDATES") && !prefs.get("BOOKING_UPDATES")) {
+            return;
+        }
+        
+        Notification n = new Notification();
+        n.setUserId(user.getId());
+        n.setMessage(String.format("Your booking for %s has been REJECTED.", booking.getResourceName()));
+        n.setType("BOOKING_UPDATES");
+        n.setIsRead(false);
+        notificationRepository.save(n);
+        log.info("Booking rejected notification created for {}", user.getEmail());
+    }
+
+    @Override
     public NotificationPageResponse getNotifications(String userEmail, int page, int size) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));

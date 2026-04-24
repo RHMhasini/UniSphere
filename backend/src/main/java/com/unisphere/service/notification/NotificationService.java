@@ -17,6 +17,12 @@ public interface NotificationService {
 
     void notifyUserRegistrationSuccess(User user);
 
+    void notifyAdminsNewBooking(com.unisphere.booking.model.Booking booking);
+
+    void notifyUserBookingApproved(com.unisphere.booking.model.Booking booking);
+
+    void notifyUserBookingRejected(com.unisphere.booking.model.Booking booking);
+
     NotificationPageResponse getNotifications(String userEmail, int page, int size);
 
     List<NotificationResponse> getUnreadNotifications(String userEmail);

@@ -7,6 +7,9 @@ import com.unisphere.booking.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import com.unisphere.booking.event.BookingCreatedEvent;
+import com.unisphere.booking.event.BookingStatusChangedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,6 +18,7 @@ import java.util.List;
 public class BookingService {
 
     private final BookingRepository bookingRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     // Create a new booking
     public Booking createBooking(BookingDTO dto, String userId, String userName) {
@@ -43,7 +47,12 @@ public class BookingService {
         booking.setCreatedAt(LocalDateTime.now());
         booking.setUpdatedAt(LocalDateTime.now());
 
-        return bookingRepository.save(booking);
+        Booking savedBooking = bookingRepository.save(booking);
+        
+        // Publish event for new booking
+        eventPublisher.publishEvent(new BookingCreatedEvent(this, savedBooking));
+        
+        return savedBooking;
     }
 
     // Get all bookings for a specific user
@@ -74,6 +83,9 @@ public class BookingService {
         booking.setUpdatedAt(LocalDateTime.now());
         Booking saved = bookingRepository.save(booking);
         
+        // Publish event for status change
+        eventPublisher.publishEvent(new BookingStatusChangedEvent(this, saved, BookingStatus.PENDING));
+        
         return saved;
     }
 
@@ -89,6 +101,9 @@ public class BookingService {
         booking.setAdminReason(reason);
         booking.setUpdatedAt(LocalDateTime.now());
         Booking saved = bookingRepository.save(booking);
+        
+        // Publish event for status change
+        eventPublisher.publishEvent(new BookingStatusChangedEvent(this, saved, BookingStatus.PENDING));
         
         return saved;
     }
