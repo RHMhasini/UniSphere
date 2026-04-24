@@ -30,6 +30,9 @@ public class TicketResponse {
     private List<String> attachments;
     private String resolutionNote;
     private String rejectionReason;
+    private Boolean deletedByStudent;
+    private Boolean deletedByTechnician;
+    private Boolean isArchived;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

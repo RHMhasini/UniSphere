@@ -45,6 +45,18 @@ public class Ticket {
     /** Filled when status is set to REJECTED */
     private String rejectionReason;
 
+    /** Creator (student/lecturer) soft-removed from their own list; staff still see the ticket. */
+    @Builder.Default
+    private Boolean deletedByStudent = false;
+
+    /** Optional: technician-only soft hide (not used in default flows). */
+    @Builder.Default
+    private Boolean deletedByTechnician = false;
+
+    /** Admin archive — hidden from normal lists; remains in DB for audit. */
+    @Builder.Default
+    private Boolean isArchived = false;
+
     @CreatedDate
     private LocalDateTime createdAt;
 

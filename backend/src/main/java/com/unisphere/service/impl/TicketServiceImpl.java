@@ -69,6 +69,9 @@ public class TicketServiceImpl implements TicketService {
                 .contactEmail(req.getContactEmail())
                 .contactPhone(req.getContactPhone())
                 .attachments(req.getAttachments() != null ? req.getAttachments() : new ArrayList<>())
+                .deletedByStudent(false)
+                .deletedByTechnician(false)
+                .isArchived(false)
                 .build();
 
         Ticket saved = ticketRepository.save(ticket);
@@ -107,9 +110,20 @@ public class TicketServiceImpl implements TicketService {
             String email = auth.getName();
             String role = auth.getAuthorities().iterator().next().getAuthority();
 
-            boolean isStaff = "ADMIN".equals(role) || "TECHNICIAN".equals(role);
+            if (Boolean.TRUE.equals(ticket.getIsArchived()) && !"ADMIN".equals(role)) {
+                throw new ResourceNotFoundException("Ticket not found: " + id);
+            }
+
             Set<String> actorIds = resolveActorIdentifiers(email);
             boolean isCreator = actorIds.contains(ticket.getCreatedBy());
+
+            if (Boolean.TRUE.equals(ticket.getDeletedByStudent())
+                    && ("STUDENT".equals(role) || "LECTURER".equals(role))
+                    && isCreator) {
+                throw new ResourceNotFoundException("Ticket not found: " + id);
+            }
+
+            boolean isStaff = "ADMIN".equals(role) || "TECHNICIAN".equals(role);
             boolean isAssignee = ticket.getAssignedTo() != null && actorIds.contains(ticket.getAssignedTo());
             boolean isPublic = ticket.getCategory() == Category.FACILITY;
 
@@ -133,6 +147,7 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public List<TicketResponse> getAllTickets() {
         return ticketRepository.findAll().stream()
+                .filter(t -> !Boolean.TRUE.equals(t.getIsArchived()))
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -142,6 +157,14 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public TicketResponse updateTicket(String id, UpdateTicketRequest req) {
         Ticket ticket = findOrThrow(id);
+
+        if (req.getPriority() != null) {
+            TicketStatus st = ticket.getStatus();
+            if (st == TicketStatus.RESOLVED || st == TicketStatus.CLOSED || st == TicketStatus.REJECTED) {
+                throw new IllegalArgumentException(
+                        "Priority cannot be changed after a ticket is resolved, closed, or rejected.");
+            }
+        }
 
         if (req.getTitle() != null)        ticket.setTitle(req.getTitle());
         if (req.getDescription() != null)  ticket.setDescription(req.getDescription());
@@ -159,10 +182,41 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public void deleteTicket(String id) {
-        if (!ticketRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Ticket not found: " + id);
+        Ticket ticket = findOrThrow(id);
+
+        org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getName() == null || auth.getName().isBlank() || auth.getAuthorities().isEmpty()) {
+            throw new com.unisphere.exception.UnauthorizedAccessException("Authentication required to delete or archive tickets.");
         }
-        ticketRepository.deleteById(id);
+
+        String email = auth.getName();
+        String role = auth.getAuthorities().iterator().next().getAuthority();
+        Set<String> actorIds = resolveActorIdentifiers(email);
+
+        if ("TECHNICIAN".equals(role)) {
+            throw new com.unisphere.exception.UnauthorizedAccessException(
+                    "Technicians cannot delete or archive tickets.");
+        }
+
+        if ("ADMIN".equals(role)) {
+            ticket.setIsArchived(true);
+            ticketRepository.save(ticket);
+            return;
+        }
+
+        if (!"STUDENT".equals(role) && !"LECTURER".equals(role)) {
+            throw new com.unisphere.exception.UnauthorizedAccessException(
+                    "You do not have permission to remove this ticket.");
+        }
+
+        if (!actorIds.contains(ticket.getCreatedBy())) {
+            throw new com.unisphere.exception.UnauthorizedAccessException(
+                    "You can only remove tickets that you created.");
+        }
+
+        ticket.setDeletedByStudent(true);
+        ticketRepository.save(ticket);
     }
 
     // ── Status workflow ────────────────────────────────────────────────────────
@@ -262,30 +316,36 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public List<TicketResponse> getTicketsByStatus(TicketStatus status) {
         return ticketRepository.findByStatus(status).stream()
+                .filter(t -> !Boolean.TRUE.equals(t.getIsArchived()))
                 .map(this::mapToResponse).collect(Collectors.toList());
     }
 
     @Override
     public List<TicketResponse> getTicketsByCategory(Category category) {
         return ticketRepository.findByCategory(category).stream()
+                .filter(t -> !Boolean.TRUE.equals(t.getIsArchived()))
                 .map(this::mapToResponse).collect(Collectors.toList());
     }
 
     @Override
     public List<TicketResponse> getTicketsByPriority(TicketPriority priority) {
         return ticketRepository.findByPriority(priority).stream()
+                .filter(t -> !Boolean.TRUE.equals(t.getIsArchived()))
                 .map(this::mapToResponse).collect(Collectors.toList());
     }
 
     @Override
     public List<TicketResponse> getTicketsByCreatedBy(String createdBy) {
         return ticketRepository.findByCreatedBy(createdBy).stream()
+                .filter(t -> !Boolean.TRUE.equals(t.getIsArchived()))
+                .filter(t -> !Boolean.TRUE.equals(t.getDeletedByStudent()))
                 .map(this::mapToResponse).collect(Collectors.toList());
     }
 
     @Override
     public List<TicketResponse> getTicketsAssignedTo(String assignedTo) {
         return ticketRepository.findByAssignedTo(assignedTo).stream()
+                .filter(t -> !Boolean.TRUE.equals(t.getIsArchived()))
                 .map(this::mapToResponse).collect(Collectors.toList());
     }
 
@@ -300,11 +360,18 @@ public class TicketServiceImpl implements TicketService {
         // Keep implementation simple and correct: fetch + apply all provided criteria.
         // (Small dataset in this module; avoids a complex repository query matrix.)
         return ticketRepository.findAll().stream()
+                .filter(t -> !Boolean.TRUE.equals(t.getIsArchived()))
                 .filter(t -> status == null || t.getStatus() == status)
                 .filter(t -> category == null || t.getCategory() == category)
                 .filter(t -> priority == null || t.getPriority() == priority)
                 .filter(t -> createdBy == null || createdBy.isBlank() || createdBy.equals(t.getCreatedBy()))
                 .filter(t -> assignedTo == null || assignedTo.isBlank() || assignedTo.equals(t.getAssignedTo()))
+                .filter(t -> {
+                    if (createdBy != null && !createdBy.isBlank()) {
+                        return !Boolean.TRUE.equals(t.getDeletedByStudent());
+                    }
+                    return true;
+                })
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -312,17 +379,22 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public List<TicketResponse> getTicketsForUser(String email, String role) {
         if ("ADMIN".equals(role)) {
-            return ticketRepository.findAll().stream().map(this::mapToResponse).collect(Collectors.toList());
+            return ticketRepository.findAll().stream()
+                    .filter(t -> !Boolean.TRUE.equals(t.getIsArchived()))
+                    .map(this::mapToResponse)
+                    .collect(Collectors.toList());
         }
 
         Set<String> actorIds = resolveActorIdentifiers(email);
 
         return ticketRepository.findAll().stream()
+                .filter(t -> !Boolean.TRUE.equals(t.getIsArchived()))
                 .filter(t -> {
                     if ("TECHNICIAN".equals(role)) {
                         return t.getAssignedTo() != null && actorIds.contains(t.getAssignedTo());
                     }
-                    return t.getCreatedBy() != null && actorIds.contains(t.getCreatedBy());
+                    return t.getCreatedBy() != null && actorIds.contains(t.getCreatedBy())
+                            && !Boolean.TRUE.equals(t.getDeletedByStudent());
                 })
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -353,7 +425,10 @@ public class TicketServiceImpl implements TicketService {
     public Map<String, Long> getStatusCounts() {
         Map<String, Long> counts = new LinkedHashMap<>();
         for (TicketStatus s : TicketStatus.values()) {
-            counts.put(s.name(), ticketRepository.countByStatus(s));
+            long c = ticketRepository.findAll().stream()
+                    .filter(t -> t.getStatus() == s && !Boolean.TRUE.equals(t.getIsArchived()))
+                    .count();
+            counts.put(s.name(), c);
         }
         return counts;
     }
@@ -407,6 +482,9 @@ public class TicketServiceImpl implements TicketService {
                 .attachments(t.getAttachments())
                 .resolutionNote(t.getResolutionNote())
                 .rejectionReason(t.getRejectionReason())
+                .deletedByStudent(t.getDeletedByStudent())
+                .deletedByTechnician(t.getDeletedByTechnician())
+                .isArchived(t.getIsArchived())
                 .createdAt(t.getCreatedAt())
                 .updatedAt(t.getUpdatedAt())
                 .build();

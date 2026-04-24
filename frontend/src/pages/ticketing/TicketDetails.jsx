@@ -126,6 +126,23 @@ function TicketDetails() {
     } catch (err) { alert(err.message || "Failed to update priority"); }
   };
 
+  const handleDeleteTicket = async () => {
+    if (currentUser.role === "ADMIN") {
+      if (!window.confirm("Archive this ticket? It will be hidden from normal dashboards but kept in the database for audit.")) return;
+    } else {
+      if (!window.confirm("Remove this ticket from your list? Admins and technicians can still see and work on it.")) return;
+    }
+    setActionLoading(true);
+    try {
+      await ticketingApi.delete(`/tickets/${id}`);
+      navigate("/tickets");
+    } catch (err) {
+      alert(err.message || "Could not remove ticket.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const deleteComment = async (commentId) => {
     if (!window.confirm("Delete this comment permanently?")) return;
     try {
@@ -179,7 +196,10 @@ function TicketDetails() {
   // Admins & Techs can view everything. 
   // Students/Lecturers can view ONLY if it's General, OR if they created it.
   const isStaff = currentUser.role === 'ADMIN' || currentUser.role === 'TECHNICIAN';
-  const isCreator = ticket.createdBy === currentUser.email;
+  const isCreator =
+    ticket.createdBy === currentUser.email || ticket.createdBy === currentUser.id;
+  const isTerminalStatus =
+    ticket.status === "RESOLVED" || ticket.status === "CLOSED" || ticket.status === "REJECTED";
   
   if (!isStaff && !isGeneral && !isCreator) {
     return (
@@ -215,6 +235,19 @@ function TicketDetails() {
           {currentUser.role === 'ADMIN' && ticket.status === 'RESOLVED' && (
             <Button variant="ghost" onClick={() => handleStatusChange('CLOSED')}>Close Ticket</Button>
           )}
+
+          {currentUser.role === "ADMIN" && !ticket.isArchived && (
+            <Button variant="outline" onClick={handleDeleteTicket} disabled={actionLoading}>
+              Archive ticket
+            </Button>
+          )}
+          {(currentUser.role === "STUDENT" || currentUser.role === "LECTURER") &&
+            isCreator &&
+            !ticket.deletedByStudent && (
+              <Button variant="outline" onClick={handleDeleteTicket} disabled={actionLoading}>
+                Remove from my list
+              </Button>
+            )}
         </div>
       </div>
 
@@ -370,7 +403,7 @@ function TicketDetails() {
             {(currentUser.role === 'ADMIN' || currentUser.role === 'TECHNICIAN') && (
               <div className="detail-row" style={currentUser.role === 'ADMIN' ? { flexDirection: 'column', alignItems: 'flex-start', gap: '8px' } : {}}>
                 <span>Priority</span>
-                {currentUser.role === 'ADMIN' ? (
+                {currentUser.role === 'ADMIN' && !isTerminalStatus ? (
                   <select
                     value={ticket.priority}
                     onChange={(e) => handlePriorityChange(e.target.value)}

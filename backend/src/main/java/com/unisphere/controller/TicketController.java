@@ -112,6 +112,8 @@ public class TicketController {
     }
 
     // ── DELETE /api/tickets/{id} ──────────────────────────────────────────────
+    // Soft delete: ADMIN sets isArchived; STUDENT/LECTURER creator sets deletedByStudent.
+    // TECHNICIAN is not allowed. No hard delete.
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTicket(@PathVariable String id) {
