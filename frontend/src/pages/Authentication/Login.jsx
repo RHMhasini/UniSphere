@@ -86,7 +86,7 @@ const Login = () => {
   };
 
   return (
-    <div className="dashboard-wrapper min-h-screen mesh-background">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-white to-cyan-50 dark:from-indigo-950 dark:via-[#0b0f1a] dark:to-cyan-950 transition-colors">
       <div className="flex min-h-screen">
         {/* === LEFT PANEL: Enterprise Accent Design === */}
         {/* CSS Explanation: 
@@ -114,7 +114,7 @@ const Login = () => {
             </div>
             
             {/* CSS Explanation: text-3xl (Large text), font-semibold (Bold text), mt-16 (Margin top spacing) */}
-            <h1 className="mt-16 text-3xl font-semibold leading-tight tracking-tight lg:text-4xl">
+            <h1 className="mt-16 text-3xl font-semibold leading-tight tracking-tight lg:text-4xl !text-white !font-sans">
               Good to see you again.
             </h1>
             <p className="mt-4 max-w-md text-sm leading-relaxed text-slate-400">
@@ -151,7 +151,7 @@ const Login = () => {
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
+              <h2 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white !font-sans">
                 Sign in
               </h2>
               <p className="text-sm text-slate-600 dark:text-slate-400">

@@ -81,7 +81,7 @@ export default function Equipment() {
             </button>
           )}
         </div>
-        <button type="button" className="eq-page__book-btn">
+        <button type="button" className="eq-page__book-btn" onClick={() => navigate('/dashboard/bookings/create')}>
           Book Resource
         </button>
       </div>

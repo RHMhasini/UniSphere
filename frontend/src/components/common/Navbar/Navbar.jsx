@@ -27,13 +27,13 @@ function Navbar({ theme, toggleTheme }) {
         {/* Desktop nav links */}
         <ul className="navbar__links">
           <li>
-            <Link to="/">Home</Link>
+            <a href="#features">Features</a>
           </li>
           <li>
-            <Link to="/tickets">Tickets</Link>
+            <a href="#how-it-works">How It Works</a>
           </li>
           <li>
-            <a href="#how-it-works">Support</a>
+            <a href="#contact">Contact</a>
           </li>
         </ul>
 

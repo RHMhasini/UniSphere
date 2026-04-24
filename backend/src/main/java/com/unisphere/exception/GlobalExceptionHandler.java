@@ -57,6 +57,14 @@ public class GlobalExceptionHandler {
                 build(ex.getMessage(), "Bad Request", HttpStatus.BAD_REQUEST.value()));
     }
 
+    // ── Booking / Business Logic Conflicts (RuntimeException) ─────────────────
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                build(ex.getMessage(), "Bad Request", HttpStatus.BAD_REQUEST.value()));
+    }
+
     // ── 500 Fall-through ──────────────────────────────────────────────────────
 
     @ExceptionHandler(Exception.class)

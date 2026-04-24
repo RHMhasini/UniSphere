@@ -1,0 +1,88 @@
+@reference "../../index.css";
+.bd-container {
+  @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
+}
+
+.bd-back-nav {
+  @apply mb-6 flex justify-between items-center;
+}
+
+.bd-back-btn {
+  @apply text-indigo-600 hover:text-indigo-800 font-medium text-sm flex items-center;
+}
+
+.bd-card {
+  @apply bg-white shadow overflow-hidden sm:rounded-lg;
+}
+
+.bd-card-header {
+  @apply px-4 py-5 sm:px-6 flex justify-between items-start;
+}
+
+.bd-card-title {
+  @apply text-xl leading-6 font-bold text-gray-900;
+}
+
+.bd-card-desc {
+  @apply mt-1 max-w-2xl text-sm text-gray-500;
+}
+
+.bd-card-body {
+  @apply border-t border-gray-200;
+}
+
+.bd-row-gray {
+  @apply bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6;
+}
+
+.bd-row-white {
+  @apply bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6;
+}
+
+.bd-row-red {
+  @apply bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 border-l-4 border-red-400;
+}
+
+.bd-label {
+  @apply text-sm font-medium text-gray-500;
+}
+
+.bd-label-red {
+  @apply text-sm font-medium text-red-500;
+}
+
+.bd-value {
+  @apply mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2;
+}
+
+.bd-value-bold {
+  @apply mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 font-semibold;
+}
+
+.bd-value-red {
+  @apply mt-1 text-sm text-red-800 font-semibold sm:mt-0 sm:col-span-2;
+}
+
+.bd-card-footer {
+  @apply bg-white px-4 py-5 sm:px-6 border-t border-gray-200;
+}
+
+.bd-action-group {
+  @apply flex justify-end gap-4 space-x-3;
+}
+
+.bd-btn-reject {
+  @apply bg-red-50 hover:bg-red-100 text-red-700 font-bold py-2 px-6 rounded border border-red-200;
+}
+
+.bd-btn-approve {
+  @apply bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded shadow;
+}
+
+.bd-btn-cancel {
+  @apply bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded border border-gray-300;
+}
+
+.bd-status-text {
+  @apply text-sm text-gray-500 italic;
+}

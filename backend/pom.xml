@@ -20,12 +20,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- Bytecode level: use 21 LTS so `spring-boot:run` works when Maven uses JDK 21.
-             (Stale target/ classes compiled as Java 23 / major 67 break on JDK 21 with "Unsupported class file major version 67".) -->
         <java.version>21</java.version>
-        <!-- JDK 21+ requires explicit annotation processing mode for some tooling -->
         <maven.compiler.proc>full</maven.compiler.proc>
-        <!-- Align with Spring Boot 3.5.x (see https://spring.io/projects/spring-cloud#overview) -->
         <spring-cloud.version>2025.0.0</spring-cloud.version>
     </properties>
 
@@ -65,11 +61,11 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Read .env file properties -->
+        <!-- Dotenv for manual loading -->
         <dependency>
-            <groupId>me.paulschwarz</groupId>
-            <artifactId>spring-dotenv</artifactId>
-            <version>4.0.0</version>
+            <groupId>io.github.cdimascio</groupId>
+            <artifactId>dotenv-java</artifactId>
+            <version>3.0.0</version>
         </dependency>
 
         <!-- Cloudinary for Image Uploading -->
@@ -146,8 +142,6 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>com.unisphere.UniSphereApplication</mainClass>
-                    <!-- Use the same JVM as Maven (avoids "Unsupported class file major version 67"
-                         when `java` on PATH is older than the JDK that compiled release 23 classes). -->
                     <executable>${java.home}/bin/java</executable>
                 </configuration>
             </plugin>
@@ -162,6 +156,7 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
+                            <version>1.18.30</version>
                         </path>
                         <path>
                             <groupId>org.mapstruct</groupId>

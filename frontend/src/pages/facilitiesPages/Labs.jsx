@@ -81,7 +81,7 @@ export default function Labs() {
             </button>
           )}
         </div>
-        <button type="button" className="lab-page__book-btn">
+        <button type="button" className="lab-page__book-btn" onClick={() => navigate('/dashboard/bookings/create')}>
           Book Resource
         </button>
       </div>

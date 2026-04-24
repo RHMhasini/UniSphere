@@ -8,10 +8,21 @@ release.properties
 dependency-reduced-pom.xml
 .flattened-pom.xml
 .m2/
+HELP.md
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
 
 # IDE
 .idea/
 .vscode/
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+.apt_generated
 *.swp
 *.swo
 *~
@@ -20,8 +31,16 @@ dependency-reduced-pom.xml
 *.iws
 *.ipr
 *.user
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
 
-# Java
+# Java artifacts
 *.class
 *.jar
 *.war
@@ -32,7 +51,7 @@ dependency-reduced-pom.xml
 *.log
 *.pid
 
-# Application specific
+# Application-specific secrets — NEVER commit these
 uploads/
 .env
 .env.local
@@ -40,14 +59,13 @@ uploads/
 application-local.properties
 application.properties
 
-# Database
+# Database migrations (allow SQL in migrations folder)
 *.sql
 !src/main/resources/db/migration/*.sql
 
 # OS
-.DS_Store
 Thumbs.db
 
-# misc
+# Misc
 *.pid*.seed
 node_modules/

@@ -30,3 +30,4 @@ This is the frontend interface for the UniSphere system. It is responsible for t
 - **Profile Management**: Profile updating with photo uploads and dependent dropdowns.
 - **Admin Dashboard**: Manage users, filter by role, accept/reject pending users, toggle active status, and export user reports to PDF.
 - **Notifications**: See real-time alerts and user-centric notifications.
+
