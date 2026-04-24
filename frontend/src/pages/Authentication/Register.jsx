@@ -39,8 +39,8 @@ const Register = () => {
   };
 
   return (
-    <div className="dashboard-wrapper min-h-screen mesh-background py-10">
-      <div className="flex justify-center px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-white to-cyan-50 dark:from-indigo-950 dark:via-[#0b0f1a] dark:to-cyan-950 transition-colors py-10 flex items-center justify-center w-full">
+      <div className="w-full flex justify-center px-4 sm:px-6 lg:px-8">
         
         <div className="w-full max-w-4xl bg-white/40 dark:bg-slate-900/40 backdrop-blur-3xl rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row">
            {/* Left Panel */}
@@ -56,7 +56,7 @@ const Register = () => {
                     <p className="text-xs text-slate-400">Smart Campus</p>
                   </div>
                 </div>
-                <h2 className="mt-12 text-3xl font-semibold leading-tight text-white">Let's get you set up.</h2>
+                <h2 className="mt-12 text-3xl font-semibold leading-tight !text-white !font-sans">Let's get you set up.</h2>
                 <p className="mt-4 text-sm text-slate-400 leading-relaxed">
                   Create your account in minutes. Once you're in, you can book spaces, report issues, and manage everything on campus without chasing anyone.
                 </p>
@@ -85,7 +85,7 @@ const Register = () => {
           {/* Right Panel */}
           <div className="flex flex-1 flex-col justify-center py-12 px-8 sm:px-12 bg-white/50 dark:bg-slate-900/50">
             <div className="mb-6">
-               <h2 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Create Account</h2>
+               <h2 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white !font-sans">Create Account</h2>
                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Get started securely with your institutional email.</p>
             </div>
 

@@ -132,6 +132,11 @@ export const authAPI = {
     const response = await api.get('/auth/admin/users');
     return response.data;
   },
+
+  adminGetStats: async () => {
+    const response = await api.get('/auth/admin/stats');
+    return response.data;
+  },
 };
 
 // Notification endpoints
@@ -170,8 +175,6 @@ export const notificationAPI = {
     const response = await api.delete(`/notifications/${notificationId}`);
     return response.data;
   },
-
-
 };
 
 export default api;
