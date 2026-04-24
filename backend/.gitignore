@@ -69,3 +69,7 @@ Thumbs.db
 # Misc
 *.pid*.seed
 node_modules/
+
+# Local dev/test scripts (may contain credentials)
+test_*.js
+test_*.sh
