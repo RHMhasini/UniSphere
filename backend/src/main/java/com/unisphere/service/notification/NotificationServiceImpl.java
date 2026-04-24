@@ -331,29 +331,6 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void notifyUserTicketStatusChange(com.unisphere.entity.Ticket ticket, com.unisphere.enums.TicketStatus oldStatus, com.unisphere.enums.TicketStatus newStatus) {
         User user = userRepository.findByEmail(ticket.getCreatedBy()).orElse(null);
-        if (user == null) {
-            // Creators might be stored by ID in some cases (resolveActorIdentifiers)
-            user = userRepository.findById(ticket.getCreatedBy()).orElse(null);
-        }
-        if (user == null) return;
-        
-        Map<String, Boolean> prefs = user.getNotificationPreferences();
-        if (prefs != null && prefs.containsKey("TICKET_UPDATES") && !prefs.get("TICKET_UPDATES")) {
-            return;
-        }
-        
-        Notification n = new Notification();
-        n.setUserId(user.getId());
-        n.setMessage(String.format("Ticket \"%s\" status changed from %s to %s.", ticket.getTitle(), oldStatus, newStatus));
-        n.setType("TICKET_UPDATES");
-        n.setIsRead(false);
-        notificationRepository.save(n);
-        log.info("Ticket status change notification created for user: {}", user.getEmail());
-    }
-
-    @Override
-    public void notifyUserTicketStatusChange(com.unisphere.entity.Ticket ticket, com.unisphere.enums.TicketStatus oldStatus, com.unisphere.enums.TicketStatus newStatus) {
-        User user = userRepository.findByEmail(ticket.getCreatedBy()).orElse(null);
         if (user == null) user = userRepository.findById(ticket.getCreatedBy()).orElse(null);
         if (user == null) return;
         
