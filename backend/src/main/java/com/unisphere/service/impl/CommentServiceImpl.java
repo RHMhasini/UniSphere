@@ -26,6 +26,7 @@ public class CommentServiceImpl implements CommentService {
     private final TicketRepository ticketRepository;
     private final NotificationService notificationService;
     private final UserRepository userRepository;
+    private final org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     @Override
     public CommentResponse addComment(String ticketId, CreateCommentRequest req) {
@@ -40,25 +41,8 @@ public class CommentServiceImpl implements CommentService {
 
         Comment saved = commentRepository.save(comment);
 
-        // Notify the ticket creator if someone else commented
-        if (!req.getUserId().equals(ticket.getCreatedBy())) {
-            notificationService.createNotification(
-                    ticket.getCreatedBy(),
-                    "New comment on your ticket \"" + ticket.getTitle() + "\".",
-                    NotificationType.COMMENT.name()
-            );
-        }
-
-        // Notify the assigned technician if it's not them commenting
-        if (ticket.getAssignedTo() != null
-                && !ticket.getAssignedTo().isBlank()
-                && !req.getUserId().equals(ticket.getAssignedTo())) {
-            notificationService.createNotification(
-                    ticket.getAssignedTo(),
-                    "New comment on ticket \"" + ticket.getTitle() + "\".",
-                    NotificationType.COMMENT.name()
-            );
-        }
+        // Publish event for notifications
+        eventPublisher.publishEvent(new com.unisphere.event.comment.CommentAddedEvent(this, saved, ticket));
 
         return mapToResponse(saved);
     }

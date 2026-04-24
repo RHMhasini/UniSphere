@@ -265,7 +265,43 @@ public class NotificationServiceImpl implements NotificationService {
         log.info("Booking reminder sent to admins for booking: {}", booking.getId());
     }
 
-        log.info("Booking reminder sent to admins for booking: {}", booking.getId());
+    @Override
+    public void notifyNewComment(com.unisphere.entity.Ticket ticket, com.unisphere.entity.Comment comment) {
+        // Notify ticket creator if someone else commented
+        if (!comment.getUserId().equals(ticket.getCreatedBy())) {
+            User creator = userRepository.findByEmail(ticket.getCreatedBy()).orElse(null);
+            if (creator == null) creator = userRepository.findById(ticket.getCreatedBy()).orElse(null);
+            
+            if (creator != null) {
+                Map<String, Boolean> prefs = creator.getNotificationPreferences();
+                if (prefs == null || prefs.getOrDefault("TICKET_UPDATES", true)) {
+                    Notification n = new Notification();
+                    n.setUserId(creator.getId());
+                    n.setMessage(String.format("New comment on your ticket \"%s\".", ticket.getTitle()));
+                    n.setType("TICKET_UPDATES");
+                    n.setIsRead(false);
+                    notificationRepository.save(n);
+                }
+            }
+        }
+
+        // Notify technician if someone else commented
+        if (ticket.getAssignedTo() != null && !ticket.getAssignedTo().isBlank() && !comment.getUserId().equals(ticket.getAssignedTo())) {
+            User tech = userRepository.findByEmail(ticket.getAssignedTo()).orElse(null);
+            if (tech == null) tech = userRepository.findById(ticket.getAssignedTo()).orElse(null);
+            
+            if (tech != null) {
+                Map<String, Boolean> prefs = tech.getNotificationPreferences();
+                if (prefs == null || prefs.getOrDefault("TICKET_ALERTS", true)) {
+                    Notification n = new Notification();
+                    n.setUserId(tech.getId());
+                    n.setMessage(String.format("New comment on ticket \"%s\".", ticket.getTitle()));
+                    n.setType("TICKET_ALERTS");
+                    n.setIsRead(false);
+                    notificationRepository.save(n);
+                }
+            }
+        }
     }
 
     @Override

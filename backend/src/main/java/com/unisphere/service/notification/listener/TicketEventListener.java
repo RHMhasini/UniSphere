@@ -26,4 +26,9 @@ public class TicketEventListener {
     public void handleTicketAssigned(TicketAssignedEvent event) {
         notificationService.notifyTechnicianAssigned(event.getTicket(), event.getAssignedTo());
     }
+
+    @EventListener
+    public void handleCommentAdded(com.unisphere.event.comment.CommentAddedEvent event) {
+        notificationService.notifyNewComment(event.getTicket(), event.getComment());
+    }
 }

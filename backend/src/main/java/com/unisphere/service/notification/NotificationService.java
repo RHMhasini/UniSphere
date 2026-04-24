@@ -37,6 +37,8 @@ public interface NotificationService {
 
     void notifyTechnicianAssigned(com.unisphere.entity.Ticket ticket, String assignedTo);
 
+    void notifyNewComment(com.unisphere.entity.Ticket ticket, com.unisphere.entity.Comment comment);
+
     NotificationPageResponse getNotifications(String userEmail, int page, int size);
 
     List<NotificationResponse> getUnreadNotifications(String userEmail);
