@@ -36,3 +36,8 @@ gemini.md
 
 # Maven build output
 backend/target/
+
+# Local runtime data (never commit these)
+.mongo-data/
+.logs/
+.m2/
