@@ -42,9 +42,9 @@ function TicketDashboard() {
   const filteredTickets = tickets.filter(t => {
     const matchesStatus = filter === 'ALL' || t.status === filter;
     const matchesCategory = categoryFilter === 'ALL' || t.category === categoryFilter;
-    const matchesSearch = searchQuery.trim() === '' || 
-      t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (t.id && t.id.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesSearch =
+      searchQuery.trim() === '' ||
+      t.title.toLowerCase().includes(searchQuery.toLowerCase());
     
     return matchesStatus && matchesCategory && matchesSearch;
   });
@@ -125,7 +125,8 @@ function TicketDashboard() {
             <Search className="search-icon" size={20} />
             <input 
               type="text" 
-              placeholder="Search tickets by title or ID..." 
+              placeholder="Search tickets by title..."
+              aria-label="Search tickets by title" 
               className="search-input"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
