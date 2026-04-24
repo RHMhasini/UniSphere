@@ -17,6 +17,28 @@ public interface NotificationService {
 
     void notifyUserRegistrationSuccess(User user);
 
+    void notifyAdminsNewBooking(com.unisphere.booking.model.Booking booking);
+
+    void notifyUserBookingApproved(com.unisphere.booking.model.Booking booking);
+
+    void notifyUserBookingRejected(com.unisphere.booking.model.Booking booking);
+
+    void notifyAdminsBookingUpdated(com.unisphere.booking.model.Booking booking);
+
+    void notifyAdminsBookingCancelled(com.unisphere.booking.model.Booking booking);
+
+    void notifyUserBookingReminder(com.unisphere.booking.model.Booking booking);
+
+    void notifyAdminBookingReminder(com.unisphere.booking.model.Booking booking);
+
+    void notifyAdminsNewTicket(com.unisphere.entity.Ticket ticket);
+
+    void notifyUserTicketStatusChange(com.unisphere.entity.Ticket ticket, com.unisphere.enums.TicketStatus oldStatus, com.unisphere.enums.TicketStatus newStatus);
+
+    void notifyTechnicianAssigned(com.unisphere.entity.Ticket ticket, String assignedTo);
+
+    void notifyNewComment(com.unisphere.entity.Ticket ticket, com.unisphere.entity.Comment comment);
+
     NotificationPageResponse getNotifications(String userEmail, int page, int size);
 
     List<NotificationResponse> getUnreadNotifications(String userEmail);
@@ -30,7 +52,4 @@ public interface NotificationService {
     void deleteAllForUser(String userEmail);
 
     void deleteNotification(String userEmail, String notificationId);
-
-    /** Legacy support for ticketing module */
-    void createNotification(String userId, String message, String notificationType);
 }

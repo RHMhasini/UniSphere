@@ -28,4 +28,6 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
     // Get bookings by userId and status
     List<Booking> findByUserIdAndStatus(String userId, BookingStatus status);
 
+    // Get bookings for reminder scheduler
+    List<Booking> findByStatusAndReminderSentFalseAndStartTimeBetween(BookingStatus status, LocalDateTime start, LocalDateTime end);
 }

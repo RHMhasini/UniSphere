@@ -139,7 +139,32 @@ const NotificationsPage = () => {
     }
   };
 
-  const goUsers = () => navigate('/dashboard/users');
+  const getNotificationLink = (n) => {
+    if (n.type === 'REGISTRATION_ALERTS' || n.type === 'REGISTRATION_PENDING') {
+      return { path: '/dashboard/users', label: 'Open user management' };
+    }
+    if (n.type === 'BOOKING_ALERTS') {
+      return { path: '/dashboard/bookings/admin', label: 'View booking request' };
+    }
+    if (n.type === 'BOOKING_UPDATES') {
+      return { path: '/dashboard/bookings', label: 'View my booking' };
+    }
+    if (n.type === 'TICKET_ALERTS' || n.type === 'TICKET_UPDATES') {
+      return { path: '/dashboard/tickets', label: 'View ticket details' };
+    }
+    // Fallback for legacy/generic ADMIN_ALERTS
+    if (n.type === 'ADMIN_ALERTS') {
+      const msg = (n.message || '').toLowerCase();
+      if (msg.includes('booking')) {
+        return { path: '/dashboard/bookings/admin', label: 'View booking request' };
+      }
+      if (msg.includes('ticket') || msg.includes('fault')) {
+        return { path: '/dashboard/tickets', label: 'View ticket details' };
+      }
+      return { path: '/dashboard/users', label: 'Open user management' };
+    }
+    return null;
+  };
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 lg:px-0">
@@ -221,15 +246,19 @@ const NotificationsPage = () => {
                     </span>
                   ) : null}
                 </div>
-                {n.type === 'ADMIN_ALERTS' ? (
-                  <button
-                    type="button"
-                    onClick={goUsers}
-                    className="mt-2 text-xs font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
-                  >
-                    Open user management →
-                  </button>
-                ) : null}
+                {(() => {
+                  const link = getNotificationLink(n);
+                  if (!link) return null;
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => navigate(link.path)}
+                      className="mt-2 text-xs font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+                    >
+                      {link.label} →
+                    </button>
+                  );
+                })()}
               </div>
               <div className="flex shrink-0 items-center gap-1 sm:flex-col sm:items-end">
                 {!n.isRead ? (

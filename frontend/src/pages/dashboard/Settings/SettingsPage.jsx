@@ -6,9 +6,12 @@ import { Settings, Bell, Calendar, Wrench, Shield, Loader2 } from 'lucide-react'
 const SettingsPage = () => {
   const { user } = useAuth();
   const [preferences, setPreferences] = useState({
-    SYSTEM: true,
     ACCOUNT_STATUS: true,
-    ADMIN_ALERTS: true,
+    REGISTRATION_ALERTS: true,
+    BOOKING_ALERTS: true,
+    BOOKING_UPDATES: true,
+    TICKET_ALERTS: true,
+    TICKET_UPDATES: true,
   });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -17,9 +20,12 @@ const SettingsPage = () => {
   useEffect(() => {
     if (user?.notificationPreferences) {
       setPreferences({
-        SYSTEM: user.notificationPreferences.SYSTEM ?? true,
         ACCOUNT_STATUS: user.notificationPreferences.ACCOUNT_STATUS ?? true,
-        ADMIN_ALERTS: user.notificationPreferences.ADMIN_ALERTS ?? true,
+        REGISTRATION_ALERTS: user.notificationPreferences.REGISTRATION_ALERTS ?? true,
+        BOOKING_ALERTS: user.notificationPreferences.BOOKING_ALERTS ?? true,
+        BOOKING_UPDATES: user.notificationPreferences.BOOKING_UPDATES ?? true,
+        TICKET_ALERTS: user.notificationPreferences.TICKET_ALERTS ?? true,
+        TICKET_UPDATES: user.notificationPreferences.TICKET_UPDATES ?? true,
       });
     }
   }, [user]);
@@ -51,24 +57,46 @@ const SettingsPage = () => {
 
   const categories = [
     {
-      id: 'SYSTEM',
-      title: 'System Alerts & Maintenance',
-      description: 'Receive notifications about campus-wide issues and application updates.',
-      icon: <Shield className="w-5 h-5 text-indigo-500" />
-    },
-    {
       id: 'ACCOUNT_STATUS',
       title: 'Account Status Updates',
       description: 'Receive alerts when your account is approved, suspended, or reactivated.',
       icon: <Bell className="w-5 h-5 text-emerald-500" />
     },
-    // We only show ADMIN_ALERTS to admins
+    // Admin specific: Registration
     ...(user?.role === 'ADMIN' ? [{
-      id: 'ADMIN_ALERTS',
-      title: 'Admin Alerts',
+      id: 'REGISTRATION_ALERTS',
+      title: 'New Registrations',
       description: 'Receive notifications when new users register and require approval.',
-      icon: <Settings className="w-5 h-5 text-blue-500" />
-    }] : [])
+      icon: <Shield className="w-5 h-5 text-blue-500" />
+    }] : []),
+    // Admin specific: Booking Requests
+    ...(user?.role === 'ADMIN' ? [{
+      id: 'BOOKING_ALERTS',
+      title: 'Booking Requests',
+      description: 'Receive alerts for new booking requests and cancellations.',
+      icon: <Calendar className="w-5 h-5 text-indigo-500" />
+    }] : []),
+    // User specific: My Booking Updates
+    {
+      id: 'BOOKING_UPDATES',
+      title: 'My Booking Updates',
+      description: 'Get notified about approvals, rejections, and reminders for your bookings.',
+      icon: <Calendar className="w-5 h-5 text-emerald-500" />
+    },
+    // Staff specific: Ticket Alerts
+    ...(user?.role === 'ADMIN' || user?.role === 'TECHNICIAN' ? [{
+      id: 'TICKET_ALERTS',
+      title: 'Ticket Alerts (Staff)',
+      description: 'Get notified about new tickets and assignments.',
+      icon: <Wrench className="w-5 h-5 text-amber-500" />
+    }] : []),
+    // User specific: My Ticket Updates
+    {
+      id: 'TICKET_UPDATES',
+      title: 'My Ticket Updates',
+      description: 'Receive updates when your submitted tickets are assigned or resolved.',
+      icon: <Wrench className="w-5 h-5 text-sky-500" />
+    }
   ];
 
   return (
