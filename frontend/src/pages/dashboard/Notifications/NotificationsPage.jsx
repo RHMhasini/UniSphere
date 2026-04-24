@@ -224,10 +224,16 @@ const NotificationsPage = () => {
                 {n.type === 'ADMIN_ALERTS' ? (
                   <button
                     type="button"
-                    onClick={goUsers}
+                    onClick={() => {
+                      if (n.message && n.message.toLowerCase().includes('booking')) {
+                        navigate('/dashboard/bookings/admin');
+                      } else {
+                        navigate('/dashboard/users');
+                      }
+                    }}
                     className="mt-2 text-xs font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
                   >
-                    Open user management →
+                    {n.message && n.message.toLowerCase().includes('booking') ? 'Open admin bookings →' : 'Open user management →'}
                   </button>
                 ) : null}
               </div>

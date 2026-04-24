@@ -97,6 +97,12 @@ const DashboardNavbar = ({ onOpenMobileNav, theme, toggleTheme }) => {
       setBellOpen(false);
       if (n.type === 'REGISTRATION_PENDING') {
         navigate('/dashboard/users');
+      } else if (n.type === 'ADMIN_ALERTS') {
+        if (n.message && n.message.toLowerCase().includes('booking')) {
+          navigate('/dashboard/bookings/admin');
+        } else {
+          navigate('/dashboard/users');
+        }
       }
     } catch (err) {
       console.error('Mark read failed', err);

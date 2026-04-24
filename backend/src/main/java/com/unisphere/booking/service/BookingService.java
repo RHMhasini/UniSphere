@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import com.unisphere.booking.event.BookingCreatedEvent;
 import com.unisphere.booking.event.BookingStatusChangedEvent;
+import com.unisphere.booking.event.BookingUpdatedEvent;
+import com.unisphere.booking.event.BookingCancelledEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -149,7 +151,12 @@ public class BookingService {
         booking.setPurpose(dto.getPurpose());
         booking.setUpdatedAt(LocalDateTime.now());
 
-        return bookingRepository.save(booking);
+        Booking saved = bookingRepository.save(booking);
+        
+        // Publish event for updated booking
+        eventPublisher.publishEvent(new BookingUpdatedEvent(this, saved));
+        
+        return saved;
     }
 
     // Cancel a booking (user only)
@@ -167,6 +174,9 @@ public class BookingService {
         booking.setStatus(BookingStatus.CANCELLED);
         booking.setUpdatedAt(LocalDateTime.now());
         Booking saved = bookingRepository.save(booking);
+        
+        // Publish event for cancelled booking
+        eventPublisher.publishEvent(new BookingCancelledEvent(this, saved));
         
         return saved;
     }

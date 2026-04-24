@@ -175,6 +175,54 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public void notifyAdminsBookingUpdated(com.unisphere.booking.model.Booking booking) {
+        List<User> admins = userRepository.findByRole(UserRole.ADMIN);
+        if (admins.isEmpty()) return;
+
+        String message = String.format("Booking updated by %s for resource %s.", booking.getUserName(), booking.getResourceName());
+        
+        for (User admin : admins) {
+            Map<String, Boolean> prefs = admin.getNotificationPreferences();
+            if (prefs != null && prefs.containsKey("ADMIN_ALERTS") && !prefs.get("ADMIN_ALERTS")) {
+                continue; 
+            }
+            
+            Notification n = new Notification();
+            n.setUserId(admin.getId());
+            n.setMessage(message);
+            n.setType("ADMIN_ALERTS");
+            n.setRelatedUserId(booking.getUserId());
+            n.setIsRead(false);
+            notificationRepository.save(n);
+        }
+        log.info("Notified admins about booking update {}", booking.getId());
+    }
+
+    @Override
+    public void notifyAdminsBookingCancelled(com.unisphere.booking.model.Booking booking) {
+        List<User> admins = userRepository.findByRole(UserRole.ADMIN);
+        if (admins.isEmpty()) return;
+
+        String message = String.format("Booking cancelled by %s for resource %s.", booking.getUserName(), booking.getResourceName());
+        
+        for (User admin : admins) {
+            Map<String, Boolean> prefs = admin.getNotificationPreferences();
+            if (prefs != null && prefs.containsKey("ADMIN_ALERTS") && !prefs.get("ADMIN_ALERTS")) {
+                continue; 
+            }
+            
+            Notification n = new Notification();
+            n.setUserId(admin.getId());
+            n.setMessage(message);
+            n.setType("ADMIN_ALERTS");
+            n.setRelatedUserId(booking.getUserId());
+            n.setIsRead(false);
+            notificationRepository.save(n);
+        }
+        log.info("Notified admins about booking cancellation {}", booking.getId());
+    }
+
+    @Override
     public NotificationPageResponse getNotifications(String userEmail, int page, int size) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));

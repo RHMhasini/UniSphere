@@ -34,4 +34,16 @@ public class BookingEventListener {
             notificationService.notifyUserBookingRejected(event.getBooking());
         }
     }
+
+    @EventListener
+    public void handleBookingUpdated(com.unisphere.booking.event.BookingUpdatedEvent event) {
+        log.info("Received BookingUpdatedEvent for booking ID: {}", event.getBooking().getId());
+        notificationService.notifyAdminsBookingUpdated(event.getBooking());
+    }
+
+    @EventListener
+    public void handleBookingCancelled(com.unisphere.booking.event.BookingCancelledEvent event) {
+        log.info("Received BookingCancelledEvent for booking ID: {}", event.getBooking().getId());
+        notificationService.notifyAdminsBookingCancelled(event.getBooking());
+    }
 }
