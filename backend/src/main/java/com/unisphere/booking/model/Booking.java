@@ -33,6 +33,8 @@ public class Booking {
 
     private String adminReason;
 
+    private boolean reminderSent = false;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

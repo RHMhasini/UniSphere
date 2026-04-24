@@ -54,7 +54,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
         for (User admin : admins) {
             Map<String, Boolean> prefs = admin.getNotificationPreferences();
-            if (prefs != null && prefs.containsKey("ADMIN_ALERTS") && !prefs.get("ADMIN_ALERTS")) {
+            if (prefs != null && prefs.containsKey("REGISTRATION_ALERTS") && !prefs.get("REGISTRATION_ALERTS")) {
                 continue; // Admin opted out of registration alerts
             }
             
@@ -109,6 +109,160 @@ public class NotificationServiceImpl implements NotificationService {
         n.setIsRead(false);
         notificationRepository.save(n);
         log.info("Registration success notification created for student: {}", user.getEmail());
+    }
+
+    @Override
+    public void notifyAdminsNewBooking(com.unisphere.booking.model.Booking booking) {
+        List<User> admins = userRepository.findByRole(UserRole.ADMIN);
+        if (admins.isEmpty()) {
+            return;
+        }
+        String message = String.format("New booking request from %s for resource %s.", booking.getUserName(), booking.getResourceName());
+        
+        for (User admin : admins) {
+            Map<String, Boolean> prefs = admin.getNotificationPreferences();
+            if (prefs != null && prefs.containsKey("BOOKING_ALERTS") && !prefs.get("BOOKING_ALERTS")) {
+                continue; 
+            }
+            
+            Notification n = new Notification();
+            n.setUserId(admin.getId());
+            n.setMessage(message);
+            n.setType("ADMIN_ALERTS");
+            n.setRelatedUserId(booking.getUserId());
+            n.setIsRead(false);
+            notificationRepository.save(n);
+        }
+        log.info("Notified admins about new booking {}", booking.getId());
+    }
+
+    @Override
+    public void notifyUserBookingApproved(com.unisphere.booking.model.Booking booking) {
+        User user = userRepository.findById(booking.getUserId()).orElse(null);
+        if (user == null) return;
+        
+        Map<String, Boolean> prefs = user.getNotificationPreferences();
+        if (prefs != null && prefs.containsKey("BOOKING_UPDATES") && !prefs.get("BOOKING_UPDATES")) {
+            return;
+        }
+        
+        Notification n = new Notification();
+        n.setUserId(user.getId());
+        n.setMessage(String.format("Your booking for %s has been APPROVED.", booking.getResourceName()));
+        n.setType("BOOKING_UPDATES");
+        n.setIsRead(false);
+        notificationRepository.save(n);
+        log.info("Booking approved notification created for {}", user.getEmail());
+    }
+
+    @Override
+    public void notifyUserBookingRejected(com.unisphere.booking.model.Booking booking) {
+        User user = userRepository.findById(booking.getUserId()).orElse(null);
+        if (user == null) return;
+        
+        Map<String, Boolean> prefs = user.getNotificationPreferences();
+        if (prefs != null && prefs.containsKey("BOOKING_UPDATES") && !prefs.get("BOOKING_UPDATES")) {
+            return;
+        }
+        
+        Notification n = new Notification();
+        n.setUserId(user.getId());
+        n.setMessage(String.format("Your booking for %s has been REJECTED.", booking.getResourceName()));
+        n.setType("BOOKING_UPDATES");
+        n.setIsRead(false);
+        notificationRepository.save(n);
+        log.info("Booking rejected notification created for {}", user.getEmail());
+    }
+
+    @Override
+    public void notifyAdminsBookingUpdated(com.unisphere.booking.model.Booking booking) {
+        List<User> admins = userRepository.findByRole(UserRole.ADMIN);
+        if (admins.isEmpty()) return;
+
+        String message = String.format("Booking updated by %s for resource %s.", booking.getUserName(), booking.getResourceName());
+        
+        for (User admin : admins) {
+            Map<String, Boolean> prefs = admin.getNotificationPreferences();
+            if (prefs != null && prefs.containsKey("BOOKING_ALERTS") && !prefs.get("BOOKING_ALERTS")) {
+                continue; 
+            }
+            
+            Notification n = new Notification();
+            n.setUserId(admin.getId());
+            n.setMessage(message);
+            n.setType("ADMIN_ALERTS");
+            n.setRelatedUserId(booking.getUserId());
+            n.setIsRead(false);
+            notificationRepository.save(n);
+        }
+        log.info("Notified admins about booking update {}", booking.getId());
+    }
+
+    @Override
+    public void notifyAdminsBookingCancelled(com.unisphere.booking.model.Booking booking) {
+        List<User> admins = userRepository.findByRole(UserRole.ADMIN);
+        if (admins.isEmpty()) return;
+
+        String message = String.format("Booking cancelled by %s for resource %s.", booking.getUserName(), booking.getResourceName());
+        
+        for (User admin : admins) {
+            Map<String, Boolean> prefs = admin.getNotificationPreferences();
+            if (prefs != null && prefs.containsKey("BOOKING_ALERTS") && !prefs.get("BOOKING_ALERTS")) {
+                continue; 
+            }
+            
+            Notification n = new Notification();
+            n.setUserId(admin.getId());
+            n.setMessage(message);
+            n.setType("ADMIN_ALERTS");
+            n.setRelatedUserId(booking.getUserId());
+            n.setIsRead(false);
+            notificationRepository.save(n);
+        }
+        log.info("Notified admins about booking cancellation {}", booking.getId());
+    }
+
+    @Override
+    public void notifyUserBookingReminder(com.unisphere.booking.model.Booking booking) {
+        User user = userRepository.findById(booking.getUserId()).orElse(null);
+        if (user == null) return;
+
+        Map<String, Boolean> prefs = user.getNotificationPreferences();
+        if (prefs != null && prefs.containsKey("BOOKING_UPDATES") && !prefs.get("BOOKING_UPDATES")) {
+            return;
+        }
+
+        Notification n = new Notification();
+        n.setUserId(user.getId());
+        n.setMessage(String.format("Reminder: You have a booking for %s scheduled for today.", booking.getResourceName()));
+        n.setType("BOOKING_UPDATES");
+        n.setIsRead(false);
+        notificationRepository.save(n);
+        log.info("Booking reminder sent to user: {}", user.getEmail());
+    }
+
+    @Override
+    public void notifyAdminBookingReminder(com.unisphere.booking.model.Booking booking) {
+        List<User> admins = userRepository.findByRole(UserRole.ADMIN);
+        if (admins.isEmpty()) return;
+
+        String message = String.format("Today's Booking Reminder: %s is booked for %s starting at %s.", 
+                booking.getResourceName(), booking.getUserName(), booking.getStartTime().toLocalTime().toString());
+
+        for (User admin : admins) {
+            Map<String, Boolean> prefs = admin.getNotificationPreferences();
+            if (prefs != null && prefs.containsKey("BOOKING_ALERTS") && !prefs.get("BOOKING_ALERTS")) {
+                continue;
+            }
+
+            Notification n = new Notification();
+            n.setUserId(admin.getId());
+            n.setMessage(message);
+            n.setType("ADMIN_ALERTS");
+            n.setIsRead(false);
+            notificationRepository.save(n);
+        }
+        log.info("Booking reminder sent to admins for booking: {}", booking.getId());
     }
 
     @Override
@@ -183,25 +337,6 @@ public class NotificationServiceImpl implements NotificationService {
             throw new ResourceNotFoundException("Notification not found");
         }
         notificationRepository.deleteByIdAndUserId(notificationId, user.getId());
-    }
-
-    @Override
-    public void createNotification(String userIdOrEmail, String message, String notificationType) {
-        // Resolve userId if email was provided
-        String userId = userIdOrEmail;
-        if (userIdOrEmail != null && userIdOrEmail.contains("@")) {
-            userId = userRepository.findByEmail(userIdOrEmail)
-                    .map(User::getId)
-                    .orElse(userIdOrEmail); // Fallback to email if not found (legacy compatibility)
-        }
-
-        Notification n = new Notification();
-        n.setUserId(userId);
-        n.setMessage(message);
-        n.setType(notificationType);
-        n.setIsRead(false);
-        notificationRepository.save(n);
-        log.info("Legacy notification created for {}: {}", userId, message);
     }
 
     private NotificationResponse toResponse(Notification n) {
