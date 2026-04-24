@@ -352,25 +352,73 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void notifyTechnicianAssigned(com.unisphere.entity.Ticket ticket, String assignedTo) {
-        User tech = userRepository.findByEmail(assignedTo).orElse(null);
-        if (tech == null) {
-            tech = userRepository.findById(assignedTo).orElse(null);
-        }
-        if (tech == null) return;
+    public void notifyUserTicketStatusChange(com.unisphere.entity.Ticket ticket, com.unisphere.enums.TicketStatus oldStatus, com.unisphere.enums.TicketStatus newStatus) {
+        User user = userRepository.findByEmail(ticket.getCreatedBy()).orElse(null);
+        if (user == null) user = userRepository.findById(ticket.getCreatedBy()).orElse(null);
+        if (user == null) return;
         
-        Map<String, Boolean> prefs = tech.getNotificationPreferences();
-        if (prefs != null && prefs.containsKey("TICKET_ALERTS") && !prefs.get("TICKET_ALERTS")) {
-            return; 
+        Map<String, Boolean> prefs = user.getNotificationPreferences();
+        if (prefs != null && prefs.containsKey("TICKET_UPDATES") && !prefs.get("TICKET_UPDATES")) {
+            return;
+        }
+        
+        String type = "TICKET_UPDATES";
+        String message = String.format("Ticket \"%s\" status changed from %s to %s.", ticket.getTitle(), oldStatus, newStatus);
+        
+        if (newStatus == com.unisphere.enums.TicketStatus.REJECTED) {
+            type = "REJECTED";
+            if (ticket.getResolutionNote() != null && !ticket.getResolutionNote().isBlank()) {
+                message += " Reason: " + ticket.getResolutionNote();
+            }
+        } else if (newStatus == com.unisphere.enums.TicketStatus.RESOLVED) {
+            if (ticket.getResolutionNote() != null && !ticket.getResolutionNote().isBlank()) {
+                message = String.format("Your ticket \"%s\" has been RESOLVED. Note: %s", ticket.getTitle(), ticket.getResolutionNote());
+            }
         }
         
         Notification n = new Notification();
-        n.setUserId(tech.getId());
-        n.setMessage(String.format("You have been assigned to ticket: \"%s\".", ticket.getTitle()));
-        n.setType("TICKET_ALERTS");
+        n.setUserId(user.getId());
+        n.setMessage(message);
+        n.setType(type);
         n.setIsRead(false);
         notificationRepository.save(n);
-        log.info("Ticket assignment notification created for technician: {}", tech.getEmail());
+        log.info("Ticket status change notification created for user: {}", user.getEmail());
+    }
+
+    @Override
+    public void notifyTechnicianAssigned(com.unisphere.entity.Ticket ticket, String assignedTo) {
+        // 1. Notify Technician
+        User tech = userRepository.findByEmail(assignedTo).orElse(null);
+        if (tech == null) tech = userRepository.findById(assignedTo).orElse(null);
+        
+        if (tech != null) {
+            Map<String, Boolean> prefs = tech.getNotificationPreferences();
+            if (prefs == null || prefs.getOrDefault("TICKET_ALERTS", true)) {
+                Notification n = new Notification();
+                n.setUserId(tech.getId());
+                n.setMessage(String.format("You have been assigned to ticket: \"%s\".", ticket.getTitle()));
+                n.setType("TICKET_ALERTS");
+                n.setIsRead(false);
+                notificationRepository.save(n);
+            }
+        }
+
+        // 2. Notify Ticket Creator
+        User creator = userRepository.findByEmail(ticket.getCreatedBy()).orElse(null);
+        if (creator == null) creator = userRepository.findById(ticket.getCreatedBy()).orElse(null);
+        
+        if (creator != null) {
+            Map<String, Boolean> prefs = creator.getNotificationPreferences();
+            if (prefs == null || prefs.getOrDefault("TICKET_UPDATES", true)) {
+                Notification n = new Notification();
+                n.setUserId(creator.getId());
+                n.setMessage(String.format("A technician has been assigned to your ticket: \"%s\".", ticket.getTitle()));
+                n.setType("TICKET_UPDATES");
+                n.setIsRead(false);
+                notificationRepository.save(n);
+            }
+        }
+        log.info("Ticket assignment notifications created for ticket: {}", ticket.getId());
     }
 
     @Override
