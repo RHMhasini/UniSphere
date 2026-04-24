@@ -49,7 +49,6 @@ com\unisphere\entity\enums\RegistrationStatus.class
 com\unisphere\exception\ResourceNotFoundException.class
 com\unisphere\service\notification\NotificationServiceImpl.class
 com\unisphere\config\CorsConfig.class
-com\unisphere\booking\event\BookingStatusChangedEvent.class
 com\unisphere\exception\ApplicationException.class
 com\unisphere\booking\repository\BookingRepository.class
 com\unisphere\booking\dto\BookingDTO.class

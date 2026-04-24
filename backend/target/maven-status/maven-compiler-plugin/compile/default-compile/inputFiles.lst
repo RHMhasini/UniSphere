@@ -1,6 +1,5 @@
 C:\Users\hafsa\UniSphere\backend\src\main\java\com\unisphere\booking\controller\BookingController.java
 C:\Users\hafsa\UniSphere\backend\src\main\java\com\unisphere\booking\dto\BookingDTO.java
-C:\Users\hafsa\UniSphere\backend\src\main\java\com\unisphere\booking\event\BookingStatusChangedEvent.java
 C:\Users\hafsa\UniSphere\backend\src\main\java\com\unisphere\booking\model\Booking.java
 C:\Users\hafsa\UniSphere\backend\src\main\java\com\unisphere\booking\model\BookingStatus.java
 C:\Users\hafsa\UniSphere\backend\src\main\java\com\unisphere\booking\repository\BookingRepository.java
