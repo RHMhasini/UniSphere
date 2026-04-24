@@ -28,11 +28,14 @@ const formatTimeGap = (startStr, endStr) => {
 function TicketDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { currentUser, MOCK_USERS } = useAuth();
+  const { user } = useAuth();
+  const role = user?.role || '';
+  const basePath = (role === 'ADMIN' || role === 'TECHNICIAN') ? '/dashboard/tickets' : '/dashboard/mytickets';
   
   const [ticket, setTicket] = useState(null);
   const [history, setHistory] = useState([]);
   const [comments, setComments] = useState([]);
+  const [technicians, setTechnicians] = useState([]); // real technicians from API
   
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
@@ -68,6 +71,13 @@ function TicketDetails() {
         const cData = await ticketingApi.get(`/tickets/${id}/comments`);
         setComments(cData);
       } catch (e) { console.error("Comments fetch failed", e); }
+
+      // Fetch real technician list for admin assignment dropdown
+      try {
+        const users = await ticketingApi.get('/auth/admin/users');
+        const usersArr = Array.isArray(users) ? users : (users?.data || []);
+        setTechnicians(usersArr.filter(u => u.role === 'TECHNICIAN'));
+      } catch (e) { console.error("Technician list fetch failed", e); }
       
       setError(null);
     } catch (err) {
@@ -135,7 +145,7 @@ function TicketDetails() {
     setActionLoading(true);
     try {
       await ticketingApi.delete(`/tickets/${id}`);
-      navigate("/tickets");
+      navigate(basePath);
     } catch (err) {
       alert(err.message || "Could not remove ticket.");
     } finally {
@@ -185,7 +195,7 @@ function TicketDetails() {
   };
 
   if (loading) return <div className="loading-state"><div className="spinner"></div></div>;
-  if (error) return <div className="error-state"><AlertCircle size={48} /><h3>{error}</h3><Button onClick={() => navigate('/tickets')}>Back to Tickets</Button></div>;
+  if (error) return <div className="error-state"><AlertCircle size={48} /><h3>{error}</h3><Button onClick={() => navigate(basePath)}>Back to Tickets</Button></div>;
 
   // -- SECURITY & LOGICAL FLOW RULES --
   
@@ -193,11 +203,9 @@ function TicketDetails() {
   const isGeneral = ticket.category === 'FACILITY';
   
   // Rule 2: Can Current User view this ticket?
-  // Admins & Techs can view everything. 
-  // Students/Lecturers can view ONLY if it's General, OR if they created it.
-  const isStaff = currentUser.role === 'ADMIN' || currentUser.role === 'TECHNICIAN';
+  const isStaff = role === 'ADMIN' || role === 'TECHNICIAN';
   const isCreator =
-    ticket.createdBy === currentUser.email || ticket.createdBy === currentUser.id;
+    ticket.createdBy === user?.email || ticket.createdBy === user?.sub;
   const isTerminalStatus =
     ticket.status === "RESOLVED" || ticket.status === "CLOSED" || ticket.status === "REJECTED";
   
@@ -207,18 +215,18 @@ function TicketDetails() {
         <ShieldAlert size={48} />
         <h3>Access Denied</h3>
         <p>This is a specific issue raised by another user. You do not have permission to view it.</p>
-        <Button onClick={() => navigate('/tickets')}>Back to Tickets</Button>
+        <Button onClick={() => navigate(basePath)}>Back to Tickets</Button>
       </div>
     );
   }
 
-  // Find User Names for displays
-  const getCreatorName = (value) => MOCK_USERS.find(u => u.email === value || u.id === value)?.name || value;
+  // Fallback display for creator name: show email as-is if no better data available
+  const getCreatorName = (value) => value || 'Unknown';
 
   return (
     <div className="ticket-detail-container">
       <div className="detail-header-actions">
-        <Button variant="ghost" onClick={() => navigate('/tickets')}><ArrowLeft size={18} /> Back</Button>
+        <Button variant="ghost" onClick={() => navigate(basePath)}><ArrowLeft size={18} /> Back</Button>
         <div className="actions-right">
           {/* Admin/Tech Workflow Controls */}
           {isStaff && ticket.status === 'OPEN' && (
@@ -229,19 +237,19 @@ function TicketDetails() {
              <Button variant="success" onClick={() => setResolutionPrompt(true)} disabled={actionLoading}>Mark Resolved</Button>
           )}
 
-          {currentUser.role === 'ADMIN' && ticket.status !== 'CLOSED' && ticket.status !== 'REJECTED' && !rejectPrompt && (
+          {role === 'ADMIN' && ticket.status !== 'CLOSED' && ticket.status !== 'REJECTED' && !rejectPrompt && (
             <Button variant="outline" onClick={() => setRejectPrompt(true)}>Reject Ticket</Button>
           )}
-          {currentUser.role === 'ADMIN' && ticket.status === 'RESOLVED' && (
+          {role === 'ADMIN' && ticket.status === 'RESOLVED' && (
             <Button variant="ghost" onClick={() => handleStatusChange('CLOSED')}>Close Ticket</Button>
           )}
 
-          {currentUser.role === "ADMIN" && !ticket.isArchived && (
+          {role === "ADMIN" && !ticket.isArchived && (
             <Button variant="outline" onClick={handleDeleteTicket} disabled={actionLoading}>
               Archive ticket
             </Button>
           )}
-          {(currentUser.role === "STUDENT" || currentUser.role === "LECTURER") &&
+          {(role === "STUDENT" || role === "LECTURER") &&
             isCreator &&
             !ticket.deletedByStudent && (
               <Button variant="outline" onClick={handleDeleteTicket} disabled={actionLoading}>
@@ -400,10 +408,10 @@ function TicketDetails() {
               <span>Category</span>
               <strong>{ticket.category}</strong>
             </div>
-            {(currentUser.role === 'ADMIN' || currentUser.role === 'TECHNICIAN') && (
-              <div className="detail-row" style={currentUser.role === 'ADMIN' ? { flexDirection: 'column', alignItems: 'flex-start', gap: '8px' } : {}}>
+            {(role === 'ADMIN' || role === 'TECHNICIAN') && (
+              <div className="detail-row" style={role === 'ADMIN' ? { flexDirection: 'column', alignItems: 'flex-start', gap: '8px' } : {}}>
                 <span>Priority</span>
-                {currentUser.role === 'ADMIN' && !isTerminalStatus ? (
+                {role === 'ADMIN' && !isTerminalStatus ? (
                   <select
                     value={ticket.priority}
                     onChange={(e) => handlePriorityChange(e.target.value)}
@@ -430,15 +438,15 @@ function TicketDetails() {
             <div className="detail-row" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
               <span>Assigned To</span>
               
-              {(currentUser.role === 'ADMIN' && (ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS')) ? (
+              {(role === 'ADMIN' && (ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS')) ? (
                 <select 
                    value={ticket.assignedTo || ''} 
                    onChange={(e) => handleAssignTech(e.target.value)}
                    style={{ width: '100%', padding: '6px', borderRadius: '4px', background: 'var(--bg-secondary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
                 >
                   <option value="" disabled>Select Technician</option>
-                  {MOCK_USERS.filter(u => u.role === 'TECHNICIAN').map(tech => (
-                    <option key={tech.id} value={tech.email}>{tech.name}</option>
+                  {technicians.map(tech => (
+                    <option key={tech.id || tech.email} value={tech.email}>{tech.name || tech.email}</option>
                   ))}
                 </select>
               ) : (

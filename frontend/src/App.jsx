@@ -28,6 +28,9 @@ import SettingsPage from "./pages/dashboard/Settings/SettingsPage";
 import AccessDenied from "./pages/error/AccessDenied";
 import InactiveDashboard from "./pages/dashboard/InactiveDashboard";
 import ProtectedRoute from "./components/common/ProtectedRoute";
+import TicketDashboard from "./pages/ticketing/TicketDashboard";
+import CreateTicket from "./pages/ticketing/CreateTicket";
+import TicketDetails from "./pages/ticketing/TicketDetails";
 
 const GOOGLE_CLIENT_ID = "625444495391-kea4ugn1uhhn8m78c3o6ptjujk42bi8e.apps.googleusercontent.com";
 
@@ -155,23 +158,62 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              {/* Ticketing — Admins & Technicians */}
               <Route
                 path="tickets"
                 element={
                   <ProtectedRoute roles={['TECHNICIAN', 'ADMIN']}>
-                    <div>Service Tickets (Coming Soon)</div>
+                    <TicketDashboard />
                   </ProtectedRoute>
                 }
               />
               <Route
+                path="tickets/create"
+                element={
+                  <ProtectedRoute roles={['ADMIN']}>
+                    <CreateTicket />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="tickets/:id"
+                element={
+                  <ProtectedRoute roles={['TECHNICIAN', 'ADMIN']}>
+                    <TicketDetails />
+                  </ProtectedRoute>
+                }
+              />
+              {/* Ticketing — Students & Lecturers */}
+              <Route
                 path="mytickets"
                 element={
                   <ProtectedRoute roles={['STUDENT', 'LECTURER']}>
-                    <div>My Tickets (Coming Soon)</div>
+                    <TicketDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="mytickets/create"
+                element={
+                  <ProtectedRoute roles={['STUDENT', 'LECTURER']}>
+                    <CreateTicket />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="mytickets/:id"
+                element={
+                  <ProtectedRoute roles={['STUDENT', 'LECTURER']}>
+                    <TicketDetails />
                   </ProtectedRoute>
                 }
               />
             </Route>
+
+            {/* Legacy redirects — preserve deep paths like /tickets/create and /tickets/:id */}
+            <Route path="/tickets" element={<Navigate to="/dashboard/tickets" replace />} />
+            <Route path="/tickets/create" element={<Navigate to="/dashboard/tickets/create" replace />} />
+            <Route path="/tickets/:id" element={<Navigate to="/dashboard/tickets/:id" replace />} />
 
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>

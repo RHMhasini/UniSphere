@@ -18,14 +18,18 @@ const getStatusVariant = (status) => {
 
 function TicketCard({ ticket }) {
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const { user } = useAuth();
+  const role = user?.role || '';
 
   const dateFormatted = new Date(ticket.createdAt).toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric'
   });
 
+  // Navigate into the right section depending on role
+  const basePath = (role === 'ADMIN' || role === 'TECHNICIAN') ? '/dashboard/tickets' : '/dashboard/mytickets';
+
   return (
-    <div className="ticket-card" onClick={() => navigate(`/tickets/${ticket.id}`)}>
+    <div className="ticket-card" onClick={() => navigate(`${basePath}/${ticket.id}`)}>
       <div className="ticket-card-header">
 
         <h3 className="ticket-title">{ticket.title}</h3>
@@ -35,7 +39,7 @@ function TicketCard({ ticket }) {
       <p className="ticket-description">{ticket.description}</p>
       
       <div className="ticket-meta">
-        {(currentUser?.role === 'ADMIN' || currentUser?.role === 'TECHNICIAN') && (
+        {(role === 'ADMIN' || role === 'TECHNICIAN') && (
           <div className="meta-item">
             <AlertCircle size={16} />
             <span className={`priority-${ticket.priority.toLowerCase()}`}>

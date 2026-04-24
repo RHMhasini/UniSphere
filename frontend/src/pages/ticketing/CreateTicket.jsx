@@ -15,7 +15,10 @@ const RULES = {
 
 function CreateTicket() {
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const { user } = useAuth();
+  const role = user?.role || '';
+  // Base path: admins/techs use /dashboard/tickets, students/lecturers use /dashboard/mytickets
+  const basePath = (role === 'ADMIN' || role === 'TECHNICIAN') ? '/dashboard/tickets' : '/dashboard/mytickets';
   
   const [formData, setFormData] = useState({
     title: '',
@@ -23,7 +26,8 @@ function CreateTicket() {
     category: 'HARDWARE',
     priority: 'LOW',
     location: '',
-    contactEmail: '',
+    // Auto-fill from real auth; ADMIN can override for tickets raised on behalf of others
+    contactEmail: user?.email || '',
     contactPhone: '',
     attachments: [] // Stores base64 strings
   });
@@ -138,11 +142,11 @@ function CreateTicket() {
     try {
       const payload = {
         ...formData,
-        createdBy: currentUser.email // use email as identifier per plan
+        createdBy: user?.email || user?.sub // use real user identifier
       };
 
       await ticketingApi.post('/tickets', payload);
-      navigate('/tickets');
+      navigate(basePath);
     } catch (err) {
       setError(err.message || 'Failed to create ticket');
     } finally {
@@ -158,7 +162,7 @@ function CreateTicket() {
         </Button>
         <div className="title-area">
           <h1>Raise a New Ticket</h1>
-          <p>Fill out the details below to report an issue. Your ticket will be logged under <strong>{currentUser.name}</strong>.</p>
+          <p>Fill out the details below to report an issue. Your ticket will be logged under <strong>{user?.name || user?.email}</strong>.</p>
         </div>
       </div>
 
@@ -185,7 +189,7 @@ function CreateTicket() {
         </div>
 
         <div className="form-row">
-          <div className={`form-group ${currentUser?.role === 'ADMIN' ? 'half-width' : 'full-width'}`}>
+          <div className={`form-group ${role === 'ADMIN' ? 'half-width' : 'full-width'}`}>
             <label htmlFor="category">Category <span className="req">*</span></label>
             <select id="category" name="category" required value={formData.category} onChange={handleChange}>
               <option value="HARDWARE">Hardware (Specific)</option>
@@ -195,7 +199,7 @@ function CreateTicket() {
             <small className="field-hint">Facility tickets are visible and open to comments by everyone.</small>
           </div>
 
-          {currentUser?.role === 'ADMIN' && (
+          {role === 'ADMIN' && (
             <div className="form-group half-width">
               <label htmlFor="priority">Priority <span className="req">*</span></label>
               <select 
@@ -284,6 +288,9 @@ function CreateTicket() {
               id="contactEmail" name="contactEmail" type="email"
               className={fieldErrors.contactEmail && touched.contactEmail ? 'input-error' : ''}
               placeholder="your.email@university.edu"
+              // ADMIN can edit email (e.g. raising ticket on behalf of another user).
+              // All other roles get their verified auth email pre-filled and locked.
+              readOnly={role !== 'ADMIN'}
               required value={formData.contactEmail} onChange={handleChange} onBlur={handleBlur}
             />
             {fieldErrors.contactEmail && touched.contactEmail && <span className="field-error">{fieldErrors.contactEmail}</span>}

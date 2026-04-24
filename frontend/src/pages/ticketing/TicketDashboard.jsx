@@ -9,7 +9,9 @@ import { useAuth } from '../../context/AuthContext';
 
 function TicketDashboard() {
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const { user } = useAuth();
+  // Normalise role — the real JWT payload uses user.role as a plain string (e.g. 'ADMIN').
+  const role = user?.role || '';
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -72,8 +74,11 @@ function TicketDashboard() {
     resolved: tickets.filter(t => t.status === 'RESOLVED').length,
   };
 
-  const isAdmin = currentUser?.role === 'ADMIN';
-  const isStudent = currentUser?.role === 'STUDENT' || currentUser?.role === 'LECTURER';
+  const isAdmin = role === 'ADMIN';
+  const isTech = role === 'TECHNICIAN';
+  const isStudent = role === 'STUDENT' || role === 'LECTURER';
+  // Base path for this user's ticket section
+  const basePath = (isAdmin || isTech) ? '/dashboard/tickets' : '/dashboard/mytickets';
 
   return (
     <div className="dashboard-container">
@@ -93,7 +98,7 @@ function TicketDashboard() {
             <Filter size={18} /> {showAdvancedFilters ? 'Hide Filters' : 'Filter'}
           </Button>
           {(isStudent || isAdmin) && (
-            <Button variant="primary" onClick={() => navigate('/tickets/create')}>
+            <Button variant="primary" onClick={() => navigate(`${basePath}/create`)}>
               <Plus size={18} /> New Ticket
             </Button>
           )}

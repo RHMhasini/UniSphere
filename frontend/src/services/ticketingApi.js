@@ -1,9 +1,9 @@
 /**
  * Ticketing HTTP client for UniSphere (tickets, comments, status, etc.).
- * Automatically attaches mock authentication headers from the active session.
+ * Uses the real JWT Bearer token from localStorage (same key as api.js interceptors).
  */
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api';
 
 const buildError = async (response) => {
   const contentType = response.headers.get('content-type') || '';
@@ -33,22 +33,19 @@ const buildError = async (response) => {
   return err;
 };
 
+/**
+ * Build request headers.
+ * Attaches `Authorization: Bearer <token>` using the same `accessToken` key
+ * as the main api.js Axios interceptor — no separate mock headers.
+ */
 const getHeaders = () => {
   const headers = {
     'Content-Type': 'application/json',
   };
 
-  const saved = localStorage.getItem('unisphere_auth');
-  if (saved) {
-    try {
-      const user = JSON.parse(saved);
-      // Bridge headers for mock authentication
-      // Backend expects X-User-Email and X-User-Role
-      headers['X-User-Email'] = user.email || (user.name.toLowerCase().replace(' ', '.') + '@university.edu');
-      headers['X-User-Role'] = user.role;
-    } catch (e) {
-      console.error('Failed to parse auth header', e);
-    }
+  const token = localStorage.getItem('accessToken');
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
   }
 
   return headers;
