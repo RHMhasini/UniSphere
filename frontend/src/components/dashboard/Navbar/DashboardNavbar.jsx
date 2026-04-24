@@ -95,8 +95,14 @@ const DashboardNavbar = ({ onOpenMobileNav, theme, toggleTheme }) => {
       setBellItems((list) => list.filter((x) => x.id !== n.id));
       window.dispatchEvent(new Event('unicampus-notifications-changed'));
       setBellOpen(false);
-      if (n.type === 'REGISTRATION_PENDING') {
+      if (n.type === 'REGISTRATION_ALERTS' || n.type === 'REGISTRATION_PENDING') {
         navigate('/dashboard/users');
+      } else if (n.type === 'BOOKING_ALERTS') {
+        navigate('/dashboard/bookings/admin');
+      } else if (n.type === 'BOOKING_UPDATES') {
+        navigate('/dashboard/bookings');
+      } else if (n.type === 'TICKET_ALERTS' || n.type === 'TICKET_UPDATES') {
+        navigate('/dashboard/tickets');
       }
     } catch (err) {
       console.error('Mark read failed', err);
