@@ -152,6 +152,17 @@ const NotificationsPage = () => {
     if (n.type === 'TICKET_ALERTS' || n.type === 'TICKET_UPDATES') {
       return { path: '/dashboard/tickets', label: 'View ticket details' };
     }
+    // Fallback for legacy/generic ADMIN_ALERTS
+    if (n.type === 'ADMIN_ALERTS') {
+      const msg = (n.message || '').toLowerCase();
+      if (msg.includes('booking')) {
+        return { path: '/dashboard/bookings/admin', label: 'View booking request' };
+      }
+      if (msg.includes('ticket') || msg.includes('fault')) {
+        return { path: '/dashboard/tickets', label: 'View ticket details' };
+      }
+      return { path: '/dashboard/users', label: 'Open user management' };
+    }
     return null;
   };
 
