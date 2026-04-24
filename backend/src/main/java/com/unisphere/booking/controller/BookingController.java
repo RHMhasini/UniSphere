@@ -19,7 +19,6 @@ import com.unisphere.entity.User;
 @RestController
 @RequestMapping("/bookings")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173")
 public class BookingController {
 
     private final BookingService bookingService;
@@ -30,10 +29,10 @@ public class BookingController {
     public ResponseEntity<Booking> createBooking(
             @Valid @RequestBody BookingDTO dto,
             Principal principal) {
-        
+
         User user = userRepository.findByEmail(principal.getName())
             .orElseThrow(() -> new RuntimeException("User not found"));
-            
+
         String userId = user.getId();
         String userName = user.getFirstName() + " " + user.getLastName();
 
@@ -46,7 +45,7 @@ public class BookingController {
     public ResponseEntity<List<Booking>> getMyBookings(Principal principal) {
         User user = userRepository.findByEmail(principal.getName())
             .orElseThrow(() -> new RuntimeException("User not found"));
-            
+
         return ResponseEntity.ok(bookingService.getMyBookings(user.getId()));
     }
 

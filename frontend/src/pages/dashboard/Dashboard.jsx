@@ -7,7 +7,7 @@ const Dashboard = ({ theme, toggleTheme }) => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
-    <div className="dashboard-wrapper flex min-h-screen mesh-background text-slate-800 dark:text-slate-100">
+    <div className="dashboard-wrapper flex h-screen overflow-hidden mesh-background text-slate-800 dark:text-slate-100">
       {mobileNavOpen ? (
         <button
           type="button"
