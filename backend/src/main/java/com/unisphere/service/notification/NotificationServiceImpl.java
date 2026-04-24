@@ -54,7 +54,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
         for (User admin : admins) {
             Map<String, Boolean> prefs = admin.getNotificationPreferences();
-            if (prefs != null && prefs.containsKey("ADMIN_ALERTS") && !prefs.get("ADMIN_ALERTS")) {
+            if (prefs != null && prefs.containsKey("REGISTRATION_ALERTS") && !prefs.get("REGISTRATION_ALERTS")) {
                 continue; // Admin opted out of registration alerts
             }
             
@@ -121,7 +121,7 @@ public class NotificationServiceImpl implements NotificationService {
         
         for (User admin : admins) {
             Map<String, Boolean> prefs = admin.getNotificationPreferences();
-            if (prefs != null && prefs.containsKey("ADMIN_ALERTS") && !prefs.get("ADMIN_ALERTS")) {
+            if (prefs != null && prefs.containsKey("BOOKING_ALERTS") && !prefs.get("BOOKING_ALERTS")) {
                 continue; 
             }
             
@@ -183,7 +183,7 @@ public class NotificationServiceImpl implements NotificationService {
         
         for (User admin : admins) {
             Map<String, Boolean> prefs = admin.getNotificationPreferences();
-            if (prefs != null && prefs.containsKey("ADMIN_ALERTS") && !prefs.get("ADMIN_ALERTS")) {
+            if (prefs != null && prefs.containsKey("BOOKING_ALERTS") && !prefs.get("BOOKING_ALERTS")) {
                 continue; 
             }
             
@@ -207,7 +207,7 @@ public class NotificationServiceImpl implements NotificationService {
         
         for (User admin : admins) {
             Map<String, Boolean> prefs = admin.getNotificationPreferences();
-            if (prefs != null && prefs.containsKey("ADMIN_ALERTS") && !prefs.get("ADMIN_ALERTS")) {
+            if (prefs != null && prefs.containsKey("BOOKING_ALERTS") && !prefs.get("BOOKING_ALERTS")) {
                 continue; 
             }
             
@@ -251,7 +251,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         for (User admin : admins) {
             Map<String, Boolean> prefs = admin.getNotificationPreferences();
-            if (prefs != null && prefs.containsKey("ADMIN_ALERTS") && !prefs.get("ADMIN_ALERTS")) {
+            if (prefs != null && prefs.containsKey("BOOKING_ALERTS") && !prefs.get("BOOKING_ALERTS")) {
                 continue;
             }
 

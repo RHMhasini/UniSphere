@@ -6,9 +6,10 @@ import { Settings, Bell, Calendar, Wrench, Shield, Loader2 } from 'lucide-react'
 const SettingsPage = () => {
   const { user } = useAuth();
   const [preferences, setPreferences] = useState({
-    SYSTEM: true,
     ACCOUNT_STATUS: true,
-    ADMIN_ALERTS: true,
+    BOOKING_UPDATES: true,
+    REGISTRATION_ALERTS: true,
+    BOOKING_ALERTS: true,
   });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -17,9 +18,10 @@ const SettingsPage = () => {
   useEffect(() => {
     if (user?.notificationPreferences) {
       setPreferences({
-        SYSTEM: user.notificationPreferences.SYSTEM ?? true,
         ACCOUNT_STATUS: user.notificationPreferences.ACCOUNT_STATUS ?? true,
-        ADMIN_ALERTS: user.notificationPreferences.ADMIN_ALERTS ?? true,
+        BOOKING_UPDATES: user.notificationPreferences.BOOKING_UPDATES ?? true,
+        REGISTRATION_ALERTS: user.notificationPreferences.REGISTRATION_ALERTS ?? true,
+        BOOKING_ALERTS: user.notificationPreferences.BOOKING_ALERTS ?? true,
       });
     }
   }, [user]);
@@ -51,24 +53,31 @@ const SettingsPage = () => {
 
   const categories = [
     {
-      id: 'SYSTEM',
-      title: 'System Alerts & Maintenance',
-      description: 'Receive notifications about campus-wide issues and application updates.',
-      icon: <Shield className="w-5 h-5 text-indigo-500" />
-    },
-    {
       id: 'ACCOUNT_STATUS',
       title: 'Account Status Updates',
-      description: 'Receive alerts when your account is approved, suspended, or reactivated.',
+      description: 'Receive alerts when your registration is approved, rejected, or updated.',
       icon: <Bell className="w-5 h-5 text-emerald-500" />
     },
-    // We only show ADMIN_ALERTS to admins
-    ...(user?.role === 'ADMIN' ? [{
-      id: 'ADMIN_ALERTS',
-      title: 'Admin Alerts',
-      description: 'Receive notifications when new users register and require approval.',
-      icon: <Settings className="w-5 h-5 text-blue-500" />
-    }] : [])
+    {
+      id: 'BOOKING_UPDATES',
+      title: 'Booking Updates & Reminders',
+      description: 'Receive alerts for booking approvals, rejections, and daily reminders.',
+      icon: <Calendar className="w-5 h-5 text-indigo-500" />
+    },
+    ...(user?.role === 'ADMIN' ? [
+      {
+        id: 'REGISTRATION_ALERTS',
+        title: 'New Registration Alerts',
+        description: 'Receive notifications when new users register and require approval.',
+        icon: <Shield className="w-5 h-5 text-rose-500" />
+      },
+      {
+        id: 'BOOKING_ALERTS',
+        title: 'Booking Request Alerts',
+        description: 'Receive notifications when users create, update, or cancel bookings.',
+        icon: <Settings className="w-5 h-5 text-blue-500" />
+      }
+    ] : [])
   ];
 
   return (
