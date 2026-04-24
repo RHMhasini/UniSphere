@@ -27,6 +27,10 @@ public interface NotificationService {
 
     void notifyAdminsBookingCancelled(com.unisphere.booking.model.Booking booking);
 
+    void notifyUserBookingReminder(com.unisphere.booking.model.Booking booking);
+
+    void notifyAdminBookingReminder(com.unisphere.booking.model.Booking booking);
+
     NotificationPageResponse getNotifications(String userEmail, int page, int size);
 
     List<NotificationResponse> getUnreadNotifications(String userEmail);

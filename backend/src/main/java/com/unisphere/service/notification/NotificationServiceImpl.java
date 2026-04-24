@@ -223,6 +223,49 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public void notifyUserBookingReminder(com.unisphere.booking.model.Booking booking) {
+        User user = userRepository.findById(booking.getUserId()).orElse(null);
+        if (user == null) return;
+
+        Map<String, Boolean> prefs = user.getNotificationPreferences();
+        if (prefs != null && prefs.containsKey("BOOKING_UPDATES") && !prefs.get("BOOKING_UPDATES")) {
+            return;
+        }
+
+        Notification n = new Notification();
+        n.setUserId(user.getId());
+        n.setMessage(String.format("Reminder: You have a booking for %s scheduled for today.", booking.getResourceName()));
+        n.setType("BOOKING_UPDATES");
+        n.setIsRead(false);
+        notificationRepository.save(n);
+        log.info("Booking reminder sent to user: {}", user.getEmail());
+    }
+
+    @Override
+    public void notifyAdminBookingReminder(com.unisphere.booking.model.Booking booking) {
+        List<User> admins = userRepository.findByRole(UserRole.ADMIN);
+        if (admins.isEmpty()) return;
+
+        String message = String.format("Today's Booking Reminder: %s is booked for %s starting at %s.", 
+                booking.getResourceName(), booking.getUserName(), booking.getStartTime().toLocalTime().toString());
+
+        for (User admin : admins) {
+            Map<String, Boolean> prefs = admin.getNotificationPreferences();
+            if (prefs != null && prefs.containsKey("ADMIN_ALERTS") && !prefs.get("ADMIN_ALERTS")) {
+                continue;
+            }
+
+            Notification n = new Notification();
+            n.setUserId(admin.getId());
+            n.setMessage(message);
+            n.setType("ADMIN_ALERTS");
+            n.setIsRead(false);
+            notificationRepository.save(n);
+        }
+        log.info("Booking reminder sent to admins for booking: {}", booking.getId());
+    }
+
+    @Override
     public NotificationPageResponse getNotifications(String userEmail, int page, int size) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
