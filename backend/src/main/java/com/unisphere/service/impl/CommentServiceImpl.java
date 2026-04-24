@@ -10,7 +10,7 @@ import com.unisphere.repository.CommentRepository;
 import com.unisphere.repository.TicketRepository;
 import com.unisphere.repository.UserRepository;
 import com.unisphere.service.CommentService;
-import com.unisphere.service.NotificationService;
+import com.unisphere.service.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

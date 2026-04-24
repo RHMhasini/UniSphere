@@ -25,9 +25,8 @@ import java.util.List;
  *   DELETE /api/tickets/{ticketId}/comments/{commentId}         — delete own comment
  */
 @RestController
-@RequestMapping("/api/tickets/{ticketId}/comments")
+@RequestMapping("/tickets/{ticketId}/comments")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class CommentController {
 
     private final CommentService commentService;

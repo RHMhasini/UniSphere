@@ -30,4 +30,7 @@ public interface NotificationService {
     void deleteAllForUser(String userEmail);
 
     void deleteNotification(String userEmail, String notificationId);
+
+    /** Legacy support for ticketing module */
+    void createNotification(String userId, String message, String notificationType);
 }

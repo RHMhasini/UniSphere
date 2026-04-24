@@ -33,9 +33,8 @@ import java.util.Map;
  *   GET    /api/tickets/admin/full-register          — same export (legacy path)
  */
 @RestController
-@RequestMapping("/api/tickets")
+@RequestMapping("/tickets")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class TicketController {
 
     private final TicketService ticketService;
@@ -77,7 +76,7 @@ public class TicketController {
         String email = auth.getName();
         String role = auth.getAuthorities().iterator().next().getAuthority();
 
-        // If specific structural filters (status/category/priority) are provided, 
+        // If specific structural filters (status/category/priority) are provided,
         // we use the filterTickets method but we must still respect role boundaries.
         // For simplicity in this PAF demo, if status/category/priority are null, we use role-based getTicketsForUser.
         if (status == null && category == null && priority == null) {
@@ -85,8 +84,8 @@ public class TicketController {
         }
 
         // Otherwise, use filterTickets but ensure non-admins only see their own/assigned
-        String filterCreatedBy = "ADMIN".equals(role) ? null : ("TECHNICIAN".equals(role) ? null : email);
-        String filterAssignedTo = "TECHNICIAN".equals(role) ? email : null;
+        String filterCreatedBy = "ROLE_ADMIN".equals(role) ? null : ("ROLE_TECHNICIAN".equals(role) ? null : email);
+        String filterAssignedTo = "ROLE_TECHNICIAN".equals(role) ? email : null;
 
         return ResponseEntity.ok(
                 ticketService.filterTickets(status, category, priority, filterCreatedBy, filterAssignedTo));

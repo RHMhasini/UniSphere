@@ -185,6 +185,25 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.deleteByIdAndUserId(notificationId, user.getId());
     }
 
+    @Override
+    public void createNotification(String userIdOrEmail, String message, String notificationType) {
+        // Resolve userId if email was provided
+        String userId = userIdOrEmail;
+        if (userIdOrEmail != null && userIdOrEmail.contains("@")) {
+            userId = userRepository.findByEmail(userIdOrEmail)
+                    .map(User::getId)
+                    .orElse(userIdOrEmail); // Fallback to email if not found (legacy compatibility)
+        }
+
+        Notification n = new Notification();
+        n.setUserId(userId);
+        n.setMessage(message);
+        n.setType(notificationType);
+        n.setIsRead(false);
+        notificationRepository.save(n);
+        log.info("Legacy notification created for {}: {}", userId, message);
+    }
+
     private NotificationResponse toResponse(Notification n) {
         NotificationResponse r = new NotificationResponse();
         r.setId(n.getId());

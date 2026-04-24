@@ -11,7 +11,7 @@ import com.unisphere.exception.ResourceNotFoundException;
 import com.unisphere.repository.TicketHistoryRepository;
 import com.unisphere.repository.TicketRepository;
 import com.unisphere.repository.UserRepository;
-import com.unisphere.service.NotificationService;
+import com.unisphere.service.notification.NotificationService;
 import com.unisphere.service.TicketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -47,13 +47,13 @@ public class TicketServiceImpl implements TicketService {
 
         // Priority restricted to ADMIN only. Non-admins default to LOW.
         TicketPriority finalPriority = req.getPriority();
-        
+
         // Extract role from auth or headers (consistent with status update logic)
-        String role = (auth != null && !auth.getAuthorities().isEmpty()) 
-                ? auth.getAuthorities().iterator().next().getAuthority() 
-                : "STUDENT";
-        
-        if (!"ADMIN".equals(role)) {
+        String role = (auth != null && !auth.getAuthorities().isEmpty())
+                ? auth.getAuthorities().iterator().next().getAuthority()
+                : "ROLE_STUDENT";
+
+        if (!"ROLE_ADMIN".equals(role)) {
             finalPriority = TicketPriority.LOW;
         }
 
@@ -110,7 +110,7 @@ public class TicketServiceImpl implements TicketService {
             String email = auth.getName();
             String role = auth.getAuthorities().iterator().next().getAuthority();
 
-            if (Boolean.TRUE.equals(ticket.getIsArchived()) && !"ADMIN".equals(role)) {
+            if (Boolean.TRUE.equals(ticket.getIsArchived()) && !"ROLE_ADMIN".equals(role)) {
                 throw new ResourceNotFoundException("Ticket not found: " + id);
             }
 
@@ -118,17 +118,17 @@ public class TicketServiceImpl implements TicketService {
             boolean isCreator = actorIds.contains(ticket.getCreatedBy());
 
             if (Boolean.TRUE.equals(ticket.getDeletedByStudent())
-                    && ("STUDENT".equals(role) || "LECTURER".equals(role))
+                    && ("ROLE_STUDENT".equals(role) || "ROLE_LECTURER".equals(role))
                     && isCreator) {
                 throw new ResourceNotFoundException("Ticket not found: " + id);
             }
 
-            boolean isStaff = "ADMIN".equals(role) || "TECHNICIAN".equals(role);
+            boolean isStaff = "ROLE_ADMIN".equals(role) || "ROLE_TECHNICIAN".equals(role);
             boolean isAssignee = ticket.getAssignedTo() != null && actorIds.contains(ticket.getAssignedTo());
             boolean isPublic = ticket.getCategory() == Category.FACILITY;
 
             // Technicians should only access assigned tickets (unless it's public FACILITY)
-            if ("TECHNICIAN".equals(role) && !isAssignee && !isPublic) {
+            if ("ROLE_TECHNICIAN".equals(role) && !isAssignee && !isPublic) {
                 throw new com.unisphere.exception.UnauthorizedAccessException(
                         "Access Denied: You do not have permission to view this ticket."
                 );
@@ -194,18 +194,18 @@ public class TicketServiceImpl implements TicketService {
         String role = auth.getAuthorities().iterator().next().getAuthority();
         Set<String> actorIds = resolveActorIdentifiers(email);
 
-        if ("TECHNICIAN".equals(role)) {
+        if ("ROLE_TECHNICIAN".equals(role)) {
             throw new com.unisphere.exception.UnauthorizedAccessException(
                     "Technicians cannot delete or archive tickets.");
         }
 
-        if ("ADMIN".equals(role)) {
+        if ("ROLE_ADMIN".equals(role)) {
             ticket.setIsArchived(true);
             ticketRepository.save(ticket);
             return;
         }
 
-        if (!"STUDENT".equals(role) && !"LECTURER".equals(role)) {
+        if (!"ROLE_STUDENT".equals(role) && !"ROLE_LECTURER".equals(role)) {
             throw new com.unisphere.exception.UnauthorizedAccessException(
                     "You do not have permission to remove this ticket.");
         }
@@ -231,9 +231,9 @@ public class TicketServiceImpl implements TicketService {
 
         // --- Role Validation ---
         org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        String role = (auth != null && !auth.getAuthorities().isEmpty()) 
-                ? auth.getAuthorities().iterator().next().getAuthority() 
-                : "STUDENT";
+        String role = (auth != null && !auth.getAuthorities().isEmpty())
+                ? auth.getAuthorities().iterator().next().getAuthority()
+                : "ROLE_STUDENT";
 
         validateStatusTransition(role, ticket.getStatus(), req.getNewStatus());
 
@@ -284,9 +284,9 @@ public class TicketServiceImpl implements TicketService {
                 org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
         String role = (auth != null && !auth.getAuthorities().isEmpty())
                 ? auth.getAuthorities().iterator().next().getAuthority()
-                : "STUDENT";
+                : "ROLE_STUDENT";
 
-        if (!"ADMIN".equals(role)) {
+        if (!"ROLE_ADMIN".equals(role)) {
             throw new com.unisphere.exception.UnauthorizedAccessException(
                     "Only ADMIN users can assign technicians to tickets."
             );
@@ -378,7 +378,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public List<TicketResponse> getTicketsForUser(String email, String role) {
-        if ("ADMIN".equals(role)) {
+        if ("ROLE_ADMIN".equals(role)) {
             return ticketRepository.findAll().stream()
                     .filter(t -> !Boolean.TRUE.equals(t.getIsArchived()))
                     .map(this::mapToResponse)
@@ -390,7 +390,7 @@ public class TicketServiceImpl implements TicketService {
         return ticketRepository.findAll().stream()
                 .filter(t -> !Boolean.TRUE.equals(t.getIsArchived()))
                 .filter(t -> {
-                    if ("TECHNICIAN".equals(role)) {
+                    if ("ROLE_TECHNICIAN".equals(role)) {
                         return t.getAssignedTo() != null && actorIds.contains(t.getAssignedTo());
                     }
                     return t.getCreatedBy() != null && actorIds.contains(t.getCreatedBy())
@@ -441,7 +441,7 @@ public class TicketServiceImpl implements TicketService {
             throw new com.unisphere.exception.UnauthorizedAccessException("Authentication required.");
         }
         String role = auth.getAuthorities().iterator().next().getAuthority();
-        if (!"ADMIN".equals(role)) {
+        if (!"ROLE_ADMIN".equals(role)) {
             throw new com.unisphere.exception.UnauthorizedAccessException(
                     "Only administrators can export the full ticket register.");
         }
@@ -533,9 +533,14 @@ public class TicketServiceImpl implements TicketService {
         }
 
         // 2. Role Security enforcement (Backend)
-        if ("ADMIN".equals(role)) return;
+        // Spring Security's getAuthority() always returns the full "ROLE_" prefixed string
+        // (e.g. "ROLE_ADMIN", "ROLE_TECHNICIAN") because CustomUserDetailsService uses
+        // new SimpleGrantedAuthority("ROLE_" + user.getRole().name()). Comparing against
+        // bare "ADMIN" / "TECHNICIAN" always evaluates to false, silently blocking every
+        // admin and technician status update with an UnauthorizedAccessException.
+        if ("ROLE_ADMIN".equals(role)) return;
 
-        if ("TECHNICIAN".equals(role)) {
+        if ("ROLE_TECHNICIAN".equals(role)) {
             // Technicians can only move to IN_PROGRESS or RESOLVED
             if (newStatus == TicketStatus.IN_PROGRESS || newStatus == TicketStatus.RESOLVED) {
                 return;

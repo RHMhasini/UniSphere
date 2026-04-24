@@ -28,6 +28,8 @@ import SettingsPage from "./pages/dashboard/Settings/SettingsPage";
 import AccessDenied from "./pages/error/AccessDenied";
 import InactiveDashboard from "./pages/dashboard/InactiveDashboard";
 import ProtectedRoute from "./components/common/ProtectedRoute";
+
+// Ticketing Components
 import TicketDashboard from "./pages/ticketing/TicketDashboard";
 import CreateTicket from "./pages/ticketing/CreateTicket";
 import TicketDetails from "./pages/ticketing/TicketDetails";
@@ -158,6 +160,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              
               {/* Ticketing — Admins & Technicians */}
               <Route
                 path="tickets"
@@ -183,6 +186,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
               {/* Ticketing — Students & Lecturers */}
               <Route
                 path="mytickets"
@@ -209,11 +213,6 @@ function App() {
                 }
               />
             </Route>
-
-            {/* Legacy redirects — preserve deep paths like /tickets/create and /tickets/:id */}
-            <Route path="/tickets" element={<Navigate to="/dashboard/tickets" replace />} />
-            <Route path="/tickets/create" element={<Navigate to="/dashboard/tickets/create" replace />} />
-            <Route path="/tickets/:id" element={<Navigate to="/dashboard/tickets/:id" replace />} />
 
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>

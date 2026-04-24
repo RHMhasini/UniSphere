@@ -5,7 +5,7 @@ import { LogOut, User as UserIcon, ChevronDown } from "lucide-react";
 import "./Navbar.css";
 
 function Navbar({ theme, toggleTheme }) {
-  const { currentUser, logout } = useAuth();
+  const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -26,9 +26,15 @@ function Navbar({ theme, toggleTheme }) {
 
         {/* Desktop nav links */}
         <ul className="navbar__links">
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/tickets">Tickets</Link></li>
-          <li><a href="#how-it-works">Support</a></li>
+          <li>
+            <Link to="/">Home</Link>
+          </li>
+          <li>
+            <Link to="/tickets">Tickets</Link>
+          </li>
+          <li>
+            <a href="#how-it-works">Support</a>
+          </li>
         </ul>
 
         {/* Right side actions */}
@@ -38,25 +44,53 @@ function Navbar({ theme, toggleTheme }) {
             className="navbar__theme-btn"
             onClick={toggleTheme}
             aria-label="Toggle theme"
-            title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+            title={
+              theme === "light" ? "Switch to dark mode" : "Switch to light mode"
+            }
           >
             {theme === "light" ? (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="5" />
+                <line x1="12" y1="1" x2="12" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="23" />
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                <line x1="1" y1="12" x2="3" y2="12" />
+                <line x1="21" y1="12" x2="23" y2="12" />
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
               </svg>
             ) : (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
               </svg>
             )}
           </button>
 
-          {currentUser ? (
+          {user ? (
             <div className="navbar__user">
               <div className="user-profile">
                 <UserIcon size={18} />
-                <span className="user-name">{currentUser.name}</span>
-                <span className="role-tag">{currentUser.role}</span>
+                <span className="user-name">{user.fullName || user.email}</span>
+                <span className="role-tag">{user.role}</span>
               </div>
               <button className="logout-btn" onClick={logout} title="Log Out">
                 <LogOut size={18} />
@@ -64,8 +98,12 @@ function Navbar({ theme, toggleTheme }) {
             </div>
           ) : (
             <>
-              <Link to="/login" className="btn btn--outline">Log In</Link>
-              <Link to="/register" className="btn btn--primary">Get Started</Link>
+              <Link to="/login" className="btn btn--outline">
+                Log In
+              </Link>
+              <Link to="/register" className="btn btn--primary">
+                Get Started
+              </Link>
             </>
           )}
 
@@ -75,7 +113,9 @@ function Navbar({ theme, toggleTheme }) {
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
           >
-            <span></span><span></span><span></span>
+            <span></span>
+            <span></span>
+            <span></span>
           </button>
         </div>
       </div>
@@ -83,11 +123,29 @@ function Navbar({ theme, toggleTheme }) {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="navbar__mobile-menu">
-          <Link to="/" onClick={() => setMenuOpen(false)}>Features</Link>
-          <a href="#how-it-works" onClick={() => setMenuOpen(false)}>How It Works</a>
-          <a href="#contact" onClick={() => setMenuOpen(false)}>Contact</a>
-          <Link to="/login" className="btn btn--outline" onClick={() => setMenuOpen(false)}>Log In</Link>
-          <Link to="/register" className="btn btn--primary" onClick={() => setMenuOpen(false)}>Get Started</Link>
+          <Link to="/" onClick={() => setMenuOpen(false)}>
+            Features
+          </Link>
+          <a href="#how-it-works" onClick={() => setMenuOpen(false)}>
+            How It Works
+          </a>
+          <a href="#contact" onClick={() => setMenuOpen(false)}>
+            Contact
+          </a>
+          <Link
+            to="/login"
+            className="btn btn--outline"
+            onClick={() => setMenuOpen(false)}
+          >
+            Log In
+          </Link>
+          <Link
+            to="/register"
+            className="btn btn--primary"
+            onClick={() => setMenuOpen(false)}
+          >
+            Get Started
+          </Link>
         </div>
       )}
     </nav>

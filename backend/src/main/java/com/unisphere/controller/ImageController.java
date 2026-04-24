@@ -11,9 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/images")
+@RequestMapping("/images")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class ImageController {
 
     private final ImageService imageService;

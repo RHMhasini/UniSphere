@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface TicketHistoryRepository extends MongoRepository<TicketHistory, String> {
     List<TicketHistory> findByTicketId(String ticketId);
+    void deleteByTicketId(String ticketId);
 }
