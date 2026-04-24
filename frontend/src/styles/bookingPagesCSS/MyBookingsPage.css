@@ -1,3 +1,4 @@
+@reference "../../index.css";
 .mb-container {
   @apply min-h-screen bg-[#f7f8fc] text-[#0d1117] font-sans pb-20 relative;
 }
@@ -179,7 +180,7 @@
 }
 
 .mb-insight-icon {
-  @apply mx-auto w-10 h-10 bg-white bg-opacity-30 rounded flex items-center justify-center mb-4;
+  @apply mx-auto w-10 h-10 bg-white/30 rounded flex items-center justify-center mb-4;
 }
 
 .mb-insight-title {
@@ -187,7 +188,7 @@
 }
 
 .mb-insight-desc {
-  @apply text-[#064e3b] text-opacity-80 text-xs leading-relaxed max-w-[200px] mx-auto;
+  @apply text-[#064e3b]/80 text-xs leading-relaxed max-w-[200px] mx-auto;
 }
 
 .mb-fab {

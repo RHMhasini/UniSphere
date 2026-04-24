@@ -25,7 +25,7 @@ function Navbar({ theme, toggleTheme }) {
           <li><a href="#features">Features</a></li>
           <li><a href="#how-it-works">How It Works</a></li>
           <li><a href="#contact">Contact</a></li>
-          <li><a href="/my-bookings" style={{ color: "var(--accent)" }}>Bookings Module</a></li>
+
         </ul>
 
         {/* Right side actions */}

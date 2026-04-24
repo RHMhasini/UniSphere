@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { createBooking, getResourceById, getAllBookings } from "../../services/bookingService";
+import BookingTabs from "../../components/common/BookingTabs";
 import "../../styles/bookingPagesCSS/CreateBookingPage.css";
 
 const CreateBookingPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const resourceId = searchParams.get('resourceId') || 'LAB-402-A';
+  const resourceId = searchParams.get('resourceId') || '';
   
   const [formData, setFormData] = useState({
     resourceId: resourceId,
@@ -24,8 +25,25 @@ const CreateBookingPage = () => {
   const [error, setError] = useState(null);
   const [conflict, setConflict] = useState(null);
 
+  const [resources, setResources] = useState([]);
+  
+  // Fetch all resources for dropdown
+  useEffect(() => {
+    const fetchAllResources = async () => {
+      try {
+        const { default: api } = await import("../../services/resourceService.js");
+        const res = await api.get('/resources');
+        setResources(res.data || []);
+      } catch (err) {
+        console.error("Failed to load resources catalog:", err);
+      }
+    };
+    fetchAllResources();
+  }, []);
+
   useEffect(() => {
     const fetchResource = async () => {
+      if (!resourceId) return;
       try {
         const data = await getResourceById(resourceId);
         setResource(data);
@@ -117,7 +135,8 @@ const CreateBookingPage = () => {
       
     } catch (err) {
       if (err.response && err.response.status === 400) {
-        setError('Already booked. ' + (err.response.data.message || ''));
+        // Typically validation errors or conflict
+        setError(err.response.data.message || err.response.data || 'Validation failed. Please check your inputs.');
       } else {
         setError(err.response?.data?.message || err.response?.data || "An error occurred while creating booking.");
       }
@@ -128,7 +147,9 @@ const CreateBookingPage = () => {
 
   return (
     <div className="cb-container">
-      <main className="cb-main">
+      <main className="cb-main w-full max-w-[1200px] mx-auto">
+        <BookingTabs />
+        
         {/* Page Header */}
         <div className="cb-header-wrapper">
           <h1 className="cb-title">
@@ -155,9 +176,9 @@ const CreateBookingPage = () => {
         {conflict && (
           <div className="cb-alert-warning mb-6 p-4 bg-[#fff7ed] border border-[#ffedd5] rounded-xl flex items-center gap-4 text-[#9a3412] animate-in fade-in slide-in-from-top-1 duration-300">
             <div className="flex-shrink-0 w-8 h-8 bg-[#fb923c] text-white rounded-full flex items-center justify-center font-bold">!</div>
-            <div className="flex-1">
-              <h4 className="text-sm font-bold">Booking Conflict Detected</h4>
-              <p className="text-[11px] font-medium opacity-80">This resource is already reserved from {conflict.start} to {conflict.end} on this date. Please select a different time slot.</p>
+            <div className="flex-1 text-[#9a3412]">
+              <h4 className="text-sm font-bold text-[#9a3412]">Booking Conflict Detected</h4>
+              <p className="text-[11px] font-medium opacity-80 mt-0.5">This resource is already reserved from {conflict.start} to {conflict.end} on this date. Please select a different time slot.</p>
             </div>
           </div>
         )}
@@ -169,35 +190,30 @@ const CreateBookingPage = () => {
           <section className="cb-form-section">
             <form onSubmit={handleSubmit} className="cb-form">
               
-              <div className="cb-form-row">
-                <div className="cb-form-group">
-                  <label className="cb-label">
-                    Resource ID
-                  </label>
-                  <input
-                    type="text"
-                    name="resourceId"
-                    value={formData.resourceId}
-                    onChange={handleChange}
-                    readOnly
-                    placeholder="e.g., LAB-402-A"
-                    className="cb-input cb-input-readonly"
-                  />
-                </div>
-                <div className="cb-form-group">
-                  <label className="cb-label">
-                    Resource Name
-                  </label>
-                  <input
-                    type="text"
-                    name="resourceName"
-                    value={formData.resourceName}
-                    onChange={handleChange}
-                    required
-                    placeholder="Advanced Robotics Lab"
-                    className="cb-input cb-input-active"
-                  />
-                </div>
+              <div className="cb-form-group">
+                <label className="cb-label">
+                  Select Resource
+                </label>
+                <select
+                  name="resourceId"
+                  value={formData.resourceId}
+                  onChange={(e) => {
+                    const selectedRes = resources.find(r => r.id === e.target.value);
+                    handleChange(e);
+                    if (selectedRes) {
+                      setFormData(prev => ({ ...prev, resourceId: selectedRes.id, resourceName: selectedRes.name }));
+                    }
+                  }}
+                  required
+                  className="cb-input cb-input-active p-3 bg-white"
+                >
+                  <option value="" disabled>-- Select a building or lab --</option>
+                  {resources.map(r => (
+                    <option key={r.id} value={r.id}>
+                      {r.name} ({r.type})
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="cb-form-group">

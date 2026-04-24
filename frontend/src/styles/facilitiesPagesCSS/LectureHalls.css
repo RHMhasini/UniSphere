@@ -1,0 +1,191 @@
+.lh-page {
+  min-height: 100vh;
+  background: var(--bg-secondary);
+  padding-bottom: 80px;
+}
+
+.lh-content {
+  max-width: 1200px;
+  margin: 24px auto 32px;
+  padding: 0 24px;
+}
+
+.lh-page .cat-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.lh-page .cat-search-wrap {
+  flex: 1;
+  max-width: 540px;
+}
+
+.lh-page__book-btn {
+  flex-shrink: 0;
+  padding: 12px 22px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.lh-page__book-btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.lh-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(240px, 1fr));
+  gap: 24px;
+}
+
+.lh-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 420px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.lh-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+}
+
+.lh-card__image {
+  position: relative;
+  min-height: 220px;
+  background-size: cover;
+  background-position: center;
+}
+
+.lh-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.45));
+}
+
+.lh-status-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  backdrop-filter: blur(8px);
+}
+
+.lh-status-badge.active {
+  background: rgba(16, 185, 129, 0.92);
+  color: #ffffff;
+}
+
+.lh-status-badge.oos {
+  background: rgba(248, 113, 113, 0.92);
+  color: #ffffff;
+}
+
+.lh-card__body {
+  padding: 22px 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.lh-card__name {
+  font-size: 1.25rem;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.lh-card__location {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.lh-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.lh-card__meta-item {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.lh-card__footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-top: auto;
+}
+
+.lh-card__type,
+.lh-card__badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 8px 12px;
+}
+
+.lh-card__type {
+  background: rgba(59, 130, 246, 0.08);
+  color: var(--accent);
+}
+
+.lh-card__badge {
+  background: rgba(248, 113, 113, 0.08);
+  color: #dc2626;
+}
+
+@media (max-width: 1024px) {
+  .lh-grid {
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .lh-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lh-page .cat-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .lh-page__book-btn {
+    width: 100%;
+  }
+
+  .cat-header {
+    padding: 20px 18px;
+  }
+
+  .cat-toolbar {
+    padding: 0 18px;
+  }
+}

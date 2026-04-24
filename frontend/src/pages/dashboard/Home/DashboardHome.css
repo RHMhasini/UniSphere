@@ -1,0 +1,82 @@
+.dashboard-home {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-home__header {
+  margin-bottom: 3rem;
+}
+
+.dashboard-home__header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-home__subtitle {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+}
+
+.role-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.role-tasks__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-main);
+  border-bottom: 2px solid var(--primary-color);
+  width: fit-content;
+  padding-bottom: 0.25rem;
+}
+
+.role-tasks__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.task-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid var(--border-color);
+}
+
+.task-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.task-card__icon {
+  font-size: 2.5rem;
+  background: #f1f5f9;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.task-card__content h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 0.25rem;
+}
+
+.task-card__content p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}

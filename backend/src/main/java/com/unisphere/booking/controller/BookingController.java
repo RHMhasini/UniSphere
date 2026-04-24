@@ -10,23 +10,32 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
+import com.unisphere.repository.UserRepository;
+import com.unisphere.entity.User;
 
 @RestController
-@RequestMapping("/api/bookings")
+@RequestMapping("/bookings")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5173")
 public class BookingController {
 
     private final BookingService bookingService;
+    private final UserRepository userRepository;
 
     // POST /api/bookings — Create a booking
     @PostMapping
     public ResponseEntity<Booking> createBooking(
             @Valid @RequestBody BookingDTO dto,
-            @RequestHeader("X-User-Id") String userId,
-            @RequestHeader("X-User-Name") String userName) {
+            Principal principal) {
+        
+        User user = userRepository.findByEmail(principal.getName())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+            
+        String userId = user.getId();
+        String userName = user.getFirstName() + " " + user.getLastName();
 
         Booking booking = bookingService.createBooking(dto, userId, userName);
         return ResponseEntity.status(HttpStatus.CREATED).body(booking);
@@ -34,10 +43,11 @@ public class BookingController {
 
     // GET /api/bookings/my — Get my bookings
     @GetMapping("/my")
-    public ResponseEntity<List<Booking>> getMyBookings(
-            @RequestHeader("X-User-Id") String userId) {
-
-        return ResponseEntity.ok(bookingService.getMyBookings(userId));
+    public ResponseEntity<List<Booking>> getMyBookings(Principal principal) {
+        User user = userRepository.findByEmail(principal.getName())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+            
+        return ResponseEntity.ok(bookingService.getMyBookings(user.getId()));
     }
 
     // GET /api/bookings — Get all bookings (admin)
@@ -77,8 +87,24 @@ public class BookingController {
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<Booking> cancelBooking(
             @PathVariable String id,
-            @RequestHeader("X-User-Id") String userId) {
+            Principal principal) {
 
-        return ResponseEntity.ok(bookingService.cancelBooking(id, userId));
+        User user = userRepository.findByEmail(principal.getName())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return ResponseEntity.ok(bookingService.cancelBooking(id, user.getId()));
+    }
+
+    // PUT /api/bookings/{id} — Update booking
+    @PutMapping("/{id}")
+    public ResponseEntity<Booking> updateBooking(
+            @PathVariable String id,
+            @Valid @RequestBody BookingDTO dto,
+            Principal principal) {
+
+        User user = userRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return ResponseEntity.ok(bookingService.updateBooking(id, dto, user.getId()));
     }
 }

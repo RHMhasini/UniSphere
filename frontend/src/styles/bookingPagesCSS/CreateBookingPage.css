@@ -1,3 +1,4 @@
+@reference "../../index.css";
 .cb-container {
   @apply min-h-screen bg-[#f7f8fc] text-[#0d1117] font-sans;
 }
@@ -95,7 +96,7 @@
 }
 
 .cb-insight-icon-box {
-  @apply bg-[#2ac88c] bg-opacity-20 p-1.5 rounded text-[#2ac88c];
+  @apply bg-[#2ac88c]/20 p-1.5 rounded text-[#2ac88c];
 }
 
 .cb-insight-label {
@@ -115,7 +116,7 @@
 }
 
 .cb-stat-row {
-  @apply bg-[#32394e] bg-opacity-60 rounded-md p-3 flex justify-between items-center border border-[#3b435c];
+  @apply bg-[#32394e]/60 rounded-md p-3 flex justify-between items-center border border-[#3b435c];
 }
 
 .cb-stat-label {
@@ -159,7 +160,7 @@
 }
 
 .cb-image-content {
-  @apply absolute inset-0 flex items-center justify-center border-4 border-[#06b6d4] border-opacity-30 p-2 m-2 rounded-lg;
+  @apply absolute inset-0 flex items-center justify-center border-4 border-[#06b6d4]/30 p-2 m-2 rounded-lg;
 }
 
 .cb-image-text {

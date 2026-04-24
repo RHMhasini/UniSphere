@@ -36,6 +36,11 @@ export const cancelBooking = async (id) => {
   return response.data;
 };
 
+export const updateBooking = async (id, bookingData) => {
+  const response = await api.put(`/bookings/${id}`, bookingData);
+  return response.data;
+};
+
 export const getResourceById = async (id) => {
   // Temporary mock function until Member 1 is fully integrated
   // In a real scenario, this connects to GET /api/resources/{id}

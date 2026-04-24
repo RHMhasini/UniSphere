@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getMyBookings, cancelBooking } from "../../services/bookingService";
+import BookingTabs from "../../components/common/BookingTabs";
 import "../../styles/bookingPagesCSS/MyBookingsPage.css";
 
 const StatusBadge = ({ status }) => {
@@ -69,7 +70,8 @@ const MyBookingsPage = () => {
 
   return (
     <div className="mb-container">
-      <main className="mb-main">
+      <main className="mb-main w-full max-w-[1200px] mx-auto">
+        <BookingTabs />
         
         {/* Today's Reminder Alert */}
         {todayBooking && (
@@ -197,24 +199,26 @@ const MyBookingsPage = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="col-span-1 w-full flex justify-end">
-                  {booking.status === "APPROVED" ? (
+                <div className="col-span-1 w-full flex justify-end gap-4 items-center">
+                  {(booking.status === "APPROVED" || booking.status === "PENDING") && (
+                    <Link to={`/dashboard/bookings/${booking.id}/edit`} className="p-2 text-[#2563eb] hover:bg-[#eff6ff] rounded-lg transition-colors flex items-center justify-center" title="Update Booking">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </Link>
+                  )}
+                  
+                  {(booking.status === "APPROVED" || booking.status === "PENDING") ? (
                     <button onClick={() => handleCancelClick(booking.id)} className="mb-action-cancel">
                       Cancel
                     </button>
                   ) : booking.status === "REJECTED" ? (
-                    <Link to={`/bookings/${booking.id}`} className="mb-action-details">
+                    <Link to={`/dashboard/bookings/${booking.id}`} className="mb-action-details">
                       Details
                     </Link>
                   ) : booking.status === "CANCELLED" ? (
-                    <Link to={`/booking/create?resourceId=${booking.resourceId}`} className="mb-action-rebook">
+                    <Link to={`/dashboard/bookings/create?resourceId=${booking.resourceId}`} className="mb-action-rebook">
                       Rebook
                     </Link>
-                  ) : (
-                    <Link to={`/bookings/${booking.id}`} className="text-gray-400 hover:text-gray-900">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-                    </Link>
-                  )}
+                  ) : null}
                 </div>
 
               </div>
@@ -224,7 +228,7 @@ const MyBookingsPage = () => {
 
         {/* Bottom Banner Cards */}
         <div className="mb-bottom-grid">
-          <Link to="/booking/policies" className="mb-policy-card hover:border-[#2ac88c] transition-all">
+          <Link to="/dashboard/bookings/policies" className="mb-policy-card hover:border-[#2ac88c] transition-all">
              <div className="mb-policy-icon">
                <span className="text-[#2ac88c] font-serif text-xl">?</span>
              </div>
@@ -233,7 +237,7 @@ const MyBookingsPage = () => {
                Review resource-specific guidelines and cancellation windows.
              </p>
           </Link>
-          <Link to="/booking/support" className="mb-support-card hover:border-[#2563eb] transition-all">
+          <Link to="/dashboard/bookings/support" className="mb-support-card hover:border-[#2563eb] transition-all">
              <div className="mb-support-icon">
                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
              </div>
@@ -242,7 +246,7 @@ const MyBookingsPage = () => {
                Need help with complex facility requirements? Talk to a coordinator.
              </p>
           </Link>
-          <Link to="/booking/insights" className="mb-insight-card hover:border-[#064e3b] transition-all">
+          <Link to="/dashboard/bookings/insights" className="mb-insight-card hover:border-[#064e3b] transition-all">
              <div className="mb-insight-icon">
                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#064e3b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg>
              </div>
@@ -255,7 +259,7 @@ const MyBookingsPage = () => {
 
         {/* Floating FAB for Mobile or Bottom Right */}
         <div className="fixed bottom-10 right-10 z-50">
-           <Link to="/booking/create" className="mb-fab">
+           <Link to="/dashboard/bookings/create" className="mb-fab">
              <span className="text-xl leading-none mt-[-2px]">+</span> Create New Booking
            </Link>
         </div>

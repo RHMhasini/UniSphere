@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getAllBookings, approveBooking, rejectBooking } from "../../services/bookingService";
+import BookingTabs from "../../components/common/BookingTabs";
 import "../../styles/bookingPagesCSS/AdminBookingsPage.css";
 
 const StatusBadge = ({ status }) => {
@@ -43,6 +44,8 @@ const AdminBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("ALL BOOKINGS");
+  const [rejectionId, setRejectionId] = useState(null);
+  const [rejectionReason, setRejectionReason] = useState("");
 
   useEffect(() => {
     fetchBookings();
@@ -69,18 +72,17 @@ const AdminBookingsPage = () => {
   };
 
   const handleReject = async (id) => {
-    const reason = window.prompt("Please provide a reason for rejection:");
-    if (reason !== null) {
-      if (reason.trim() === '') {
-         alert("Rejection reason is required.");
-         return;
-      }
-      try {
-        await rejectBooking(id, reason);
-        fetchBookings();
-      } catch (error) {
-        alert(error.response?.data?.message || 'Failed to reject booking');
-      }
+    if (!rejectionReason.trim()) {
+       alert("Rejection reason is required.");
+       return;
+    }
+    try {
+      await rejectBooking(id, rejectionReason);
+      setRejectionId(null);
+      setRejectionReason("");
+      fetchBookings();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to reject booking');
     }
   };
 
@@ -145,7 +147,8 @@ const AdminBookingsPage = () => {
 
   return (
     <div className="ab-container">
-      <main className="ab-main">
+      <main className="ab-main w-full max-w-[1400px] mx-auto">
+        <BookingTabs />
         
         {/* Header Section */}
         <div className="ab-header-wrapper">
@@ -334,15 +337,46 @@ const AdminBookingsPage = () => {
                     </div>
 
                     {/* Actions */}
-                    <div className="ab-col-actions">
+                    <div className="ab-col-actions relative">
                        {booking.status === "PENDING" && (
                          <>
-                           <button onClick={() => handleApprove(booking.id)} className="ab-action-approve">
-                             Approve
-                           </button>
-                           <button onClick={() => handleReject(booking.id)} className="ab-action-reject">
-                             Reject
-                           </button>
+                           {rejectionId === booking.id ? (
+                             <div className="absolute right-0 top-1/2 -translate-y-1/2 bg-white border border-gray-200 shadow-xl rounded-xl p-3 z-50 w-64 animate-in fade-in zoom-in-95 duration-200">
+                               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Specify Reason</p>
+                               <div className="flex flex-wrap gap-1.5 mb-3">
+                                 {["Maintenance", "Capacity", "Priority Event", "Incomplete"].map(r => (
+                                   <button 
+                                     key={r}
+                                     onClick={() => setRejectionReason(r)}
+                                     className="text-[9px] font-bold px-2 py-1 bg-gray-50 text-gray-600 rounded hover:bg-gray-100 transition-colors"
+                                   >
+                                     {r}
+                                   </button>
+                                 ))}
+                               </div>
+                               <input 
+                                 autoFocus
+                                 type="text"
+                                 placeholder="Type reason..."
+                                 className="w-full px-3 py-1.5 bg-gray-50 border border-gray-100 rounded text-xs mb-3 focus:outline-none focus:ring-1 focus:ring-red-500"
+                                 value={rejectionReason}
+                                 onChange={(e) => setRejectionReason(e.target.value)}
+                               />
+                               <div className="flex gap-2">
+                                 <button onClick={() => {setRejectionId(null); setRejectionReason("");}} className="flex-1 py-1.5 text-[10px] font-bold text-gray-400 hover:text-gray-600">Cancel</button>
+                                 <button onClick={() => handleReject(booking.id)} className="flex-1 py-1.5 bg-red-500 text-white text-[10px] font-bold rounded shadow-sm hover:bg-red-600">Submit</button>
+                               </div>
+                             </div>
+                           ) : (
+                             <div className="flex gap-2">
+                               <button onClick={() => handleApprove(booking.id)} className="ab-action-approve">
+                                 Approve
+                               </button>
+                               <button onClick={() => setRejectionId(booking.id)} className="ab-action-reject">
+                                 Reject
+                               </button>
+                             </div>
+                           )}
                          </>
                        )}
                     </div>

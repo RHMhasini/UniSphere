@@ -1,3 +1,4 @@
+@reference "../../index.css";
 .ui-container {
   @apply min-h-screen bg-[#f7f8fc] text-[#0d1117] font-sans pb-20;
 }
