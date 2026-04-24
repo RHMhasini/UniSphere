@@ -265,6 +265,78 @@ public class NotificationServiceImpl implements NotificationService {
         log.info("Booking reminder sent to admins for booking: {}", booking.getId());
     }
 
+        log.info("Booking reminder sent to admins for booking: {}", booking.getId());
+    }
+
+    @Override
+    public void notifyAdminsNewTicket(com.unisphere.entity.Ticket ticket) {
+        List<User> admins = userRepository.findByRole(UserRole.ADMIN);
+        if (admins.isEmpty()) return;
+
+        String message = String.format("New ticket submitted: \"%s\" (Category: %s).", ticket.getTitle(), ticket.getCategory());
+        
+        for (User admin : admins) {
+            Map<String, Boolean> prefs = admin.getNotificationPreferences();
+            if (prefs != null && prefs.containsKey("TICKET_ALERTS") && !prefs.get("TICKET_ALERTS")) {
+                continue; 
+            }
+            
+            Notification n = new Notification();
+            n.setUserId(admin.getId());
+            n.setMessage(message);
+            n.setType("TICKET_ALERTS");
+            n.setRelatedUserId(ticket.getCreatedBy());
+            n.setIsRead(false);
+            notificationRepository.save(n);
+        }
+        log.info("Notified admins about new ticket {}", ticket.getId());
+    }
+
+    @Override
+    public void notifyUserTicketStatusChange(com.unisphere.entity.Ticket ticket, com.unisphere.enums.TicketStatus oldStatus, com.unisphere.enums.TicketStatus newStatus) {
+        User user = userRepository.findByEmail(ticket.getCreatedBy()).orElse(null);
+        if (user == null) {
+            // Creators might be stored by ID in some cases (resolveActorIdentifiers)
+            user = userRepository.findById(ticket.getCreatedBy()).orElse(null);
+        }
+        if (user == null) return;
+        
+        Map<String, Boolean> prefs = user.getNotificationPreferences();
+        if (prefs != null && prefs.containsKey("TICKET_UPDATES") && !prefs.get("TICKET_UPDATES")) {
+            return;
+        }
+        
+        Notification n = new Notification();
+        n.setUserId(user.getId());
+        n.setMessage(String.format("Ticket \"%s\" status changed from %s to %s.", ticket.getTitle(), oldStatus, newStatus));
+        n.setType("TICKET_UPDATES");
+        n.setIsRead(false);
+        notificationRepository.save(n);
+        log.info("Ticket status change notification created for user: {}", user.getEmail());
+    }
+
+    @Override
+    public void notifyTechnicianAssigned(com.unisphere.entity.Ticket ticket, String assignedTo) {
+        User tech = userRepository.findByEmail(assignedTo).orElse(null);
+        if (tech == null) {
+            tech = userRepository.findById(assignedTo).orElse(null);
+        }
+        if (tech == null) return;
+        
+        Map<String, Boolean> prefs = tech.getNotificationPreferences();
+        if (prefs != null && prefs.containsKey("TICKET_ALERTS") && !prefs.get("TICKET_ALERTS")) {
+            return; 
+        }
+        
+        Notification n = new Notification();
+        n.setUserId(tech.getId());
+        n.setMessage(String.format("You have been assigned to ticket: \"%s\".", ticket.getTitle()));
+        n.setType("TICKET_ALERTS");
+        n.setIsRead(false);
+        notificationRepository.save(n);
+        log.info("Ticket assignment notification created for technician: {}", tech.getEmail());
+    }
+
     @Override
     public NotificationPageResponse getNotifications(String userEmail, int page, int size) {
         User user = userRepository.findByEmail(userEmail)

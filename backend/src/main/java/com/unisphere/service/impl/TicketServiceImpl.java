@@ -28,6 +28,7 @@ public class TicketServiceImpl implements TicketService {
     private final TicketHistoryRepository ticketHistoryRepository;
     private final NotificationService notificationService;
     private final UserRepository userRepository;
+    private final org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     // ── Create ─────────────────────────────────────────────────────────────────
 
@@ -79,21 +80,8 @@ public class TicketServiceImpl implements TicketService {
         // Audit entry
         saveHistory(saved.getId(), null, TicketStatus.OPEN, createdBy);
 
-        // Notify the submitter
-        notificationService.createNotification(
-                saved.getCreatedBy(),
-                "Your ticket \"" + saved.getTitle() + "\" has been submitted (OPEN).",
-                NotificationType.STATUS_UPDATE.name()
-        );
-
-        // Notify assigned technician if already assigned
-        if (saved.getAssignedTo() != null && !saved.getAssignedTo().isBlank()) {
-            notificationService.createNotification(
-                    saved.getAssignedTo(),
-                    "You have been assigned a new ticket: \"" + saved.getTitle() + "\".",
-                    NotificationType.ASSIGNMENT.name()
-            );
-        }
+        // Publish event for notifications
+        eventPublisher.publishEvent(new com.unisphere.event.ticket.TicketCreatedEvent(this, saved));
 
         return mapToResponse(saved);
     }
@@ -262,14 +250,8 @@ public class TicketServiceImpl implements TicketService {
         String changedBy = (auth != null) ? auth.getName() : (req.getChangedBy() != null ? req.getChangedBy() : "system");
         saveHistory(id, oldStatus, req.getNewStatus(), changedBy);
 
-        // Notify ticket creator of status change
-        notificationService.createNotification(
-                updated.getCreatedBy(),
-                String.format("Ticket \"%s\" status changed from %s to %s.", updated.getTitle(), oldStatus, req.getNewStatus()),
-                req.getNewStatus() == TicketStatus.REJECTED
-                        ? NotificationType.REJECTED.name()
-                        : NotificationType.STATUS_UPDATE.name()
-        );
+        // Publish event for notifications
+        eventPublisher.publishEvent(new com.unisphere.event.ticket.TicketStatusChangedEvent(this, updated, oldStatus, req.getNewStatus()));
 
         return mapToResponse(updated);
     }
@@ -301,12 +283,8 @@ public class TicketServiceImpl implements TicketService {
         ticket.setAssignedTo(req.getAssignedTo());
         Ticket updated = ticketRepository.save(ticket);
 
-        // Notify technician
-        notificationService.createNotification(
-                req.getAssignedTo(),
-                "You have been assigned to ticket: \"" + updated.getTitle() + "\".",
-                NotificationType.ASSIGNMENT.name()
-        );
+        // Publish event for notifications
+        eventPublisher.publishEvent(new com.unisphere.event.ticket.TicketAssignedEvent(this, updated, req.getAssignedTo()));
 
         return mapToResponse(updated);
     }

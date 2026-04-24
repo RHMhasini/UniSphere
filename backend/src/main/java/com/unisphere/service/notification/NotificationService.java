@@ -31,6 +31,12 @@ public interface NotificationService {
 
     void notifyAdminBookingReminder(com.unisphere.booking.model.Booking booking);
 
+    void notifyAdminsNewTicket(com.unisphere.entity.Ticket ticket);
+
+    void notifyUserTicketStatusChange(com.unisphere.entity.Ticket ticket, com.unisphere.enums.TicketStatus oldStatus, com.unisphere.enums.TicketStatus newStatus);
+
+    void notifyTechnicianAssigned(com.unisphere.entity.Ticket ticket, String assignedTo);
+
     NotificationPageResponse getNotifications(String userEmail, int page, int size);
 
     List<NotificationResponse> getUnreadNotifications(String userEmail);
