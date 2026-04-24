@@ -38,4 +38,7 @@ public interface TicketService {
 
     // ── Stats (for admin dashboard) ───────────────────────────────────────────
     Map<String, Long> getStatusCounts();
+
+    /** Full ticket list including archived — ADMIN only (enforced in service). */
+    List<TicketResponse> getFullTicketRegisterForAdmin();
 }

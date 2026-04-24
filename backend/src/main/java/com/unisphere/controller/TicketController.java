@@ -29,6 +29,8 @@ import java.util.Map;
  *   PUT    /api/tickets/{id}/assign                  — assign technician
  *   GET    /api/tickets/{id}/history                 — get status change audit trail
  *   GET    /api/tickets/stats/status-counts          — count per status (admin dashboard)
+ *   GET    /api/tickets/stats/full-register          — full ticket export (ADMIN, PDF data)
+ *   GET    /api/tickets/admin/full-register          — same export (legacy path)
  */
 @RestController
 @RequestMapping("/api/tickets")
@@ -169,5 +171,23 @@ public class TicketController {
     @GetMapping("/stats/status-counts")
     public ResponseEntity<Map<String, Long>> getStatusCounts() {
         return ResponseEntity.ok(ticketService.getStatusCounts());
+    }
+
+    /**
+     * Full ticket register for PDF / reporting — includes archived and soft-deleted flags.
+     * ADMIN only (enforced in service layer).
+     * <p>Path lives under {@code /stats/} so it matches the same routing as {@link #getStatusCounts()}
+     * and avoids {@code /admin/...} being blocked by proxies or mistaken for static resources when
+     * the app is not fully redeployed.
+     */
+    @GetMapping("/stats/full-register")
+    public ResponseEntity<List<TicketResponse>> getFullTicketRegisterForAdmin() {
+        return ResponseEntity.ok(ticketService.getFullTicketRegisterForAdmin());
+    }
+
+    /** Same as {@link #getFullTicketRegisterForAdmin()} — kept for older clients. */
+    @GetMapping("/admin/full-register")
+    public ResponseEntity<List<TicketResponse>> getFullTicketRegisterForAdminLegacy() {
+        return ResponseEntity.ok(ticketService.getFullTicketRegisterForAdmin());
     }
 }

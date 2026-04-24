@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, Filter, LayoutGrid, List as ListIcon, AlertCircle } from 'lucide-react';
+import { Search, Plus, Filter, LayoutGrid, List as ListIcon, AlertCircle, FileDown } from 'lucide-react';
 import TicketCard from '../../components/tickets/TicketCard/TicketCard';
 import Button from '../../components/common/Button/Button';
 import '../../styles/ticketingPagesCSS/TicketDashboard.css';
@@ -20,7 +20,8 @@ function TicketDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
-  
+  const [exportLoading, setExportLoading] = useState(false);
+
   useEffect(() => {
     fetchTickets();
   }, []);
@@ -36,6 +37,20 @@ function TicketDashboard() {
       setError(err.message || 'Failed to fetch tickets');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExportCsv = async () => {
+    setExportLoading(true);
+    try {
+      const data = await ticketingApi.get('/tickets/stats/full-register');
+      const list = Array.isArray(data) ? data : [];
+      const { downloadTicketsCsv } = await import('../../utils/ticketReportCsv');
+      downloadTicketsCsv(list);
+    } catch (err) {
+      alert(err.message || 'Could not download CSV report. Ensure you are signed in as an administrator.');
+    } finally {
+      setExportLoading(false);
     }
   };
 
@@ -69,6 +84,11 @@ function TicketDashboard() {
           <p className="dashboard-subtitle">Manage campus facility, software, and hardware requests.</p>
         </div>
         <div className="dashboard-actions">
+          {isAdmin && (
+            <Button variant="outline" onClick={handleExportCsv} disabled={exportLoading}>
+              <FileDown size={18} /> {exportLoading ? 'Preparing CSV…' : 'Download CSV report'}
+            </Button>
+          )}
           <Button variant={showAdvancedFilters ? "primary" : "outline"} onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}>
             <Filter size={18} /> {showAdvancedFilters ? 'Hide Filters' : 'Filter'}
           </Button>

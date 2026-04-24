@@ -433,6 +433,24 @@ public class TicketServiceImpl implements TicketService {
         return counts;
     }
 
+    @Override
+    public List<TicketResponse> getFullTicketRegisterForAdmin() {
+        org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getAuthorities() == null || auth.getAuthorities().isEmpty()) {
+            throw new com.unisphere.exception.UnauthorizedAccessException("Authentication required.");
+        }
+        String role = auth.getAuthorities().iterator().next().getAuthority();
+        if (!"ADMIN".equals(role)) {
+            throw new com.unisphere.exception.UnauthorizedAccessException(
+                    "Only administrators can export the full ticket register.");
+        }
+        return ticketRepository.findAll().stream()
+                .sorted(Comparator.comparing(Ticket::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
     // ── Private helpers ────────────────────────────────────────────────────────
 
     private Ticket findOrThrow(String id) {
