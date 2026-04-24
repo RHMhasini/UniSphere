@@ -12,10 +12,6 @@ dist
 dist-ssr
 *.local
 
-# Env files (never commit secrets)
-.env
-.env.*
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -27,7 +23,16 @@ dist-ssr
 *.sln
 *.sw?
 
-# Local database and build artifacts
-.mongo-data/
-.logs/
-.m2/
+# Environment / Secrets - NEVER commit these
+.env
+.env.local
+.env.production
+backend/.env
+backend/src/main/resources/application.properties
+
+# Config files containing secrets
+GEMINI.md
+gemini.md
+
+# Maven build output
+backend/target/

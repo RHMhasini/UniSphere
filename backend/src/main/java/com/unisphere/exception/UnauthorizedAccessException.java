@@ -1,10 +1,9 @@
 package com.unisphere.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
-@ResponseStatus(HttpStatus.FORBIDDEN)
-public class UnauthorizedAccessException extends RuntimeException {
+/**
+ * Exception thrown for unauthorized access
+ */
+public class UnauthorizedAccessException extends ApplicationException {
     public UnauthorizedAccessException(String message) {
         super(message);
     }

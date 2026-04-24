@@ -1,0 +1,23 @@
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-main);
+  color: var(--text-main);
+}
+
+.dashboard-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-content {
+  padding: 2rem;
+  flex: 1;
+  background: #f8fafc;
+}
+
+/* For dark mode if needed */
+[data-theme='dark'] .dashboard-content {
+  background: #0f172a;
+}

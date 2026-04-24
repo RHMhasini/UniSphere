@@ -1,51 +1,174 @@
-/* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState } from 'react';
-
-// MOCK USERS matching our MongoDB Seeder data
-export const MOCK_USERS = [
-  { id: 'u1001', name: 'Nimal Perera', role: 'STUDENT', email: 'nimal.perera@university.edu' },
-  { id: 'u1002', name: 'Kasun Silva', role: 'LECTURER', email: 'kasun.silva@university.edu' },
-  { id: 'u1003', name: 'Chathura Jayasinghe', role: 'TECHNICIAN', email: 'chathura.tech@university.edu' },
-  { id: 'u1004', name: 'Amali Fernando', role: 'TECHNICIAN', email: 'amali.tech@university.edu' },
-  { id: 'u1005', name: 'Admin User', role: 'ADMIN', email: 'admin@university.edu' }
-];
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { authAPI } from '../services/api';
+import { decodeToken } from '../utils/jwtUtils';
 
 const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
-  // Initialize from localStorage if available, else default to first mock user
-  const [currentUser, setCurrentUser] = useState(() => {
-    const saved = localStorage.getItem('unisphere_auth');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return MOCK_USERS[0];
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const logout = useCallback(async () => {
+    try {
+      await authAPI.logout();
+    } catch (err) {
+      console.error('Logout error:', err);
+    } finally {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      setUser(null);
+    }
+  }, []);
+
+  const fetchCurrentUser = useCallback(async () => {
+    try {
+      const response = await authAPI.getCurrentUser();
+      // The API returns an ApiResponse, so the actual user profile is in response.data.data
+      const userData = response.data?.data || response.data; 
+      
+      const token = localStorage.getItem('accessToken');
+      const decoded = decodeToken(token);
+      
+      setUser({
+        ...userData,
+        role: userData.role || decoded?.role || 'STUDENT'
+      });
+      setError(null);
+    } catch (err) {
+      console.error('Failed to fetch current user:', err);
+      // Only fully logout if there's no token at all (truly unauthenticated)
+      // Don't logout on temporary network errors when user data may already be set
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        logout();
       }
+    } finally {
+      setLoading(false);
     }
-    return null; // Start as null to force login page if no session
-  });
+  }, [logout]);
 
-  const switchUser = (userId) => {
-    const user = MOCK_USERS.find(u => u.id === userId);
-    if (user) {
-      setCurrentUser(user);
-      localStorage.setItem('unisphere_auth', JSON.stringify(user));
+  // Initialize from localStorage on mount
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      fetchCurrentUser();
+    } else {
+      setLoading(false);
     }
-  };
+  }, [fetchCurrentUser]);
 
-  const logout = () => {
-    setCurrentUser(null);
-    localStorage.removeItem('unisphere_auth');
-  };
+  const setTokens = useCallback((accessToken, refreshToken, registrationStatus) => {
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+    
+    // Decode and set initial user data immediately before fetching
+    const decoded = decodeToken(accessToken);
+    if (decoded) {
+      setUser({
+        email: decoded.sub || decoded.email,
+        role: decoded.role || 'STUDENT',
+        registrationStatus: registrationStatus || 'PENDING_DETAILS'
+      });
+    }
+    
+    fetchCurrentUser();
+  }, [fetchCurrentUser]);
+
+  const updateProfile = useCallback(async (profileData) => {
+    try {
+      setLoading(true);
+      const response = await authAPI.updateProfile(profileData);
+      setUser(response.data);
+      setError(null);
+      return response.data;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const deleteAccount = useCallback(async () => {
+    try {
+      setLoading(true);
+      await authAPI.deleteAccount();
+      logout();
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [logout]);
+
+  const googleLogin = useCallback(() => {
+    window.location.href = 'http://localhost:8081/api/oauth2/authorization/google';
+  }, []);
+
+  const login = useCallback(async (credentials) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await authAPI.login(credentials);
+      const { accessToken, refreshToken, registrationStatus } = response.data;
+      setTokens(accessToken, refreshToken, registrationStatus);
+      return response.data;
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [setTokens]);
+
+  const register = useCallback(async (details) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await authAPI.register(details);
+      const { accessToken, refreshToken, registrationStatus } = response.data;
+      if (accessToken && refreshToken) {
+        setTokens(accessToken, refreshToken, registrationStatus);
+      }
+      return response.data;
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [setTokens]);
+
+  const isAuthenticated = !!user;
 
   return (
-    <AuthContext.Provider value={{ currentUser, switchUser, logout, MOCK_USERS }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        error,
+        isAuthenticated,
+        logout,
+        login,
+        register,
+        updateProfile,
+        deleteAccount,
+        setTokens,
+        googleLogin,
+        fetchCurrentUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth() {
-  return useContext(AuthContext);
-}
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
