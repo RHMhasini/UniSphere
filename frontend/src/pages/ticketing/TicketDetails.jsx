@@ -48,6 +48,7 @@ function TicketDetails() {
   // Comment edit states
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingCommentText, setEditingCommentText] = useState('');
+  const [lightboxSrc, setLightboxSrc] = useState(null);
 
   const fetchTicketData = useCallback(async () => {
     try {
@@ -79,6 +80,20 @@ function TicketDetails() {
   useEffect(() => {
     fetchTicketData();
   }, [fetchTicketData]);
+
+  useEffect(() => {
+    if (!lightboxSrc) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e) => {
+      if (e.key === 'Escape') setLightboxSrc(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [lightboxSrc]);
 
   // Status Upgrade Actions
   const handleStatusChange = async (newStatus) => {
@@ -247,26 +262,30 @@ function TicketDetails() {
             {ticket.attachments && ticket.attachments.length > 0 && (
               <div className="attachments-list">
                 <h4>Evidence Attachments ({ticket.attachments.length})</h4>
+                <p className="attachments-hint">Thumbnails — click an image to view it full size.</p>
                 <div className="file-grid">
                   {ticket.attachments.map((att, idx) => {
                     const isBase64Img = typeof att === 'string' && att.startsWith('data:image/');
                     const isUrl = typeof att === 'string' && /^https?:\/\//i.test(att);
                     const canPreviewImg = isBase64Img || isUrl;
-                    const href = isBase64Img ? att : (isUrl ? att : null);
                     return (
                       <div key={idx} className="file-item">
                         {canPreviewImg ? (
-                           <img src={att} alt={`Attachment ${idx+1}`} />
+                          <button
+                            type="button"
+                            className="file-item__thumb-btn"
+                            onClick={() => setLightboxSrc(att)}
+                            aria-label={`View attachment ${idx + 1} full size`}
+                            title="View full size"
+                          >
+                            <img src={att} alt={`Evidence attachment ${idx + 1}`} />
+                          </button>
                         ) : (
                           <div className="doc-icon">
                             <FileText size={48} />
-                            <span>{att}</span>
+                            <span>{String(att)}</span>
+                            <span className="doc-icon__note">No image preview</span>
                           </div>
-                        )}
-                        {href ? (
-                          <a href={href} target="_blank" rel="noreferrer" className="view-link">View Full</a>
-                        ) : (
-                          <span className="view-link" style={{ opacity: 0.7 }}>No preview</span>
                         )}
                       </div>
                     );
@@ -437,6 +456,34 @@ function TicketDetails() {
           </div>
         </div>
       </div>
+
+      {lightboxSrc && (
+        <div
+          className="attachment-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Full size attachment"
+          onClick={() => setLightboxSrc(null)}
+        >
+          <button
+            type="button"
+            className="attachment-lightbox__close"
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightboxSrc(null);
+            }}
+            aria-label="Close preview"
+          >
+            <X size={28} />
+          </button>
+          <div
+            className="attachment-lightbox__frame"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img src={lightboxSrc} alt="Full size evidence attachment" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
