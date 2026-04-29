@@ -1,33 +1,58 @@
 # UniSphere - Frontend Application
 
-This is the frontend interface for the UniSphere system. It is responsible for the UI, state management, and communicating with the backend APIs.
+This is the React-based frontend for the UniSphere system. It provides a dynamic, responsive interface for users and administrators.
 
-## How to Run
+---
 
-1. Open your terminal and navigate to the `frontend` folder.
-2. Install the necessary dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the Vite development server:
-   ```bash
-   npm run dev
-   ```
-4. Access the application via the link provided in the terminal (usually `http://localhost:5173`).
+## 🛠️ Tech Stack
+- **Framework**: React 19 + Vite
+- **Styling**: Tailwind CSS
+- **State Management**: React Context API / Hooks
+- **Navigation**: React Router DOM
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+- **PDF Generation**: jsPDF
 
-## Key Technology Stack
-- React 19 + Vite
-- Tailwind CSS (For styling)
-- React Router DOM (For navigation)
-- Axios (For API calls)
-- Framer Motion (For animations)
-- jsPDF & jsPDF-AutoTable (For PDF exports)
-- Lucide React (For icons)
+## 📋 Prerequisites
+- **Node.js** (v18.0.0 or higher recommended)
+- **npm** (comes with Node.js)
 
-## Main Features (My Module)
-- **Authentication**: Google OAuth login integration.
-- **Role-Based Workflows**: Separate views and access rules for Students, Lecturers, Technicians, and Admins.
-- **Profile Management**: Profile updating with photo uploads and dependent dropdowns.
-- **Admin Dashboard**: Manage users, filter by role, accept/reject pending users, toggle active status, and export user reports to PDF.
-- **Notifications**: See real-time alerts and user-centric notifications.
+## 🚀 Getting Started
 
+### 1. Install Dependencies
+Open your terminal in the `frontend` folder and run:
+```bash
+npm install
+```
+
+### 2. Run Development Server
+```bash
+npm run dev
+```
+
+The application will be available at: `http://localhost:5173`
+
+---
+
+## 🌟 Project Modules
+
+### 1. Authentication and Notification Module
+- **Google OAuth2**: Seamless login with automatic role detection.
+- **User Dashboard**: Personalized views for different user roles.
+- **Notifications**: Real-time toast alerts and activity center.
+- **Admin Panel**: Tools to manage users, approve staff, and export PDF reports.
+
+### 2. Booking Pages
+- **Interactive Booking**: User-friendly forms for reserving resources.
+- **Calendar/Slot Selection**: Visual representation of available time slots.
+- **Booking History**: Track all past and upcoming reservations.
+
+### 3. Resource/Facility Management
+- **Resource Gallery**: Browse available campus resources with images.
+- **Management UI**: Admin tools to add, edit, or remove campus facilities.
+- **Image Uploads**: Integrated image handling via Cloudinary.
+
+### 4. Ticketing System
+- **Support Portal**: UI for creating and managing support tickets.
+- **Interaction Hub**: Commenting system for tickets and resources.
+- **Status Visuals**: Clear indicators for ticket progress.
